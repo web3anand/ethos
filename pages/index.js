@@ -1,9 +1,6 @@
-import Head from 'next/head';
-import Navbar from '../components/Navbar';
-import SearchBar from '../components/SearchBar';
-import UserResults from '../components/UserResults';
 import { useState } from 'react';
-import fetchUserData from '../utils/ethosApi';
+import Head from 'next/head';
+import { fetchUserByTwitter } from '../lib/ethos';
 
 export default function Home() {
   const [username, setUsername] = useState('');
@@ -16,11 +13,15 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchUserData(username);
-      setUserData(data);
+      const data = await fetchUserByTwitter(username.trim());
+      if (data === null) {
+        setError('User not found');
+        setUserData(null);
+      } else {
+        setUserData(data);
+      }
     } catch (err) {
-      console.error(err);
-      setError('User not found or API error.');
+      setError(err.message || 'An error occurred');
       setUserData(null);
     } finally {
       setLoading(false);
@@ -28,34 +29,125 @@ export default function Home() {
   };
 
   return (
-    <>
+    <div className="container">
       <Head>
-        <title>Ethos Network Explorer</title>
-        <meta
-          name="description"
-          content="Explore decentralized reputation on Ethos Network"
-        />
+        <title>Ethos Search</title>
       </Head>
-      <div className="min-h-screen bg-gradient-to-b from-sky-100 to-white">
-        <Navbar />
-        <main className="flex flex-col items-center justify-start py-10 px-4">
-          <h1 className="text-3xl sm:text-5xl font-bold text-center mb-6">
-            Decentralizing trust & reputation.
-          </h1>
-          <SearchBar
-            username={username}
-            setUsername={setUsername}
-            onSearch={handleSearch}
-            loading={loading}
-          />
-          {error && (
-            <p className="text-red-500 mt-4" data-testid="error-message">
-              {error}
-            </p>
-          )}
-          {userData && <UserResults data={userData} />}
-        </main>
+      <h1>Ethos Search</h1>
+      <div className="search-form">
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Twitter handle"
+        />
+        <button onClick={handleSearch} disabled={loading}>
+          {loading ? 'Loading...' : 'Search'}
+        </button>
       </div>
-    </>
+      {error && <p className="error">{error}</p>}
+      {userData && (
+        <div className="user-card">
+          <img className="avatar" src={userData.avatarUrl} alt="avatar" />
+          <h2>
+            {userData.displayName}{' '}
+            <span className="username">@{userData.username}</span>
+          </h2>
+          <ul>
+            <li>Score: {userData.score}</li>
+            <li>XP: {userData.xp.total}</li>
+            <li>XP Streak Days: {userData.xp.streakDays}</li>
+            <li>
+              Reviews Received: {userData.reviews.positive} positive,{' '}
+              {userData.reviews.neutral} neutral, {userData.reviews.negative}{' '}
+              negative
+            </li>
+            <li>
+              Vouches: {userData.vouches.given} given, {userData.vouches.received}{' '}
+              received
+            </li>
+          </ul>
+          <a
+            className="ethos-link"
+            href={userData.links.profile}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View on Ethos
+          </a>
+        </div>
+      )}
+      <style jsx>{`
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 2rem;
+          text-align: center;
+        }
+        .search-form {
+          display: flex;
+          justify-content: center;
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+        }
+        input {
+          flex: 1;
+          padding: 0.5rem;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+        }
+        button {
+          padding: 0.5rem 1rem;
+          border: none;
+          background: #0ea5e9;
+          color: #fff;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        button:disabled {
+          opacity: 0.6;
+        }
+        .error {
+          color: #dc2626;
+          margin-bottom: 1rem;
+        }
+        .user-card {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
+          background: #fff;
+          padding: 1.5rem;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .avatar {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+        .username {
+          color: #555;
+        }
+        ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          text-align: left;
+        }
+        li {
+          margin: 0.25rem 0;
+        }
+        .ethos-link {
+          margin-top: 0.5rem;
+          background: #0ea5e9;
+          color: #fff;
+          padding: 0.5rem 1rem;
+          border-radius: 4px;
+          text-decoration: none;
+        }
+      `}</style>
+    </div>
   );
 }
