@@ -1,0 +1,78 @@
+.cardWrapper {
+  position: relative;
+  max-width: 640px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #e0f2fe;
+  border-radius: 16px;
+  font-family: sans-serif;
+}
+
+.loadingBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background: #0ea5e9;
+  transition: width 0.3s ease;
+}
+
+.searchRow {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  background: #0ea5e9;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #dc2626;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.dataCard {
+  text-align: left;
+}
+
+.section {
+  margin-top: 1rem;
+}
+
+.sectionTitle {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.dl {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  column-gap: 0.5rem;
+  row-gap: 0.25rem;
+  margin: 0;
+}
+.dl dt {
+  font-weight: bold;
+}
+.dl dd {
+  margin: 0;
+}
