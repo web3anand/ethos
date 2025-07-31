@@ -3,7 +3,10 @@ import Navbar from '../components/Navbar';
 import SearchBar from '../components/SearchBar';
 import UserResults from '../components/UserResults';
 import { useState } from 'react';
+import fetchEthosUserByTwitter from '../utils/ethosApi';
+
 import fetchUserData from '../utils/ethosApi';
+
 
 export default function Home() {
   const [username, setUsername] = useState('');
@@ -16,7 +19,9 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
+      const data = await fetchEthosUserByTwitter(username);
       const data = await fetchUserData(username);
+
       setUserData(data);
     } catch (err) {
       console.error(err);
