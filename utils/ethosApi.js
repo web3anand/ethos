@@ -1,5 +1,4 @@
 import axios from 'axios';
-
 /**
  * Fetch an Ethos user record by Twitter handle, refreshing the data if it does
  * not already exist.
@@ -42,4 +41,11 @@ export default async function fetchEthosUserByTwitter(handle) {
 
     throw err;
   }
+
+export default async function fetchUserData(username) {
+  const url = `https://api.ethos.network/api/v2/users?twitter=${encodeURIComponent(
+    username
+  )}`;
+  const response = await axios.get(url);
+  return response.data;
 }
