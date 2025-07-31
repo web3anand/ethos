@@ -9,8 +9,6 @@ import styles from '../styles/Home.module.css';
 export default function Home() {
   const [username, setUsername] = useState('');
   const [userData, setUserData] = useState(null);
-  const [addresses, setAddresses] = useState([]);
-  const [ethPrice, setEthPrice] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -18,25 +16,29 @@ export default function Home() {
     if (!username) return;
     setLoading(true);
     setError(null);
+    setUserData(null);
     try {
-      const data = await fetchUserByTwitter(username.trim());
-      if (!data) {
+      // 1) Look up the user via the v2 API
+      const user = await fetchUserByTwitter(username.trim());
+      if (!user) {
         setError('User not found');
-        setUserData(null);
-        setAddresses([]);
-        setEthPrice(null);
-      } else {
-        setUserData(data);
-        const addrList = await fetchUserAddresses(data.profileId);
-        setAddresses(addrList);
-        const price = await fetchExchangeRate();
-        setEthPrice(price);
+        return;
       }
+
+      // 2) Fetch addresses and exchange rate in parallel
+      const [addresses, ethPrice] = await Promise.all([
+        fetchUserAddresses(user.profileId),
+        fetchExchangeRate(),
+      ]);
+
+      // 3) Combine into one object so the card renders once
+      setUserData({
+        ...user,
+        addresses,
+        ethPrice,
+      });
     } catch (err) {
-      setError(err.message || 'An error occurred');
-      setUserData(null);
-      setAddresses([]);
-      setEthPrice(null);
+      setError(err.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -91,21 +93,21 @@ export default function Home() {
               <dt>Score</dt><dd>{userData.score}</dd>
               <dt>XP Total</dt><dd>{xpTotal}</dd>
               <dt>XP Streak Days</dt><dd>{xpStreakDays}</dd>
-              {ethPrice !== null && (
+              {userData.ethPrice !== null && (
                 <>
                   <dt>ETH Price (USD)</dt>
-                  <dd>${Number(ethPrice).toFixed(2)}</dd>
+                  <dd>${Number(userData.ethPrice).toFixed(2)}</dd>
                 </>
               )}
             </dl>
           </div>
 
-          {addresses.length > 0 && (
+          {userData.addresses?.length > 0 && (
             <div className={styles.subContainer}>
               <div className={styles.sectionTitle}>Address</div>
               <dl className={styles.dl}>
                 <dt>Primary Address</dt>
-                <dd>{addresses[0]?.address}</dd>
+                <dd>{userData.addresses[0]?.address}</dd>
               </dl>
             </div>
           )}
