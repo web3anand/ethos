@@ -1,10 +1,15 @@
 import { useState } from 'react';
-import { fetchUserByTwitter, fetchExchangeRate } from '../lib/ethos';
+import {
+  fetchUserByTwitter,
+  fetchExchangeRate,
+  fetchUserAddresses,
+} from '../lib/ethos';
 import styles from '../styles/Home.module.css';
 
 export default function Home() {
   const [username, setUsername] = useState('');
   const [userData, setUserData] = useState(null);
+  const [addresses, setAddresses] = useState([]);
   const [ethPrice, setEthPrice] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -22,14 +27,18 @@ export default function Home() {
         setError('User not found');
         setUserData(null);
         setEthPrice(null);
+        setAddresses([]);
       } else {
         setUserData(user);
         setEthPrice(price);
+        const addr = await fetchUserAddresses(user.profileId);
+        setAddresses(addr);
       }
     } catch (err) {
       setError(err.message || 'An error occurred');
       setUserData(null);
       setEthPrice(null);
+      setAddresses([]);
     } finally {
       setLoading(false);
     }
@@ -74,41 +83,82 @@ export default function Home() {
               <div className={styles.handle}>@{userData.username}</div>
             </div>
           </div>
+
           <div className={styles.subContainer}>
-            <div>ID: {userData.id}</div>
-            <div>Profile ID: {userData.profileId}</div>
-            <div>Status: {userData.status}</div>
-            <div>Score: {userData.score}</div>
-            <div>XP Total: {xpTotal}</div>
-            <div>XP Streak Days: {xpStreakDays}</div>
-            {ethPrice !== null && <div>ETH ${ethPrice}</div>}
+            <div className={styles.sectionTitle}>Main Stats</div>
+            <dl className={styles.dl}>
+              <dt>ID</dt><dd>{userData.id}</dd>
+              <dt>Profile ID</dt><dd>{userData.profileId}</dd>
+              <dt>Status</dt><dd>{userData.status}</dd>
+              <dt>Score</dt><dd>{userData.score}</dd>
+              <dt>XP Total</dt><dd>{xpTotal}</dd>
+              <dt>XP Streak Days</dt><dd>{xpStreakDays}</dd>
+              {ethPrice !== null && (
+                <>
+                  <dt>ETH Price (USD)</dt>
+                  <dd>${ethPrice}</dd>
+                </>
+              )}
+            </dl>
           </div>
+
+          <div className={styles.subContainer}>
+            <div className={styles.sectionTitle}>Address</div>
+            <dl className={styles.dl}>
+              <dt>Primary Address</dt>
+              <dd>{addresses[0]?.address || addresses[0] || 'N/A'}</dd>
+            </dl>
+          </div>
+
           {reviewReceived && (
             <div className={styles.subContainer}>
-              <div>Reviews Received</div>
-              <div>Positive: {reviewReceived.positive?.count ?? 0}</div>
-              <div>Neutral: {reviewReceived.neutral?.count ?? 0}</div>
-              <div>Negative: {reviewReceived.negative?.count ?? 0}</div>
+              <div className={styles.sectionTitle}>Reviews Received</div>
+              <dl className={styles.dl}>
+                <dt>Positive</dt>
+                <dd>{reviewReceived.positive?.count ?? 0}</dd>
+                <dt>Neutral</dt>
+                <dd>{reviewReceived.neutral?.count ?? 0}</dd>
+                <dt>Negative</dt>
+                <dd>{reviewReceived.negative?.count ?? 0}</dd>
+              </dl>
             </div>
           )}
+
           {reviewMade && (
             <div className={styles.subContainer}>
-              <div>Reviews Made</div>
-              <div>Positive: {reviewMade.positive?.count ?? 0}</div>
-              <div>Neutral: {reviewMade.neutral?.count ?? 0}</div>
-              <div>Negative: {reviewMade.negative?.count ?? 0}</div>
+              <div className={styles.sectionTitle}>Reviews Made</div>
+              <dl className={styles.dl}>
+                <dt>Positive</dt>
+                <dd>{reviewMade.positive?.count ?? 0}</dd>
+                <dt>Neutral</dt>
+                <dd>{reviewMade.neutral?.count ?? 0}</dd>
+                <dt>Negative</dt>
+                <dd>{reviewMade.negative?.count ?? 0}</dd>
+              </dl>
             </div>
           )}
+
           {vouchGiven && (
             <div className={styles.subContainer}>
-              <div>Vouches Given: {vouchGiven.count ?? 0}</div>
-              <div>{formatWeiToEth(vouchGiven.amountWeiTotal ?? 0)} ETH</div>
+              <div className={styles.sectionTitle}>Vouches Given</div>
+              <dl className={styles.dl}>
+                <dt>Count</dt>
+                <dd>{vouchGiven.count ?? 0}</dd>
+                <dt>Total ETH</dt>
+                <dd>{formatWeiToEth(vouchGiven.amountWeiTotal ?? 0)} ETH</dd>
+              </dl>
             </div>
           )}
+
           {vouchReceived && (
             <div className={styles.subContainer}>
-              <div>Vouches Received: {vouchReceived.count ?? 0}</div>
-              <div>{formatWeiToEth(vouchReceived.amountWeiTotal ?? 0)} ETH</div>
+              <div className={styles.sectionTitle}>Vouches Received</div>
+              <dl className={styles.dl}>
+                <dt>Count</dt>
+                <dd>{vouchReceived.count ?? 0}</dd>
+                <dt>Total ETH</dt>
+                <dd>{formatWeiToEth(vouchReceived.amountWeiTotal ?? 0)} ETH</dd>
+              </dl>
             </div>
           )}
         </div>
