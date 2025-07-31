@@ -1,68 +1,69 @@
 .container {
-  max-width: 600px;
-  margin: 0 auto;
+  min-height: 100vh;
   padding: 2rem;
-  text-align: center;
+  background: #080808;
+  color: #e5e5e5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   font-family: sans-serif;
 }
 
-.title {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
+.topBar {
+  text-align: center;
+  margin-bottom: 1.5rem;
 }
 
-.searchContainer {
+.topBar h1 {
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #ff3be7;
+}
+
+.searchBox {
   display: flex;
   justify-content: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
 }
-
-.input {
-  flex: 1;
+.searchBox input {
   padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(6px);
-  color: inherit;
+  border: 1px solid #444;
+  background: #111;
+  color: #fff;
 }
-.input:focus {
+.searchBox input:focus {
   outline: none;
   border-color: #0ea5e9;
 }
-
-.button {
+.searchBox button {
   padding: 0.5rem 1rem;
-  border: none;
   border-radius: 8px;
-  background: rgba(14, 165, 233, 0.8);
+  border: none;
+  background: #ff3be7;
   color: #fff;
   cursor: pointer;
-  backdrop-filter: blur(6px);
 }
-.button:hover:not(:disabled) {
-  background: rgba(14, 165, 233, 1);
-}
-.button:disabled {
+.searchBox button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
 .error {
-  color: #dc2626;
+  color: #f87171;
   margin-bottom: 1rem;
+  text-align: center;
 }
 
-.userCard {
-  margin-top: 1rem;
-  padding: 1.5rem;
+.profileCard {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #ff3be7;
+  box-shadow: 0 0 8px #ff3be7;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 500px;
 }
 
 .header {
@@ -71,45 +72,84 @@
   gap: 1rem;
   margin-bottom: 1rem;
 }
-
 .avatar {
   width: 80px;
   height: 80px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(255, 255, 255, 0.6);
+  border: 2px solid #ff3be7;
 }
-
-.name {
+.userName {
   font-size: 1.5rem;
-  font-weight: 600;
+  color: #ff3be7;
+  font-weight: bold;
 }
-
 .handle {
-  color: #555;
+  color: #0ff;
 }
 
-.subContainer {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.statCard {
+  background: rgba(0, 0, 0, 0.4);
   padding: 0.75rem;
-  margin-top: 0.75rem;
-}
-
-.sectionTitle {
-  font-weight: 600;
+  border-radius: 12px;
   text-align: center;
-  margin-bottom: 0.5rem;
+}
+.statCard span {
+  display: block;
+  font-size: 1.25rem;
+}
+.statValueGreen { color: #22c55e; }
+.statValueRed { color: #ef4444; }
+.statValuePink { color: #ff3be7; }
+.statValueGold { color: gold; }
+
+.buttonRow {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+.actionButton {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+.actionButton:first-child {
+  background: linear-gradient(90deg, #ff3be7, #8e2de2);
+}
+.actionButton:last-child {
+  background: linear-gradient(90deg, #0ea5e9, #06d6a0);
 }
 
-.dl {
+.snapshotCard {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+.dlStriped {
   display: grid;
   grid-template-columns: max-content 1fr;
-  gap: 0.25rem 1rem;
 }
-.dl dt {
-  font-weight: 600;
+.dlStriped dt,
+.dlStriped dd {
+  padding: 0.25rem 0.5rem;
 }
-.dl dd {
-  margin: 0;
+.dlStriped dt {
+  font-weight: bold;
+}
+.dlStriped > :nth-child(4n-3),
+.dlStriped > :nth-child(4n-2) {
+  background: rgba(255, 255, 255, 0.05);
 }
