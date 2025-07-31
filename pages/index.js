@@ -1,10 +1,15 @@
 import { useState } from 'react';
-import { fetchUserByTwitter, fetchExchangeRate } from '../lib/ethos';
+import {
+  fetchUserByTwitter,
+  fetchExchangeRate,
+  fetchUserAddresses,
+} from '../lib/ethos';
 import styles from '../styles/Home.module.css';
 
 export default function Home() {
   const [username, setUsername] = useState('');
   const [userData, setUserData] = useState(null);
+  const [addresses, setAddresses] = useState([]);
   const [ethPrice, setEthPrice] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -14,21 +19,23 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
-      const [user, price] = await Promise.all([
-        fetchUserByTwitter(username.trim()),
-        fetchExchangeRate(),
-      ]);
-      if (!user) {
+      const data = await fetchUserByTwitter(username.trim());
+      if (!data) {
         setError('User not found');
         setUserData(null);
+        setAddresses([]);
         setEthPrice(null);
       } else {
-        setUserData(user);
+        setUserData(data);
+        const addrList = await fetchUserAddresses(data.profileId);
+        setAddresses(addrList);
+        const price = await fetchExchangeRate();
         setEthPrice(price);
       }
     } catch (err) {
       setError(err.message || 'An error occurred');
       setUserData(null);
+      setAddresses([]);
       setEthPrice(null);
     } finally {
       setLoading(false);
@@ -92,6 +99,16 @@ export default function Home() {
               )}
             </dl>
           </div>
+
+          {addresses.length > 0 && (
+            <div className={styles.subContainer}>
+              <div className={styles.sectionTitle}>Address</div>
+              <dl className={styles.dl}>
+                <dt>Primary Address</dt>
+                <dd>{addresses[0]?.address}</dd>
+              </dl>
+            </div>
+          )}
 
 
           {reviewReceived && (
