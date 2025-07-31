@@ -40,7 +40,9 @@ export default function EthosProfileCard() {
       ]);
       const addrJson = await addrRes.json();
       const priceJson = await priceRes.json();
-      const address = Array.isArray(addrJson) && addrJson[0] ? addrJson[0].address : null;
+      const address = Array.isArray(addrJson) && addrJson[0]
+        ? addrJson[0].address
+        : null;
       const ethPrice = priceJson?.price ?? null;
       setData({
         id,
