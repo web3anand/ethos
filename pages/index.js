@@ -38,6 +38,14 @@ export default function Home() {
   const vouchStats = userData?.stats?.vouch;
   const vouchesGiven = vouchStats?.given?.count ?? 0;
   const vouchesReceived = vouchStats?.received?.count ?? 0;
+  const vouchGivenWei = vouchStats?.given?.amountWeiTotal ?? 0;
+  const vouchReceivedWei = vouchStats?.received?.amountWeiTotal ?? 0;
+
+  // XP totals may exist at top level or nested inside `xp`
+  const xpTotal =
+    userData?.xpTotal ?? userData?.xp?.total ?? userData?.xp_total;
+  const xpStreakDays =
+    userData?.xpStreakDays ?? userData?.xp?.streakDays ?? userData?.xp_streakDays;
 
   return (
     <div className="container">
@@ -65,34 +73,85 @@ export default function Home() {
             {userData?.displayName}{' '}
             <span className="username">@{userData?.username}</span>
           </h2>
+          {userData?.description && <p className="description">{userData.description}</p>}
           <ul>
+            <li>ID: {userData?.id}</li>
+            <li>Profile ID: {userData?.profileId}</li>
+            <li>Status: {userData?.status}</li>
+            <li>Userkeys: {userData?.userkeys?.join(', ')}</li>
             <li>Score: {userData?.score}</li>
-            <li>XP: {userData?.xp?.total}</li>
-            <li>XP Streak Days: {userData?.xp?.streakDays}</li>
-
-            {/* Conditionally render reviews section */}
+            <li>XP Total: {xpTotal}</li>
+            <li>XP Streak Days: {xpStreakDays}</li>
             {reviewStats && (
               <li>
                 Reviews Received: {positive} positive, {neutral} neutral, {negative}{' '}
                 negative (total {totalReviews})
               </li>
             )}
-
-            {/* Conditionally render vouch section */}
             {vouchStats && (
+              <>
+                <li>
+                  Vouches Given: {vouchesGiven} (total {vouchGivenWei} wei)
+                </li>
+                <li>
+                  Vouches Received: {vouchesReceived} (total {vouchReceivedWei} wei)
+                </li>
+              </>
+            )}
+            <li>
+              <a
+                className="ethos-link"
+                href={userData?.links?.profile}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View on Ethos
+              </a>
+            </li>
+            {userData?.links?.scoreBreakdown && (
               <li>
-                Vouches: {vouchesGiven} given, {vouchesReceived} received
+                <a
+                  className="ethos-link"
+                  href={userData.links.scoreBreakdown}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Score Breakdown
+                </a>
               </li>
             )}
           </ul>
-          <a
-            className="ethos-link"
-            href={userData?.links?.profile}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View on Ethos
-          </a>
+
+          {/* Display any additional top-level fields generically */}
+          {(() => {
+            const knownKeys = [
+              'id',
+              'profileId',
+              'displayName',
+              'username',
+              'description',
+              'status',
+              'avatarUrl',
+              'userkeys',
+              'score',
+              'xpTotal',
+              'xpStreakDays',
+              'xp',
+              'links',
+              'stats',
+            ];
+            return (
+              <ul className="additional">
+                {Object.entries(userData)
+                  .filter(([k]) => !knownKeys.includes(k))
+                  .map(([k, v]) => (
+                    <li key={k}>
+                      <strong>{k}:</strong> {typeof v === 'object' ? JSON.stringify(v) : String(v)}
+                    </li>
+                  ))}
+              </ul>
+            );
+          })()}
         </div>
       )}
       <style jsx>{`
@@ -153,6 +212,15 @@ export default function Home() {
           padding: 0;
           margin: 0;
           text-align: left;
+        }
+        .description {
+          margin: 0.5rem 0;
+          color: #444;
+        }
+        .additional {
+          margin-top: 1rem;
+          padding-top: 0.5rem;
+          border-top: 1px solid #eee;
         }
         li {
           margin: 0.25rem 0;
