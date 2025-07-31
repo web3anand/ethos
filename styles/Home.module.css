@@ -6,7 +6,13 @@
   font-family: sans-serif;
 }
 
-.searchForm {
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.searchContainer {
   display: flex;
   justify-content: center;
   gap: 0.5rem;
@@ -65,6 +71,7 @@
   gap: 1rem;
   margin-bottom: 1rem;
 }
+
 .avatar {
   width: 80px;
   height: 80px;
@@ -72,43 +79,37 @@
   object-fit: cover;
   border: 2px solid rgba(255, 255, 255, 0.6);
 }
-.displayName {
+
+.name {
   font-size: 1.5rem;
   font-weight: 600;
 }
-.username {
+
+.handle {
   color: #555;
 }
 
-.mainStats {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1rem 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  justify-content: center;
-}
-.statsItem {
-  margin: 0;
+.subContainer {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 0.75rem;
+  margin-top: 0.75rem;
 }
 
 .sectionTitle {
   font-weight: 600;
-  margin-bottom: 0.25rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
 }
-.subList {
-  list-style: none;
-  padding: 0;
+
+.dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+}
+.dl dt {
+  font-weight: 600;
+}
+.dl dd {
   margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  justify-content: center;
-}
-.reviews {
-  margin-bottom: 1rem;
-}
-.vouches {
-  margin-top: 1rem;
 }
