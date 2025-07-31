@@ -28,6 +28,17 @@ export default function Home() {
     }
   };
 
+  // Safely access nested stats using optional chaining
+  const reviewStats = userData?.stats?.review?.received;
+  const positive = reviewStats?.positive?.count ?? 0;
+  const neutral = reviewStats?.neutral?.count ?? 0;
+  const negative = reviewStats?.negative?.count ?? 0;
+  const totalReviews = positive + neutral + negative;
+
+  const vouchStats = userData?.stats?.vouch;
+  const vouchesGiven = vouchStats?.given?.count ?? 0;
+  const vouchesReceived = vouchStats?.received?.count ?? 0;
+
   return (
     <div className="container">
       <Head>
@@ -46,30 +57,37 @@ export default function Home() {
         </button>
       </div>
       {error && <p className="error">{error}</p>}
+      {/* Only render the card if userData is present */}
       {userData && (
         <div className="user-card">
-          <img className="avatar" src={userData.avatarUrl} alt="avatar" />
+          <img className="avatar" src={userData?.avatarUrl} alt="avatar" />
           <h2>
-            {userData.displayName}{' '}
-            <span className="username">@{userData.username}</span>
+            {userData?.displayName}{' '}
+            <span className="username">@{userData?.username}</span>
           </h2>
           <ul>
-            <li>Score: {userData.score}</li>
-            <li>XP: {userData.xp.total}</li>
-            <li>XP Streak Days: {userData.xp.streakDays}</li>
-            <li>
-              Reviews Received: {userData.reviews.positive} positive,{' '}
-              {userData.reviews.neutral} neutral, {userData.reviews.negative}{' '}
-              negative
-            </li>
-            <li>
-              Vouches: {userData.vouches.given} given, {userData.vouches.received}{' '}
-              received
-            </li>
+            <li>Score: {userData?.score}</li>
+            <li>XP: {userData?.xp?.total}</li>
+            <li>XP Streak Days: {userData?.xp?.streakDays}</li>
+
+            {/* Conditionally render reviews section */}
+            {reviewStats && (
+              <li>
+                Reviews Received: {positive} positive, {neutral} neutral, {negative}{' '}
+                negative (total {totalReviews})
+              </li>
+            )}
+
+            {/* Conditionally render vouch section */}
+            {vouchStats && (
+              <li>
+                Vouches: {vouchesGiven} given, {vouchesReceived} received
+              </li>
+            )}
           </ul>
           <a
             className="ethos-link"
-            href={userData.links.profile}
+            href={userData?.links?.profile}
             target="_blank"
             rel="noopener noreferrer"
           >
