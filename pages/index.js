@@ -1,15 +1,10 @@
 import { useState } from 'react';
-import {
-  fetchUserByTwitter,
-  fetchExchangeRate,
-  fetchUserAddresses,
-} from '../lib/ethos';
+import { fetchUserByTwitter, fetchExchangeRate } from '../lib/ethos';
 import styles from '../styles/Home.module.css';
 
 export default function Home() {
   const [username, setUsername] = useState('');
   const [userData, setUserData] = useState(null);
-  const [addresses, setAddresses] = useState([]);
   const [ethPrice, setEthPrice] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -27,18 +22,14 @@ export default function Home() {
         setError('User not found');
         setUserData(null);
         setEthPrice(null);
-        setAddresses([]);
       } else {
         setUserData(user);
         setEthPrice(price);
-        const addr = await fetchUserAddresses(user.profileId);
-        setAddresses(addr);
       }
     } catch (err) {
       setError(err.message || 'An error occurred');
       setUserData(null);
       setEthPrice(null);
-      setAddresses([]);
     } finally {
       setLoading(false);
     }
@@ -96,19 +87,12 @@ export default function Home() {
               {ethPrice !== null && (
                 <>
                   <dt>ETH Price (USD)</dt>
-                  <dd>${ethPrice}</dd>
+                  <dd>${Number(ethPrice).toFixed(2)}</dd>
                 </>
               )}
             </dl>
           </div>
 
-          <div className={styles.subContainer}>
-            <div className={styles.sectionTitle}>Address</div>
-            <dl className={styles.dl}>
-              <dt>Primary Address</dt>
-              <dd>{addresses[0]?.address || addresses[0] || 'N/A'}</dd>
-            </dl>
-          </div>
 
           {reviewReceived && (
             <div className={styles.subContainer}>
