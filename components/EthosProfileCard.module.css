@@ -54,17 +54,43 @@
   border-radius: 12px;
   padding: 1rem;
 }
-.header {
+.headerContainer {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
 }
+
 .avatar {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
+  border: 2px solid var(--accent);
   object-fit: cover;
+}
+
+.nameBlock {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.displayName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.handle {
+  font-size: 1rem;
+  color: var(--text-dark);
+  opacity: 0.7;
+  margin-top: 0.25rem;
 }
 .section {
   margin-top: 1rem;
