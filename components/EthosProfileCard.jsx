@@ -131,8 +131,7 @@ export default function EthosProfileCard() {
 
       {data && (
         <div className={styles.card}>
-          {/* Header */}
-          <div className={styles.headerContainer}>
+          <div className={styles.userHeader}>
             {data.avatarUrl && (
               <img
                 src={data.avatarUrl}
