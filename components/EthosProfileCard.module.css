@@ -83,10 +83,11 @@
   pointer-events: none;
 }
 
-/* Header Container */
-.headerContainer {
+/* Header */
+.header {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 1rem;
   background: var(--glass-light);
   border: 1px solid var(--glass-border);
