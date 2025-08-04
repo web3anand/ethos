@@ -132,7 +132,7 @@ export default function EthosProfileCard() {
       {data && (
         <div className={styles.card}>
           {/* Header */}
-          <div className={styles.header}>
+          <div className={styles.headerContainer}>
             {data.avatarUrl && (
               <img
                 src={data.avatarUrl}
@@ -140,8 +140,8 @@ export default function EthosProfileCard() {
                 className={styles.avatar}
               />
             )}
-            <div>
-              <h2>{data.displayName}</h2>
+            <div className={styles.nameBlock}>
+              <h2 className={styles.displayName}>{data.displayName}</h2>
               <div className={styles.handle}>@{data.username}</div>
             </div>
           </div>
