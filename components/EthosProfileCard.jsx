@@ -55,11 +55,8 @@ export default function EthosProfileCard() {
         `https://api.ethos.network/api/v1/addresses/profileId:${profileId}`
       );
       if (!addrRes.ok) throw new Error(`Address lookup failed (${addrRes.status})`);
-      const addrJson = await addrRes.json();
-      const primaryAddress =
-        Array.isArray(addrJson.data) && addrJson.data[0]?.address
-          ? addrJson.data[0].address
-          : 'N/A';
+      const { data: addrList } = await addrRes.json();
+      const address = addrList[0]?.address ?? 'N/A';
       setProgress(55);
 
       // 3) v1: ETH price
@@ -68,7 +65,7 @@ export default function EthosProfileCard() {
       );
       if (!priceRes.ok) throw new Error(`Price lookup failed (${priceRes.status})`);
       const {
-        data: { price: ethPrice }
+        data: { price: ethPrice } = {}
       } = await priceRes.json();
       setProgress(70);
 
@@ -118,7 +115,7 @@ export default function EthosProfileCard() {
         vouchesGivenEth,
         vouchesReceived,
         vouchesReceivedEth,
-        primaryAddress,
+        address,
         ethPrice,
         totalVouchedEth
       });
@@ -200,7 +197,7 @@ export default function EthosProfileCard() {
           </Section>
 
           <Section title="On-Chain">
-            <Row label="Primary Address" value={data.primaryAddress} />
+            <Row label="Primary Address" value={data.address} />
             <Row
               label="ETH Price"
               value={data.ethPrice ? `$${Number(data.ethPrice).toFixed(2)}` : 'N/A'}
