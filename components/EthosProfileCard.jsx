@@ -40,11 +40,60 @@ export default function EthosProfileCard() {
       } = await userRes.json();
       setProgress(50);
 
+      } = userJson;
+      const vouchesGivenEth = toEth(givenWei);
+      const vouchesReceivedEth = toEth(receivedWei);
+      setProgress(40);
+
+      // 2) v1: get on-chain addresses
+      const addrRes = await fetch(
+        `https://api.ethos.network/api/v1/addresses/profileId:${profileId}`
+      );
+      if (!addrRes.ok) throw new Error(`Address lookup failed (${addrRes.status})`);
+      const { data: addrList } = await addrRes.json();
+      const address = addrList[0]?.address ?? 'N/A';
+      setProgress(55);
+
+      // 3) v1: ETH price
       const priceRes = await fetch(
         'https://api.ethos.network/api/v1/exchange-rates/eth-price'
       );
       if (!priceRes.ok) throw new Error(`Price lookup failed (${priceRes.status})`);
       const { data: { price: ethPrice } = {} } = await priceRes.json();
+      const {
+        data: { price: ethPrice } = {}
+      } = await priceRes.json();
+      setProgress(70);
+
+      // 4) v1: reviews count
+      const revRes = await fetch(
+        `https://api.ethos.network/api/v1/reviews/count`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subject: [`profileId:${profileId}`] })
+        }
+      );
+      if (!revRes.ok) throw new Error(`Review count failed (${revRes.status})`);
+      const {
+        data: { count: reviewsCount }
+      } = await revRes.json();
+      setProgress(85);
+
+      // 5) v1: total vouch ETH
+      const vouchedRes = await fetch(
+        `https://api.ethos.network/api/v1/vouches/vouched-ethereum`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target: `profileId:${profileId}` })
+        }
+      );
+      if (!vouchedRes.ok)
+        throw new Error(`Vouched ETH lookup failed (${vouchedRes.status})`);
+      const {
+        data: { vouchedEth: totalVouchedEth }
+      } = await vouchedRes.json();
       setProgress(100);
 
       setData({
@@ -57,6 +106,20 @@ export default function EthosProfileCard() {
         vouchGiven: { count: givenCount, eth: toEth(givenWei) },
         vouchReceived: { count: receivedCount, eth: toEth(receivedWei) },
         ethPrice
+        avatar,
+        status,
+        score,
+        xpTotal,
+        xpStreakDays,
+        reviewStats,
+        reviewsCount,
+        vouchesGiven,
+        vouchesGivenEth,
+        vouchesReceived,
+        vouchesReceivedEth,
+        address,
+        ethPrice,
+        totalVouchedEth
       });
     } catch (err) {
       console.error(err);
@@ -121,6 +184,7 @@ export default function EthosProfileCard() {
           </Section>
 
           <Section title="On-Chain">
+            <Row label="Primary Address" value={data.address} />
             <Row
               label="ETH Price"
               value={`$${Number(data.ethPrice).toFixed(2)}`}
