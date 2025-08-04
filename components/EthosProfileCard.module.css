@@ -10,6 +10,19 @@
 }
 
 /* Wrapper */
+
+  /* CRT color palette */
+  --crt-bg-dark: #000000;
+  --crt-bg-light: rgba(0, 0, 0, 0.6);
+  --glass-light: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --neon-green: #00ff41;
+  --neon-cyan: #00ffff;
+  --neon-magenta: #ff00ff;
+  --text-crt: #00ff41;
+}
+
+/* Page wrapper */
 .wrapper {
   background: radial-gradient(circle at top left, #111, var(--crt-bg-dark));
   min-height: 100vh;
@@ -49,6 +62,7 @@
 }
 .searchBar button:hover:not(:disabled) {
   background: rgba(57, 255, 20, 0.1);
+  background: rgba(0, 255, 65, 0.1);
   transform: translateY(-1px);
 }
 .searchBar button:disabled {
@@ -64,6 +78,7 @@
   border: 1px solid var(--glass-border);
   border-radius: 24px;
   box-shadow: 0 8px 32px rgba(57, 255, 20, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 255, 65, 0.2);
   padding: 2rem;
   margin: auto;
   max-width: 600px;
@@ -76,6 +91,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  inset: 0;
   background-image: repeating-linear-gradient(
     rgba(0, 0, 0, 0.05) 0 1px,
     transparent 1px 2px
@@ -123,6 +139,7 @@
 }
 
 /* Sections */
+/* Section Panels */
 .section {
   position: relative;
   margin-bottom: 1.5rem;
@@ -134,6 +151,7 @@
 }
 .section:hover {
   background: rgba(255, 255, 255, 0.12);
+  background: rgba(44, 26, 26, 0.603);
 }
 .sectionTitle {
   font-size: 1.125rem;
@@ -142,6 +160,8 @@
   text-align: center;
   margin-bottom: 1rem;
 }
+
+/* Data Rows */
 .row {
   display: grid;
   grid-template-columns: auto 1fr;
