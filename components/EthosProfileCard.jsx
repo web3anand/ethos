@@ -7,47 +7,103 @@ export default function EthosProfileCard() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [data, setData] = useState(null);
+  const [error, setError] = useState('');
+
+  const toEth = (wei) => (Number(wei) / 1e18).toFixed(3);
 
   const handleSearch = async () => {
     const username = handle.trim().replace(/^@/, '');
     if (!username) return;
+
+    setError('');
     setSearched(username);
     setData(null);
     setLoading(true);
     setProgress(0);
+
     try {
-      const userRes = await fetch(`https://api.ethos.network/api/v2/users?twitter=${username}`);
+      // 1) v2: user lookup by X handle
       const userRes = await fetch(
-        `https://api.ethos.network/api/v2/users?twitter=${username}`
+        `https://api.ethos.network/api/v2/user/by/x/${username}`
       );
-      const user = await userRes.json();
+      if (!userRes.ok) throw new Error(`User lookup failed (${userRes.status})`);
+      const userJson = await userRes.json();
+      setProgress(20);
+
       const {
         id,
         profileId,
-        avatar,
+        avatarUrl: avatar,
         status,
         score,
         xpTotal,
         xpStreakDays,
-        reviews,
-        vouchesGiven,
-        vouchesReceived,
-      } = user;
-      setProgress(50);
-      const [addrRes, priceRes] = await Promise.all([
-        fetch(`https://api.ethos.network/api/v1/addresses/profileId:${profileId}`),
-        fetch(
-          `https://api.ethos.network/api/v1/addresses/profileId:${profileId}`
-        ),
-        fetch('https://api.ethos.network/api/v1/exchange-rates/eth-price'),
-      ]);
+        stats: {
+          review: { received: reviewStats = {} } = {},
+          vouch: {
+            given: { count: vouchesGiven = 0, amountWeiTotal: givenWei = '0' } = {},
+            received: { count: vouchesReceived = 0, amountWeiTotal: receivedWei = '0' } = {}
+          } = {}
+        } = {}
+      } = userJson;
+      const vouchesGivenEth = toEth(givenWei);
+      const vouchesReceivedEth = toEth(receivedWei);
+      setProgress(40);
+
+      // 2) v1: get on-chain addresses
+      const addrRes = await fetch(
+        `https://api.ethos.network/api/v1/addresses/profileId:${profileId}`
+      );
+      if (!addrRes.ok) throw new Error(`Address lookup failed (${addrRes.status})`);
       const addrJson = await addrRes.json();
-      const priceJson = await priceRes.json();
-      const address = Array.isArray(addrJson) && addrJson[0] ? addrJson[0].address : null;
-      const address = Array.isArray(addrJson) && addrJson[0]
-        ? addrJson[0].address
-        : null;
-      const ethPrice = priceJson?.price ?? null;
+      const primaryAddress =
+        Array.isArray(addrJson.data) && addrJson.data[0]?.address
+          ? addrJson.data[0].address
+          : 'N/A';
+      setProgress(55);
+
+      // 3) v1: ETH price
+      const priceRes = await fetch(
+        `https://api.ethos.network/api/v1/exchange-rates/eth-price`
+      );
+      if (!priceRes.ok) throw new Error(`Price lookup failed (${priceRes.status})`);
+      const {
+        data: { price: ethPrice }
+      } = await priceRes.json();
+      setProgress(70);
+
+      // 4) v1: reviews count
+      const revRes = await fetch(
+        `https://api.ethos.network/api/v1/reviews/count`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subject: [`profileId:${profileId}`] })
+        }
+      );
+      if (!revRes.ok) throw new Error(`Review count failed (${revRes.status})`);
+      const {
+        data: { count: reviewsCount }
+      } = await revRes.json();
+      setProgress(85);
+
+      // 5) v1: total vouch ETH
+      const vouchedRes = await fetch(
+        `https://api.ethos.network/api/v1/vouches/vouched-ethereum`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target: `profileId:${profileId}` })
+        }
+      );
+      if (!vouchedRes.ok)
+        throw new Error(`Vouched ETH lookup failed (${vouchedRes.status})`);
+      const {
+        data: { vouchedEth: totalVouchedEth }
+      } = await vouchedRes.json();
+      setProgress(100);
+
+      // 6) commit to state
       setData({
         id,
         profileId,
@@ -56,243 +112,125 @@ export default function EthosProfileCard() {
         score,
         xpTotal,
         xpStreakDays,
-        reviews,
+        reviewStats,
+        reviewsCount,
         vouchesGiven,
+        vouchesGivenEth,
         vouchesReceived,
-        address,
+        vouchesReceivedEth,
+        primaryAddress,
         ethPrice,
+        totalVouchedEth
       });
-      setProgress(100);
     } catch (err) {
       console.error(err);
+      setError(err.message);
     } finally {
-      setTimeout(() => {
-        setLoading(false);
-        setProgress(0);
-      }, 300);
+      setLoading(false);
+      setProgress(0);
     }
   };
-
-  const toEth = (wei) => (Number(wei) / 1e18).toFixed(3);
 
   return (
     <div className={styles.wrapper}>
       <h1 className={styles.title}>Ethos Search</h1>
+
       <div className={styles.searchBar}>
-        <input
-          className={styles.input}
-    <div className="wrapper">
-      <h1>Ethos Search</h1>
-      <div className="search-bar">
         <input
           type="text"
           value={handle}
           onChange={(e) => setHandle(e.target.value)}
           placeholder="Twitter handle"
         />
-        <button className={styles.button} onClick={handleSearch} disabled={loading}>Search</button>
+        <button onClick={handleSearch} disabled={loading || !handle.trim()}>
+          Search
+        </button>
       </div>
+
       {loading && (
         <div className={styles.loadingContainer}>
-          <div className={styles.loadingBar} style={{ width: `${progress}%` }} />
+          <div
+            className={styles.loadingBar}
+            style={{ width: `${progress}%` }}
+          />
         </div>
       )}
+
+      {error && <div className={styles.error}>⚠️ {error}</div>}
+
       {data && (
         <div className={styles.card}>
           <div className={styles.header}>
-            {data.avatar && <img className={styles.avatar} src={data.avatar} alt="avatar" />}
-        <button onClick={handleSearch} disabled={loading}>Search</button>
-      </div>
-      {loading && (
-        <div className="loading-container">
-          <div className="loading-bar" style={{ width: `${progress}%` }} />
-        </div>
-      )}
-      {data && (
-        <div className="card">
-          <div className="header">
-            {data.avatar && <img src={data.avatar} alt="avatar" />}
+            {data.avatar && (
+              <img className={styles.avatar} src={data.avatar} alt="" />
+            )}
             <div>
               <h2>{searched}</h2>
-              <div>@{searched}</div>
+              <div className={styles.handle}>@{searched}</div>
             </div>
           </div>
-          <div className={styles.section}>
-            <div className={styles.sectionTitle}>Main Stats</div>
-            <dl>
-              <div className={styles.row}><dt>ID</dt><dd>{data.id}</dd></div>
-              <div className={styles.row}><dt>Profile ID</dt><dd>{data.profileId}</dd></div>
-              <div className={styles.row}><dt>Status</dt><dd>{data.status}</dd></div>
-              <div className={styles.row}><dt>Score</dt><dd>{data.score}</dd></div>
-              <div className={styles.row}><dt>XP Total</dt><dd>{data.xpTotal}</dd></div>
-              <div className={styles.row}><dt>XP Streak Days</dt><dd>{data.xpStreakDays}</dd></div>
-            </dl>
-          </div>
-          {data.reviews && (
-            <div className={styles.section}>
-              <div className={styles.sectionTitle}>Reviews Received</div>
-              <dl>
-                <div className={styles.row}><dt>Positive</dt><dd>{data.reviews.positive?.count ?? 0}</dd></div>
-                <div className={styles.row}><dt>Neutral</dt><dd>{data.reviews.neutral?.count ?? 0}</dd></div>
-                <div className={styles.row}><dt>Negative</dt><dd>{data.reviews.negative?.count ?? 0}</dd></div>
-          <div className="section">
-            <div className="section-title">Main Stats</div>
-            <dl>
-              <div className="row"><dt>ID</dt><dd>{data.id}</dd></div>
-              <div className="row"><dt>Profile ID</dt><dd>{data.profileId}</dd></div>
-              <div className="row"><dt>Status</dt><dd>{data.status}</dd></div>
-              <div className="row"><dt>Score</dt><dd>{data.score}</dd></div>
-              <div className="row"><dt>XP Total</dt><dd>{data.xpTotal}</dd></div>
-              <div className="row"><dt>XP Streak Days</dt><dd>{data.xpStreakDays}</dd></div>
-            </dl>
-          </div>
-          {data.reviews && (
-            <div className="section">
-              <div className="section-title">Reviews Received</div>
-              <dl>
-                <div className="row"><dt>Positive</dt><dd>{data.reviews.positive?.count ?? 0}</dd></div>
-                <div className="row"><dt>Neutral</dt><dd>{data.reviews.neutral?.count ?? 0}</dd></div>
-                <div className="row"><dt>Negative</dt><dd>{data.reviews.negative?.count ?? 0}</dd></div>
-              </dl>
-            </div>
-          )}
-          {data.vouchesGiven && (
-            <div className={styles.section}>
-              <div className={styles.sectionTitle}>Vouches Given</div>
-              <dl>
-                <div className={styles.row}><dt>Count</dt><dd>{data.vouchesGiven.count ?? 0}</dd></div>
-                <div className={styles.row}><dt>Total ETH</dt><dd>{toEth(data.vouchesGiven.amountWeiTotal ?? 0)} ETH</dd></div>
-            <div className="section">
-              <div className="section-title">Vouches Given</div>
-              <dl>
-                <div className="row"><dt>Count</dt><dd>{data.vouchesGiven.count ?? 0}</dd></div>
-                <div className="row"><dt>Total ETH</dt><dd>{toEth(data.vouchesGiven.amountWeiTotal ?? 0)} ETH</dd></div>
-              </dl>
-            </div>
-          )}
-          {data.vouchesReceived && (
-            <div className={styles.section}>
-              <div className={styles.sectionTitle}>Vouches Received</div>
-              <dl>
-                <div className={styles.row}><dt>Count</dt><dd>{data.vouchesReceived.count ?? 0}</dd></div>
-                <div className={styles.row}><dt>Total ETH</dt><dd>{toEth(data.vouchesReceived.amountWeiTotal ?? 0)} ETH</dd></div>
-              </dl>
-            </div>
-          )}
-          <div className={styles.section}>
-            <div className={styles.sectionTitle}>On-Chain</div>
-            <dl>
-              <div className={styles.row}><dt>Address</dt><dd>{data.address || 'N/A'}</dd></div>
-              <div className={styles.row}><dt>ETH Price</dt><dd>{data.ethPrice ? `$${Number(data.ethPrice).toFixed(2)}` : 'N/A'}</dd></div>
-            <div className="section">
-              <div className="section-title">Vouches Received</div>
-              <dl>
-                <div className="row"><dt>Count</dt><dd>{data.vouchesReceived.count ?? 0}</dd></div>
-                <div className="row"><dt>Total ETH</dt><dd>{toEth(data.vouchesReceived.amountWeiTotal ?? 0)} ETH</dd></div>
-              </dl>
-            </div>
-          )}
-          <div className="section">
-            <div className="section-title">On-Chain</div>
-            <dl>
-              <div className="row"><dt>Address</dt><dd>{data.address || 'N/A'}</dd></div>
-              <div className="row"><dt>ETH Price</dt><dd>{data.ethPrice ? `$${Number(data.ethPrice).toFixed(2)}` : 'N/A'}</dd></div>
 
-            </dl>
-          </div>
+          <Section title="Main Stats">
+            <Row label="ID" value={data.id} />
+            <Row label="Profile ID" value={data.profileId} />
+            <Row label="Status" value={data.status} />
+            <Row label="Score" value={data.score} />
+            <Row label="XP Total" value={data.xpTotal} />
+            <Row label="XP Streak Days" value={data.xpStreakDays} />
+          </Section>
+
+          <Section title="Reviews Received">
+            <Row
+              label="Total Reviews"
+              value={data.reviewsCount ?? 0}
+            />
+          </Section>
+
+          <Section title="Vouches Given">
+            <Row label="Count" value={data.vouchesGiven} />
+            <Row label="Total ETH" value={`${data.vouchesGivenEth} ETH`} />
+          </Section>
+
+          <Section title="Vouches Received">
+            <Row label="Count" value={data.vouchesReceived} />
+            <Row
+              label="Total ETH"
+              value={`${data.vouchesReceivedEth} ETH`}
+            />
+          </Section>
+
+          <Section title="On-Chain">
+            <Row label="Primary Address" value={data.primaryAddress} />
+            <Row
+              label="ETH Price"
+              value={data.ethPrice ? `$${Number(data.ethPrice).toFixed(2)}` : 'N/A'}
+            />
+            <Row
+              label="Total Vouched ETH"
+              value={`${data.totalVouchedEth ?? 0} ETH`}
+            />
+          </Section>
         </div>
       )}
+    </div>
+  );
+}
 
-      <style jsx>{`
-        .wrapper {
-          position: relative;
-          max-width: 640px;
-          margin: 2rem auto;
-          font-family: sans-serif;
-        }
-        h1 {
-          text-align: center;
-          margin-bottom: 1rem;
-        }
-        .search-bar {
-          display: flex;
-          justify-content: center;
-          gap: 0.5rem;
-          margin-bottom: 1rem;
-        }
-        input {
-          flex: 1;
-          padding: 0.5rem 0.75rem;
-          border: 1px solid #ccc;
-          border-radius: 8px;
-        }
-        button {
-          padding: 0.5rem 1rem;
-          background: #0ea5e9;
-          color: #fff;
-          border: none;
-          border-radius: 8px;
-          cursor: pointer;
-        }
-        button:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-        .loading-container {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 4px;
-        }
-        .loading-bar {
-          height: 4px;
-          background: repeating-linear-gradient(
-            to right,
-            #0ea5e9 0 10px,
-            #38bdf8 10px 20px
-          );
-          width: 0;
-          transition: width 0.2s ease;
-        }
-        .card {
-          background: #e0f2fe;
-          border-radius: 12px;
-          padding: 1rem;
-        }
-        .header {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          margin-bottom: 1rem;
-        }
-        .header img {
-          width: 64px;
-          height: 64px;
-          border-radius: 50%;
-          object-fit: cover;
-        }
-        .section {
-          margin-top: 1rem;
-        }
-        .section-title {
-          font-weight: bold;
-          text-align: center;
-          margin-bottom: 0.5rem;
-        }
-        .row {
-          display: grid;
-          grid-template-columns: 140px 1fr;
-          column-gap: 0.5rem;
-          margin-bottom: 0.25rem;
-        }
-        dt {
-          font-weight: bold;
-        }
-        dd {
-          margin: 0;
-        }
-      `}</style>
+// Reusable sub-components
+function Section({ title, children }) {
+  return (
+    <div className={styles.section}>
+      <div className={styles.sectionTitle}>{title}</div>
+      <dl>{children}</dl>
+    </div>
+  );
+}
+
+function Row({ label, value }) {
+  return (
+    <div className={styles.row}>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
     </div>
   );
 }
