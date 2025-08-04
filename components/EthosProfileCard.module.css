@@ -131,7 +131,7 @@
   transition: background 0.2s;
 }
 .section:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(44, 26, 26, 0.603);
 }
 .sectionTitle {
   font-size: 1.125rem;
