@@ -18,22 +18,28 @@ export default function Home() {
     setError(null);
     setUserData(null);
     try {
-      // 1) Look up the user via the v2 API
-      const user = await fetchUserByTwitter(username.trim());
-      if (!user) {
+      const data = await fetchUserByTwitter(username.trim());
+      if (!data) {
         setError('User not found');
         return;
       }
-
-      // 2) Fetch addresses and exchange rate in parallel
+      console.log('v2 user:', data);
       const [addresses, ethPrice] = await Promise.all([
-        fetchUserAddresses(user.profileId),
+        fetchUserAddresses(data.profileId),
         fetchExchangeRate(),
       ]);
-
-      // 3) Combine into one object so the card renders once
+      console.log('v1 addresses:', addresses, 'ethPrice:', ethPrice);
       setUserData({
-        ...user,
+        id: data.id,
+        profileId: data.profileId,
+        displayName: data.displayName,
+        username: data.username,
+        avatarUrl: data.avatarUrl,
+        reviewStats: data.stats.review.received,
+        vouchGiven: data.stats.vouch.given,
+        vouchReceived: data.stats.vouch.received,
+        xpTotal: data.xpTotal,
+        xpStreakDays: data.xpStreakDays,
         addresses,
         ethPrice,
       });
@@ -46,13 +52,7 @@ export default function Home() {
 
   const formatWeiToEth = (wei) => (Number(wei) / 1e18).toFixed(3);
 
-  const reviewReceived = userData?.stats?.review?.received;
-  const reviewMade = userData?.stats?.review?.made;
-  const vouchGiven = userData?.stats?.vouch?.given;
-  const vouchReceived = userData?.stats?.vouch?.received;
-  const xpTotal = userData?.xpTotal ?? userData?.xp?.total ?? userData?.xp_total;
-  const xpStreakDays =
-    userData?.xpStreakDays ?? userData?.xp?.streakDays ?? userData?.xp_streakDays;
+  console.log(userData);
 
   return (
     <div className={styles.container}>
@@ -76,96 +76,54 @@ export default function Home() {
       {error && <div className={styles.error}>{error}</div>}
       {userData && (
         <div className={styles.userCard}>
-          <div className={styles.header}>
-            <img src={userData.avatarUrl} alt="avatar" className={styles.avatar} />
-            <div>
-              <div className={styles.name}>{userData.displayName}</div>
-              <div className={styles.handle}>@{userData.username}</div>
-            </div>
-          </div>
+          <img src={userData.avatarUrl} alt="" className={styles.avatar} />
+          <h2 className={styles.name}>{userData.displayName}</h2>
+          <p className={styles.handle}>@{userData.username}</p>
 
-          <div className={styles.subContainer}>
-            <div className={styles.sectionTitle}>Main Stats</div>
-            <dl className={styles.dl}>
-              <dt>ID</dt><dd>{userData.id}</dd>
-              <dt>Profile ID</dt><dd>{userData.profileId}</dd>
-              <dt>Status</dt><dd>{userData.status}</dd>
-              <dt>Score</dt><dd>{userData.score}</dd>
-              <dt>XP Total</dt><dd>{xpTotal}</dd>
-              <dt>XP Streak Days</dt><dd>{xpStreakDays}</dd>
-              {userData.ethPrice !== null && (
-                <>
-                  <dt>ETH Price (USD)</dt>
-                  <dd>${Number(userData.ethPrice).toFixed(2)}</dd>
-                </>
-              )}
-            </dl>
-          </div>
+          <Section title="Reviews Received">
+            <Row label="Positive" value={userData.reviewStats.positive} />
+            <Row label="Neutral" value={userData.reviewStats.neutral} />
+            <Row label="Negative" value={userData.reviewStats.negative} />
+          </Section>
 
-          {userData.addresses?.length > 0 && (
-            <div className={styles.subContainer}>
-              <div className={styles.sectionTitle}>Address</div>
-              <dl className={styles.dl}>
-                <dt>Primary Address</dt>
-                <dd>{userData.addresses[0]?.address}</dd>
-              </dl>
-            </div>
-          )}
+          <Section title="Vouches Given">
+            <Row label="Count" value={userData.vouchGiven.count} />
+            <Row
+              label="Total ETH"
+              value={`${formatWeiToEth(userData.vouchGiven.amountWeiTotal)} ETH`}
+            />
+          </Section>
 
-
-          {reviewReceived && (
-            <div className={styles.subContainer}>
-              <div className={styles.sectionTitle}>Reviews Received</div>
-              <dl className={styles.dl}>
-                <dt>Positive</dt>
-                <dd>{reviewReceived.positive?.count ?? 0}</dd>
-                <dt>Neutral</dt>
-                <dd>{reviewReceived.neutral?.count ?? 0}</dd>
-                <dt>Negative</dt>
-                <dd>{reviewReceived.negative?.count ?? 0}</dd>
-              </dl>
-            </div>
-          )}
-
-          {reviewMade && (
-            <div className={styles.subContainer}>
-              <div className={styles.sectionTitle}>Reviews Made</div>
-              <dl className={styles.dl}>
-                <dt>Positive</dt>
-                <dd>{reviewMade.positive?.count ?? 0}</dd>
-                <dt>Neutral</dt>
-                <dd>{reviewMade.neutral?.count ?? 0}</dd>
-                <dt>Negative</dt>
-                <dd>{reviewMade.negative?.count ?? 0}</dd>
-              </dl>
-            </div>
-          )}
-
-          {vouchGiven && (
-            <div className={styles.subContainer}>
-              <div className={styles.sectionTitle}>Vouches Given</div>
-              <dl className={styles.dl}>
-                <dt>Count</dt>
-                <dd>{vouchGiven.count ?? 0}</dd>
-                <dt>Total ETH</dt>
-                <dd>{formatWeiToEth(vouchGiven.amountWeiTotal ?? 0)} ETH</dd>
-              </dl>
-            </div>
-          )}
-
-          {vouchReceived && (
-            <div className={styles.subContainer}>
-              <div className={styles.sectionTitle}>Vouches Received</div>
-              <dl className={styles.dl}>
-                <dt>Count</dt>
-                <dd>{vouchReceived.count ?? 0}</dd>
-                <dt>Total ETH</dt>
-                <dd>{formatWeiToEth(vouchReceived.amountWeiTotal ?? 0)} ETH</dd>
-              </dl>
-            </div>
-          )}
+          <Section title="On-Chain">
+            <Row
+              label="Primary Address"
+              value={userData.addresses[0]?.address ?? 'N/A'}
+            />
+            <Row
+              label="ETH Price (USD)"
+              value={`$${userData.ethPrice.toFixed(2)}`}
+            />
+          </Section>
         </div>
       )}
     </div>
+  );
+}
+
+function Section({ title, children }) {
+  return (
+    <div className={styles.subContainer}>
+      <div className={styles.sectionTitle}>{title}</div>
+      <dl className={styles.dl}>{children}</dl>
+    </div>
+  );
+}
+
+function Row({ label, value }) {
+  return (
+    <>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </>
   );
 }
