@@ -4,19 +4,14 @@ import {
   fetchExchangeRate,
   fetchUserAddresses,
 } from '../lib/ethos';
+import EthosProfileCard from '../components/EthosProfileCard';
 import styles from '../styles/Home.module.css';
-import sharedStyles from '../styles/Shared.module.css';
 
 export default function Home() {
   const [username, setUsername] = useState('');
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const xpTotal = userData?.xpTotal ?? userData?.xp?.total ?? 0;
-  const xpStreakDays = userData?.xpStreakDays ?? userData?.xp?.streakDays ?? 0;
-  const vouchReceived =
-    userData?.stats?.vouch?.received ?? { count: 0, amountWeiTotal: '0' };
 
   const handleSearch = async () => {
     if (!username) return;
@@ -29,27 +24,43 @@ export default function Home() {
         setError('User not found');
         return;
       }
-      console.log('v2 user:', data);
       const [addresses, ethPrice] = await Promise.all([
         fetchUserAddresses(data.profileId),
         fetchExchangeRate(),
       ]);
-      console.log('v1 addresses:', addresses, 'ethPrice:', ethPrice);
-      setUserData({
-        ...data,
-        addresses,
+      const profile = {
+        id: data.id,
+        profileId: data.profileId,
+        displayName: data.displayName,
+        username: data.username,
+        avatarUrl: data.avatarUrl,
+        status: data.status,
+        score: data.score,
+        xpTotal: data.xpTotal ?? data.xp?.total ?? 0,
+        xpStreakDays: data.xpStreakDays ?? data.xp?.streakDays ?? 0,
+        reviewStats: data.stats?.review?.received ?? {
+          positive: 0,
+          neutral: 0,
+          negative: 0,
+        },
+        vouchGiven: {
+          count: data.stats?.vouch?.given?.count ?? 0,
+          eth: (Number(data.stats?.vouch?.given?.amountWeiTotal || 0) / 1e18).toFixed(3),
+        },
+        vouchReceived: {
+          count: data.stats?.vouch?.received?.count ?? 0,
+          eth: (Number(data.stats?.vouch?.received?.amountWeiTotal || 0) / 1e18).toFixed(3),
+        },
+        primaryAddress: addresses[0]?.address ?? 'N/A',
         ethPrice,
-      });
+      };
+      setUserData(profile);
     } catch (err) {
       setError(err.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
   };
-
-  const formatWeiToEth = (wei) => (Number(wei) / 1e18).toFixed(3);
-
-  console.log(userData);
 
   return (
     <div className={styles.container}>
@@ -71,89 +82,7 @@ export default function Home() {
         </button>
       </div>
       {error && <div className={styles.error}>{error}</div>}
-      {userData && (
-        <div className={styles.userCard}>
-          <img src={userData.avatarUrl} alt="" className={sharedStyles.avatar} />
-          <h2 className={styles.name}>{userData.displayName}</h2>
-          <p className={sharedStyles.handle}>@{userData.username}</p>
-
-          <div className={styles.subContainer}>
-            <div className={sharedStyles.sectionTitle}>Main Stats</div>
-            <dl className={styles.dl}>
-              <dt>ID</dt><dd>{userData.id}</dd>
-              <dt>Profile ID</dt><dd>{userData.profileId}</dd>
-              <dt>Status</dt><dd>{userData.status}</dd>
-              <dt>Score</dt><dd>{userData.score}</dd>
-              <dt>XP Total</dt><dd>{xpTotal}</dd>
-              <dt>XP Streak Days</dt><dd>{xpStreakDays}</dd>
-            </dl>
-          </div>
-
-          <Section title="Reviews Received">
-            <Row
-              label="Positive"
-              value={userData.stats.review.received.positive}
-            />
-            <Row
-              label="Neutral"
-              value={userData.stats.review.received.neutral}
-            />
-            <Row
-              label="Negative"
-              value={userData.stats.review.received.negative}
-            />
-          </Section>
-
-          <Section title="Vouches Given">
-            <Row label="Count" value={userData.stats.vouch.given.count} />
-            <Row
-              label="Total ETH"
-              value={`${formatWeiToEth(
-                userData.stats.vouch.given.amountWeiTotal
-              )} ETH`}
-            />
-          </Section>
-
-          <div className={styles.subContainer}>
-            <div className={sharedStyles.sectionTitle}>Vouches Received</div>
-            <dl className={styles.dl}>
-              <dt>Count</dt>
-              <dd>{vouchReceived.count}</dd>
-              <dt>Total ETH</dt>
-              <dd>{formatWeiToEth(vouchReceived.amountWeiTotal)} ETH</dd>
-            </dl>
-          </div>
-
-          <Section title="On-Chain">
-            <Row
-              label="Primary Address"
-              value={userData.addresses[0]?.address ?? 'N/A'}
-            />
-            <Row
-              label="ETH Price (USD)"
-              value={`$${userData.ethPrice.toFixed(2)}`}
-            />
-          </Section>
-        </div>
-      )}
+      {userData && <EthosProfileCard profile={userData} />}
     </div>
-  );
-}
-
-function Section({ title, children }) {
-  return (
-    <div className={styles.subContainer}>
-      <div className={sharedStyles.sectionTitle}>{title}</div>
-      <dl className={styles.dl}>{children}</dl>
-    </div>
-  );
-}
-
-function Row({ label, value }) {
-  return (
-    <>
-      <dt>{label}</dt>
-      <dd>{value}</dd>
-    </>
   );
 }
