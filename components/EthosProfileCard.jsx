@@ -1,6 +1,6 @@
 import { useState } from 'react';
+import Image from 'next/image';
 import styles from './EthosProfileCard.module.css';
-import sharedStyles from '../styles/Shared.module.css';
 
 export default function EthosProfileCard() {
   const [handle, setHandle] = useState('');
@@ -21,7 +21,6 @@ export default function EthosProfileCard() {
     setProgress(0);
 
     try {
-      // 1) v2: lookup user by X handle
       const userRes = await fetch(
         `https://api.ethos.network/api/v2/user/by/x/${username}`
       );
@@ -40,18 +39,15 @@ export default function EthosProfileCard() {
         xpTotal,
         xpStreakDays,
         stats: {
-          review: {
-            received: { positive = 0, neutral = 0, negative = 0 } = {},
-          } = {},
+          review: { received: { positive = 0, neutral = 0, negative = 0 } = {} } = {},
           vouch: {
-            given:   { count: vGiven = 0,   amountWeiTotal: wGiven = '0' } = {},
-            received:{ count: vRecv = 0,   amountWeiTotal: wRecv = '0' } = {},
+            given: { count: vGiven = 0, amountWeiTotal: wGiven = '0' } = {},
+            received: { count: vRecv = 0, amountWeiTotal: wRecv = '0' } = {},
           } = {},
         } = {},
       } = userJson;
       setProgress(40);
 
-      // 2) v1: fetch on-chain address
       const addrRes = await fetch(
         `https://api.ethos.network/api/v1/addresses/profileId:${profileId}`
       );
@@ -62,7 +58,6 @@ export default function EthosProfileCard() {
       const primaryAddress = addrList[0]?.address ?? 'N/A';
       setProgress(60);
 
-      // 3) v1: fetch ETH price
       const priceRes = await fetch(
         'https://api.ethos.network/api/v1/exchange-rates/eth-price'
       );
@@ -74,7 +69,6 @@ export default function EthosProfileCard() {
       } = await priceRes.json();
       setProgress(100);
 
-      // 4) commit to state
       setData({
         id,
         profileId,
@@ -86,7 +80,7 @@ export default function EthosProfileCard() {
         xpTotal,
         xpStreakDays,
         reviewStats: { positive, neutral, negative },
-        vouchGiven:    { count: vGiven, eth: toEth(wGiven) },
+        vouchGiven: { count: vGiven, eth: toEth(wGiven) },
         vouchReceived: { count: vRecv, eth: toEth(wRecv) },
         primaryAddress,
         ethPrice,
@@ -100,6 +94,48 @@ export default function EthosProfileCard() {
     }
   };
 
+  const renderSections = (profile) => {
+    const sections = [
+      ['Main Stats', {
+        ID: profile.id,
+        'Profile ID': profile.profileId,
+        Status: profile.status,
+        Score: profile.score,
+        'XP Total': profile.xpTotal,
+        'XP Streak Days': profile.xpStreakDays,
+      }],
+      ['Reviews Received', {
+        Positive: profile.reviewStats.positive,
+        Neutral: profile.reviewStats.neutral,
+        Negative: profile.reviewStats.negative,
+      }],
+      ['Vouches Given', {
+        Count: profile.vouchGiven.count,
+        'Total ETH': `${profile.vouchGiven.eth} ETH`,
+      }],
+      ['Vouches Received', {
+        Count: profile.vouchReceived.count,
+        'Total ETH': `${profile.vouchReceived.eth} ETH`,
+      }],
+      ['On-Chain', {
+        'Primary Address': profile.primaryAddress,
+        'ETH Price (USD)': `$${Number(profile.ethPrice).toFixed(2)}`,
+      }],
+    ];
+
+    return sections.map(([title, dataSection]) => (
+      <div key={title} className={styles.section}>
+        <h3 className={styles.sectionTitle}>{title}</h3>
+        {Object.entries(dataSection).map(([label, value]) => (
+          <div key={label} className={styles.row}>
+            <span className={styles.rowLabel}>{label}</span>
+            <span className={styles.rowValue}>{value}</span>
+          </div>
+        ))}
+      </div>
+    ));
+  };
+
   return (
     <div className={styles.wrapper}>
       <h1 className={styles.title}>Ethos Search</h1>
@@ -111,20 +147,14 @@ export default function EthosProfileCard() {
           onChange={(e) => setHandle(e.target.value)}
           placeholder="Twitter handle"
         />
-        <button
-          onClick={handleSearch}
-          disabled={loading || !handle.trim()}
-        >
+        <button onClick={handleSearch} disabled={loading || !handle.trim()}>
           {loading ? 'Searching…' : 'Search'}
         </button>
       </div>
 
       {loading && (
         <div className={styles.loadingContainer}>
-          <div
-            className={styles.loadingBar}
-            style={{ width: `${progress}%` }}
-          />
+          <div className={styles.loadingBar} style={{ width: `${progress}%` }} />
         </div>
       )}
 
@@ -132,78 +162,25 @@ export default function EthosProfileCard() {
 
       {data && (
         <div className={styles.card}>
-          <div className={styles.userHeader}>
+          <div className={styles.header}>
             {data.avatarUrl && (
-              <img
+              <Image
                 src={data.avatarUrl}
                 alt=""
-                className={sharedStyles.avatar}
+                width={64}
+                height={64}
+                className={styles.avatar}
               />
             )}
             <div className={styles.nameBlock}>
-              <h2 className={styles.displayName}>{data.displayName}</h2>
-              <div className={sharedStyles.handle}>@{data.username}</div>
+              <div className={styles.username}>{data.displayName}</div>
+              <div className={styles.handle}>@{data.username}</div>
             </div>
           </div>
 
-          {/* Main Stats */}
-          <Section title="Main Stats">
-            <Row label="ID"            value={data.id} />
-            <Row label="Profile ID"    value={data.profileId} />
-            <Row label="Status"        value={data.status} />
-            <Row label="Score"         value={data.score} />
-            <Row label="XP Total"      value={data.xpTotal} />
-            <Row label="XP Streak Days" value={data.xpStreakDays} />
-          </Section>
-
-          {/* Reviews Received */}
-          <Section title="Reviews Received">
-            <Row label="Positive" value={data.reviewStats.positive} />
-            <Row label="Neutral"  value={data.reviewStats.neutral}  />
-            <Row label="Negative" value={data.reviewStats.negative} />
-          </Section>
-
-          {/* Vouches Given */}
-          <Section title="Vouches Given">
-            <Row label="Count"     value={data.vouchGiven.count} />
-            <Row label="Total ETH" value={`${data.vouchGiven.eth} ETH`} />
-          </Section>
-
-          {/* Vouches Received */}
-          <Section title="Vouches Received">
-            <Row label="Count"     value={data.vouchReceived.count} />
-            <Row label="Total ETH" value={`${data.vouchReceived.eth} ETH`} />
-          </Section>
-
-          {/* On-Chain */}
-          <Section title="On-Chain">
-            <Row label="Primary Address" value={data.primaryAddress} />
-            <Row
-              label="ETH Price (USD)"
-              value={`$${Number(data.ethPrice).toFixed(2)}`}
-            />
-          </Section>
+          {renderSections(data)}
         </div>
       )}
-    </div>
-  );
-}
-
-// ––– Sub-components –––
-function Section({ title, children }) {
-  return (
-    <div className={styles.section}>
-      <div className={sharedStyles.sectionTitle}>{title}</div>
-      <dl>{children}</dl>
-    </div>
-  );
-}
-
-function Row({ label, value }) {
-  return (
-    <div className={styles.row}>
-      <dt>{label}</dt>
-      <dd>{value}</dd>
     </div>
   );
 }
