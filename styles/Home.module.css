@@ -19,6 +19,7 @@
   justify-content: center;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  width: 100%;
 }
 
 .input {
@@ -26,7 +27,7 @@
   padding: 0.5rem 0.75rem;
   border: 1px solid #d0d7e2;
   border-radius: 8px;
-  background: #ffffff;
+  background: transparent;
   color: #223244;
 }
 .input::placeholder {
