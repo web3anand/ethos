@@ -1,4 +1,25 @@
 :root {
+  --crt-bg-dark: #001400;
+  --crt-bg-light: rgba(0, 20, 0, 0.6);
+  --glass-light: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --neon-green: #39ff14;
+  --neon-cyan: #00eaff;
+  --neon-magenta: #ff00e1;
+  --text-crt: #39ff14;
+}
+
+/* Wrapper */
+
+  /* CRT color palette */
+  --crt-bg-dark: #000000;
+  --crt-bg-light: rgba(0, 0, 0, 0.6);
+  --glass-light: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --neon-green: #00ff41;
+  --neon-cyan: #00ffff;
+  --neon-magenta: #ff00ff;
+  --text-crt: #00ff41;
   --bg-page: #121212;
   --bg-glass: rgba(30, 30, 30, 0.6);
   --border-glass: rgba(255, 255, 255, 0.1);
@@ -46,6 +67,8 @@
   transition: background 0.2s, transform 0.2s;
 }
 .searchBar button:hover:not(:disabled) {
+  background: rgba(57, 255, 20, 0.1);
+  background: rgba(0, 255, 65, 0.1);
   background: rgba(63, 169, 245, 0.1);
   transform: translateY(-1px);
 }
@@ -61,6 +84,8 @@
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-glass);
   border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(57, 255, 20, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 255, 65, 0.2);
   box-shadow: 0 8px 32px rgba(63, 169, 245, 0.2);
   padding: 2rem;
   margin: auto;
@@ -70,6 +95,10 @@
 .card::after {
   content: '';
   position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   inset: 0;
   background-image: repeating-linear-gradient(
     rgba(0, 0, 0, 0.05) 0 1px,
@@ -110,6 +139,7 @@
   margin-top: 0.25rem;
 }
 
+/* Sections */
 /* Section Panels */
 .section {
   position: relative;
@@ -121,6 +151,8 @@
   transition: background 0.2s;
 }
 .section:hover {
+  background: rgba(255, 255, 255, 0.12);
+  background: rgba(44, 26, 26, 0.603);
   background: rgba(63, 169, 245, 0.05);
 }
 .sectionTitle {
