@@ -51,7 +51,9 @@ export default function Home() {
           count: data.stats?.vouch?.received?.count ?? 0,
           eth: (Number(data.stats?.vouch?.received?.amountWeiTotal || 0) / 1e18).toFixed(3),
         },
-        primaryAddress: addresses[0]?.address ?? 'N/A',
+        onChain: {
+          primaryAddress: addresses[0]?.address,
+        },
         ethPrice,
       };
       setUserData(profile);

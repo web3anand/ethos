@@ -4,6 +4,8 @@ import styles from './EthosProfileCard.module.css';
 export default function EthosProfileCard({ profile }) {
   if (!profile) return null;
 
+  const { reviewStats, vouchGiven, vouchReceived, onChain } = profile;
+
   const sections = [
     [
       'Main Stats',
@@ -19,29 +21,29 @@ export default function EthosProfileCard({ profile }) {
     [
       'Reviews Received',
       {
-        Positive: profile.reviewStats.positive,
-        Neutral: profile.reviewStats.neutral,
-        Negative: profile.reviewStats.negative,
+        Positive: reviewStats.positive,
+        Neutral: reviewStats.neutral,
+        Negative: reviewStats.negative,
       },
     ],
     [
       'Vouches Given',
       {
-        Count: profile.vouchGiven.count,
-        'Total ETH': `${profile.vouchGiven.eth} ETH`,
+        Count: vouchGiven.count,
+        'Total ETH': `${vouchGiven.eth} ETH`,
       },
     ],
     [
       'Vouches Received',
       {
-        Count: profile.vouchReceived.count,
-        'Total ETH': `${profile.vouchReceived.eth} ETH`,
+        Count: vouchReceived.count,
+        'Total ETH': `${vouchReceived.eth} ETH`,
       },
     ],
     [
       'On-Chain',
       {
-        'Primary Address': profile.primaryAddress,
+        'Primary Address': onChain?.primaryAddress ?? 'N/A',
         'ETH Price (USD)': `$${Number(profile.ethPrice).toFixed(2)}`,
       },
     ],
@@ -50,7 +52,7 @@ export default function EthosProfileCard({ profile }) {
   return (
     <div className={styles.card}>
       <div className={styles.header}>
-        {profile.avatarUrl && (
+        {profile.avatarUrl ? (
           <Image
             src={profile.avatarUrl}
             alt=""
@@ -58,6 +60,8 @@ export default function EthosProfileCard({ profile }) {
             height={64}
             className={styles.avatar}
           />
+        ) : (
+          <div className={styles.avatarFallback} />
         )}
         <div className={styles.nameBlock}>
           <div className={styles.username}>{profile.displayName}</div>
