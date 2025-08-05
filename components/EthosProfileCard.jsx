@@ -6,6 +6,18 @@ export default function EthosProfileCard({ profile }) {
 
   const { reviewStats, vouchGiven, vouchReceived, onChain, avatarUrl } = profile;
 
+  const ethPrice = Number(onChain?.ethPrice ?? 0);
+  const totalEthGiven = Number(vouchGiven?.totalEth ?? vouchGiven?.eth ?? 0);
+  const totalEthReceived = Number(vouchReceived?.totalEth ?? vouchReceived?.eth ?? 0);
+  const vouchGivenUsd = (totalEthGiven * ethPrice).toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  });
+  const vouchReceivedUsd = (totalEthReceived * ethPrice).toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  });
+
   const sections = [
     [
       'Main Stats',
@@ -30,21 +42,23 @@ export default function EthosProfileCard({ profile }) {
       'Vouches Given',
       {
         Count: vouchGiven.count,
-        'Total ETH': `${vouchGiven.eth} ETH`,
+        'Total ETH': `${totalEthGiven.toFixed(3)} ETH`,
+        'Value (USD)': vouchGivenUsd,
       },
     ],
     [
       'Vouches Received',
       {
         Count: vouchReceived.count,
-        'Total ETH': `${vouchReceived.eth} ETH`,
+        'Total ETH': `${totalEthReceived.toFixed(3)} ETH`,
+        'Value (USD)': vouchReceivedUsd,
       },
     ],
     [
       'On-Chain',
       {
-        'Primary Address': onChain?.primaryAddress,
-        'ETH Price (USD)': `$${Number(profile.ethPrice).toFixed(2)}`,
+        'Primary Address': onChain?.primaryAddress || 'N/A',
+        'ETH Price (USD)': `$${ethPrice.toFixed(2)}`,
       },
     ],
   ];
