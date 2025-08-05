@@ -4,16 +4,23 @@ import styles from './EthosProfileCard.module.css';
 export default function EthosProfileCard({ profile }) {
   if (!profile) return null;
 
-  const { reviewStats, vouchGiven, vouchReceived, onChain, avatarUrl } = profile;
+  const { reviewStats, vouchesGiven, vouchesReceived, onChain, avatarUrl } = profile;
 
-  const ethPrice = Number(onChain?.ethPrice ?? 0);
-  const totalEthGiven = Number(vouchGiven?.totalEth ?? vouchGiven?.eth ?? 0);
-  const totalEthReceived = Number(vouchReceived?.totalEth ?? vouchReceived?.eth ?? 0);
-  const vouchGivenUsd = (totalEthGiven * ethPrice).toLocaleString('en-US', {
+  const totalEthGiven = Number(vouchesGiven?.totalEth ?? 0);
+  const totalEthReceived = Number(vouchesReceived?.totalEth ?? 0);
+  const priceNum =
+    typeof onChain?.ethPrice === 'string'
+      ? parseFloat(onChain.ethPrice.replace(/[$,]/g, ''))
+      : onChain?.ethPrice || 0;
+  const vouchGivenUsd = (totalEthGiven * priceNum).toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD',
   });
-  const vouchReceivedUsd = (totalEthReceived * ethPrice).toLocaleString('en-US', {
+  const vouchReceivedUsd = (totalEthReceived * priceNum).toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  });
+  const ethPriceUsd = priceNum.toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD',
   });
@@ -41,7 +48,7 @@ export default function EthosProfileCard({ profile }) {
     [
       'Vouches Given',
       {
-        Count: vouchGiven.count,
+        Count: vouchesGiven?.count ?? 0,
         'Total ETH': `${totalEthGiven.toFixed(3)} ETH`,
         'Value (USD)': vouchGivenUsd,
       },
@@ -49,7 +56,7 @@ export default function EthosProfileCard({ profile }) {
     [
       'Vouches Received',
       {
-        Count: vouchReceived.count,
+        Count: vouchesReceived?.count ?? 0,
         'Total ETH': `${totalEthReceived.toFixed(3)} ETH`,
         'Value (USD)': vouchReceivedUsd,
       },
@@ -58,7 +65,7 @@ export default function EthosProfileCard({ profile }) {
       'On-Chain',
       {
         'Primary Address': onChain?.primaryAddress || 'N/A',
-        'ETH Price (USD)': `$${ethPrice.toFixed(2)}`,
+        'ETH Price (USD)': ethPriceUsd,
       },
     ],
   ];
