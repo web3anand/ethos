@@ -4,7 +4,7 @@ import styles from './EthosProfileCard.module.css';
 export default function EthosProfileCard({ profile }) {
   if (!profile) return null;
 
-  const { reviewStats, vouchGiven, vouchReceived, onChain } = profile;
+  const { reviewStats, vouchGiven, vouchReceived, onChain, avatarUrl } = profile;
 
   const sections = [
     [
@@ -43,7 +43,7 @@ export default function EthosProfileCard({ profile }) {
     [
       'On-Chain',
       {
-        'Primary Address': onChain?.primaryAddress ?? 'N/A',
+        'Primary Address': onChain?.primaryAddress,
         'ETH Price (USD)': `$${Number(profile.ethPrice).toFixed(2)}`,
       },
     ],
@@ -52,9 +52,9 @@ export default function EthosProfileCard({ profile }) {
   return (
     <div className={styles.card}>
       <div className={styles.header}>
-        {profile.avatarUrl ? (
+        {avatarUrl ? (
           <Image
-            src={profile.avatarUrl}
+            src={avatarUrl}
             alt=""
             width={64}
             height={64}

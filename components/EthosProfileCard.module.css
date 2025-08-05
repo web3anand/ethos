@@ -1,5 +1,5 @@
 .card {
-  background: #ffffff;
+  background: transparent;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
   padding: 24px;
   border-radius: 24px;
@@ -53,11 +53,6 @@
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 16px;
-}
-
-.section:last-child {
-  background: transparent;
-  backdrop-filter: none;
 }
 
 .sectionTitle {
