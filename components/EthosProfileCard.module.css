@@ -1,22 +1,19 @@
 :root {
-  /* CRT color palette */
-  --crt-bg-dark: #000000;
-  --crt-bg-light: rgba(0, 0, 0, 0.6);
-  --glass-light: rgba(255, 255, 255, 0.08);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --neon-green: #00ff41;
-  --neon-cyan: #00ffff;
-  --neon-magenta: #ff00ff;
-  --text-crt: #00ff41;
+  --bg-page: #121212;
+  --bg-glass: rgba(30, 30, 30, 0.6);
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --text-primary: #e0e0e0;
+  --text-secondary: #aaaaaa;
+  --accent: #3fa9f5;
 }
 
 /* Page wrapper */
 .wrapper {
-  background: radial-gradient(circle at top left, #111, var(--crt-bg-dark));
+  background: var(--bg-page);
   min-height: 100vh;
   padding: 2rem;
   font-family: 'Courier New', monospace;
-  color: var(--text-crt);
+  color: var(--text-primary);
 }
 
 /* Search Bar */
@@ -28,28 +25,28 @@
 .searchBar input {
   flex: 1;
   padding: 0.6rem 1rem;
-  background: var(--glass-light);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
   border-radius: 9999px;
-  color: var(--text-crt);
+  color: var(--text-primary);
   font-size: 1rem;
 }
 .searchBar input::placeholder {
-  color: var(--neon-green);
+  color: var(--text-secondary);
   opacity: 0.6;
 }
 .searchBar button {
   padding: 0.6rem 1.2rem;
-  background: var(--glass-light);
-  border: 1px solid var(--neon-green);
+  background: var(--bg-glass);
+  border: 1px solid var(--accent);
   border-radius: 9999px;
-  color: var(--neon-green);
+  color: var(--accent);
   font-weight: bold;
   cursor: pointer;
   transition: background 0.2s, transform 0.2s;
 }
 .searchBar button:hover:not(:disabled) {
-  background: rgba(0, 255, 65, 0.1);
+  background: rgba(63, 169, 245, 0.1);
   transform: translateY(-1px);
 }
 .searchBar button:disabled {
@@ -60,11 +57,11 @@
 /* Card Container + Scanlines */
 .card {
   position: relative;
-  background: var(--glass-light);
+  background: var(--bg-glass);
   backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-glass);
   border-radius: 24px;
-  box-shadow: 0 8px 32px rgba(0, 255, 65, 0.2);
+  box-shadow: 0 8px 32px rgba(63, 169, 245, 0.2);
   padding: 2rem;
   margin: auto;
   max-width: 600px;
@@ -81,42 +78,35 @@
   pointer-events: none;
 }
 
-/* Header Container */
-.headerContainer {
+/* User Header */
+.userHeader {
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: var(--glass-light);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
   border-radius: 16px;
   padding: 1rem;
   margin-bottom: 2rem;
 }
 .avatar {
-  width: 80px;
-  height: 80px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  border: 2px solid var(--neon-green);
+  border: 2px solid var(--accent);
   object-fit: cover;
-  transition: transform 0.2s;
-}
-.avatar:hover {
-  transform: scale(1.1);
 }
 .nameBlock {
   display: flex;
   flex-direction: column;
 }
 .displayName {
-  font-size: 1.5rem;
-  font-weight: bold;
+  color: var(--text-primary);
   margin: 0;
-  color: var(--neon-cyan);
+  font-size: 1.5rem;
 }
 .handle {
-  font-size: 1rem;
-  opacity: 0.8;
-  color: var(--neon-green);
+  color: var(--text-secondary);
   margin-top: 0.25rem;
 }
 
@@ -124,19 +114,19 @@
 .section {
   position: relative;
   margin-bottom: 1.5rem;
-  background: var(--glass-light);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
   border-radius: 16px;
   padding: 1.25rem;
   transition: background 0.2s;
 }
 .section:hover {
-  background: rgba(44, 26, 26, 0.603);
+  background: rgba(63, 169, 245, 0.05);
 }
 .sectionTitle {
   font-size: 1.125rem;
   font-weight: bold;
-  color: var(--neon-magenta);
+  color: var(--accent);
   text-align: center;
   margin-bottom: 1rem;
 }
@@ -151,9 +141,9 @@
 }
 dt {
   font-weight: bold;
-  color: var(--neon-green);
+  color: var(--text-secondary);
 }
 dd {
   margin: 0;
-  color: var(--text-crt);
+  color: var(--text-primary);
 }
