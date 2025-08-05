@@ -1,0 +1,20 @@
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  object-fit: cover;
+}
+
+.handle {
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: var(--accent);
+  text-align: center;
+  margin-bottom: 1rem;
+}

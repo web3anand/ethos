@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styles from './EthosProfileCard.module.css';
+import sharedStyles from '../styles/Shared.module.css';
 
 export default function EthosProfileCard() {
   const [handle, setHandle] = useState('');
@@ -136,12 +137,12 @@ export default function EthosProfileCard() {
               <img
                 src={data.avatarUrl}
                 alt=""
-                className={styles.avatar}
+                className={sharedStyles.avatar}
               />
             )}
             <div className={styles.nameBlock}>
               <h2 className={styles.displayName}>{data.displayName}</h2>
-              <div className={styles.handle}>@{data.username}</div>
+              <div className={sharedStyles.handle}>@{data.username}</div>
             </div>
           </div>
 
@@ -192,7 +193,7 @@ export default function EthosProfileCard() {
 function Section({ title, children }) {
   return (
     <div className={styles.section}>
-      <div className={styles.sectionTitle}>{title}</div>
+      <div className={sharedStyles.sectionTitle}>{title}</div>
       <dl>{children}</dl>
     </div>
   );

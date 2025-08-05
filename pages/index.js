@@ -5,6 +5,7 @@ import {
   fetchUserAddresses,
 } from '../lib/ethos';
 import styles from '../styles/Home.module.css';
+import sharedStyles from '../styles/Shared.module.css';
 
 export default function Home() {
   const [username, setUsername] = useState('');
@@ -72,12 +73,12 @@ export default function Home() {
       {error && <div className={styles.error}>{error}</div>}
       {userData && (
         <div className={styles.userCard}>
-          <img src={userData.avatarUrl} alt="" className={styles.avatar} />
+          <img src={userData.avatarUrl} alt="" className={sharedStyles.avatar} />
           <h2 className={styles.name}>{userData.displayName}</h2>
-          <p className={styles.handle}>@{userData.username}</p>
+          <p className={sharedStyles.handle}>@{userData.username}</p>
 
           <div className={styles.subContainer}>
-            <div className={styles.sectionTitle}>Main Stats</div>
+            <div className={sharedStyles.sectionTitle}>Main Stats</div>
             <dl className={styles.dl}>
               <dt>ID</dt><dd>{userData.id}</dd>
               <dt>Profile ID</dt><dd>{userData.profileId}</dd>
@@ -114,7 +115,7 @@ export default function Home() {
           </Section>
 
           <div className={styles.subContainer}>
-            <div className={styles.sectionTitle}>Vouches Received</div>
+            <div className={sharedStyles.sectionTitle}>Vouches Received</div>
             <dl className={styles.dl}>
               <dt>Count</dt>
               <dd>{vouchReceived.count}</dd>
@@ -142,7 +143,7 @@ export default function Home() {
 function Section({ title, children }) {
   return (
     <div className={styles.subContainer}>
-      <div className={styles.sectionTitle}>{title}</div>
+      <div className={sharedStyles.sectionTitle}>{title}</div>
       <dl className={styles.dl}>{children}</dl>
     </div>
   );

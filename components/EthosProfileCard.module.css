@@ -118,13 +118,7 @@
   padding: 1rem;
   margin-bottom: 2rem;
 }
-.avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  border: 2px solid var(--accent);
-  object-fit: cover;
-}
+
 .nameBlock {
   display: flex;
   flex-direction: column;
@@ -133,10 +127,6 @@
   color: var(--text-primary);
   margin: 0;
   font-size: 1.5rem;
-}
-.handle {
-  color: var(--text-secondary);
-  margin-top: 0.25rem;
 }
 
 /* Sections */
@@ -154,13 +144,6 @@
   background: rgba(255, 255, 255, 0.12);
   background: rgba(44, 26, 26, 0.603);
   background: rgba(63, 169, 245, 0.05);
-}
-.sectionTitle {
-  font-size: 1.125rem;
-  font-weight: bold;
-  color: var(--accent);
-  text-align: center;
-  margin-bottom: 1rem;
 }
 
 /* Data Rows */
