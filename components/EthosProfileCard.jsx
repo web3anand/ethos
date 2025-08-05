@@ -4,78 +4,41 @@ import styles from './EthosProfileCard.module.css';
 export default function EthosProfileCard({ profile }) {
   if (!profile) return null;
 
-  const { reviewStats, vouchesGiven, vouchesReceived, onChain, avatarUrl } = profile;
+  const {
+    username,
+    handle,
+    vouchesGiven,
+    vouchesReceived,
+    onChain,
+  } = profile;
 
-  const totalEthGiven = Number(vouchesGiven?.totalEth ?? 0);
-  const totalEthReceived = Number(vouchesReceived?.totalEth ?? 0);
   const priceNum =
-    typeof onChain?.ethPrice === 'string'
+    typeof onChain.ethPrice === 'string'
       ? parseFloat(onChain.ethPrice.replace(/[$,]/g, ''))
-      : onChain?.ethPrice || 0;
+      : Number(onChain.ethPrice || 0);
+
+  const totalEthGiven = Number(vouchesGiven.totalEth ?? 0);
+  const totalEthReceived = Number(vouchesReceived.totalEth ?? 0);
+
   const vouchGivenUsd = (totalEthGiven * priceNum).toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD',
   });
-  const vouchReceivedUsd = (totalEthReceived * priceNum).toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  });
+  const vouchReceivedUsd = (totalEthReceived * priceNum).toLocaleString(
+    'en-US',
+    { style: 'currency', currency: 'USD' }
+  );
   const ethPriceUsd = priceNum.toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD',
   });
 
-  const sections = [
-    [
-      'Main Stats',
-      {
-        ID: profile.id,
-        'Profile ID': profile.profileId,
-        Status: profile.status,
-        Score: profile.score,
-        'XP Total': profile.xpTotal,
-        'XP Streak Days': profile.xpStreakDays,
-      },
-    ],
-    [
-      'Reviews Received',
-      {
-        Positive: reviewStats.positive,
-        Neutral: reviewStats.neutral,
-        Negative: reviewStats.negative,
-      },
-    ],
-    [
-      'Vouches Given',
-      {
-        Count: vouchesGiven?.count ?? 0,
-        'Total ETH': `${totalEthGiven.toFixed(3)} ETH`,
-        'Value (USD)': vouchGivenUsd,
-      },
-    ],
-    [
-      'Vouches Received',
-      {
-        Count: vouchesReceived?.count ?? 0,
-        'Total ETH': `${totalEthReceived.toFixed(3)} ETH`,
-        'Value (USD)': vouchReceivedUsd,
-      },
-    ],
-    [
-      'On-Chain',
-      {
-        'Primary Address': onChain?.primaryAddress || 'N/A',
-        'ETH Price (USD)': ethPriceUsd,
-      },
-    ],
-  ];
-
   return (
     <div className={styles.card}>
       <div className={styles.header}>
-        {avatarUrl ? (
+        {profile.avatarUrl ? (
           <Image
-            src={avatarUrl}
+            src={profile.avatarUrl}
             alt=""
             width={64}
             height={64}
@@ -85,22 +48,54 @@ export default function EthosProfileCard({ profile }) {
           <div className={styles.avatarFallback} />
         )}
         <div className={styles.nameBlock}>
-          <div className={styles.username}>{profile.displayName}</div>
-          <div className={styles.handle}>@{profile.username}</div>
+          <div className={styles.username}>{username}</div>
+          <div className={styles.handle}>@{handle}</div>
         </div>
       </div>
 
-      {sections.map(([title, data]) => (
-        <div key={title} className={styles.section}>
-          <h3 className={styles.sectionTitle}>{title}</h3>
-          {Object.entries(data).map(([label, value]) => (
-            <div key={label} className={styles.row}>
-              <span className={styles.rowLabel}>{label}</span>
-              <span className={styles.rowValue}>{value}</span>
-            </div>
-          ))}
+      <div className={styles.section}>
+        <h3 className={styles.sectionTitle}>Vouches Given</h3>
+        <div className={styles.row}>
+          <span className={styles.rowLabel}>Count</span>
+          <span className={styles.rowValue}>{vouchesGiven.count ?? 0}</span>
         </div>
-      ))}
+        <div className={styles.row}>
+          <span className={styles.rowLabel}>Total ETH</span>
+          <span className={styles.rowValue}>{`${totalEthGiven.toFixed(3)} ETH`}</span>
+        </div>
+        <div className={styles.row}>
+          <span className={styles.rowLabel}>Value (USD)</span>
+          <span className={styles.rowValue}>{vouchGivenUsd}</span>
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h3 className={styles.sectionTitle}>Vouches Received</h3>
+        <div className={styles.row}>
+          <span className={styles.rowLabel}>Count</span>
+          <span className={styles.rowValue}>{vouchesReceived.count ?? 0}</span>
+        </div>
+        <div className={styles.row}>
+          <span className={styles.rowLabel}>Total ETH</span>
+          <span className={styles.rowValue}>{`${totalEthReceived.toFixed(3)} ETH`}</span>
+        </div>
+        <div className={styles.row}>
+          <span className={styles.rowLabel}>Value (USD)</span>
+          <span className={styles.rowValue}>{vouchReceivedUsd}</span>
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h3 className={styles.sectionTitle}>On-Chain</h3>
+        <div className={styles.row}>
+          <span className={styles.rowLabel}>Primary Address</span>
+          <span className={styles.rowValue}>{onChain.primaryAddress || 'N/A'}</span>
+        </div>
+        <div className={styles.row}>
+          <span className={styles.rowLabel}>ETH Price (USD)</span>
+          <span className={styles.rowValue}>{ethPriceUsd}</span>
+        </div>
+      </div>
     </div>
   );
 }
