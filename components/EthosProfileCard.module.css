@@ -396,17 +396,17 @@
 .tableContainer {
   width: 100%;
   max-width: 480px;
-  margin: 0.7rem auto 1.1rem auto;
-  background: #fff;
-  border-radius: 1.3em;
-  box-shadow: 0 2px 16px rgba(60,60,90,0.06);
-  padding: 0.2rem 0 0.2rem 0;
-  overflow-x: auto;
+  margin: 1.2rem auto 1.5rem auto;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  overflow-x: visible;
   border: none;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 0;
+  gap: 1.1rem;
 }
 .table {
   width: 100%;
@@ -416,19 +416,27 @@
 }
 .tableRow {
   background: #fff;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background 0.15s;
+  border-radius: 1.2em;
+  box-shadow: 0 2px 12px rgba(60,60,90,0.07);
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 1.2rem;
+  transition: box-shadow 0.15s, background 0.15s;
+  border: none;
 }
-.tableRow:nth-child(even) {
-  background: #f8fafc;
+.tableRow:not(:last-child) {
+  margin-bottom: 0.5rem;
 }
 .tableRow:hover {
-  background: #f1f3f7;
+  box-shadow: 0 4px 20px rgba(60,60,90,0.10);
+  background: #f6f7fa;
 }
 .tableCellLabel {
-  color: #6b7280;
-  font-weight: 500;
-  padding: 0.85rem 0.5rem 0.85rem 1.5rem;
+  color: #23272f;
+  font-weight: 600;
+  padding: 0;
   text-align: left;
   min-width: 120px;
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
@@ -441,7 +449,7 @@
   color: #23272f;
   font-weight: 600;
   text-align: right;
-  padding: 0.85rem 1.5rem 0.85rem 0.5rem;
+  padding: 0;
   font-family: 'JetBrains Mono', 'Fira Mono', 'Menlo', monospace;
   font-size: 1.13rem;
   letter-spacing: 0.01em;
@@ -450,11 +458,17 @@
 }
 
 .sectionTitle {
-  font-size: 1.1rem;
+  font-size: 1.13rem;
   font-weight: 700;
-  color: #2d2d2d;
-  margin-bottom: 0.5rem;
+  color: #23272f;
+  background: #fff;
+  border-radius: 1.1em;
+  box-shadow: 0 2px 12px rgba(60,60,90,0.07);
+  padding: 0.7rem 1.2rem;
+  margin-bottom: 0.7rem;
+  margin-top: 1.2rem;
   letter-spacing: 0.02em;
+  display: inline-block;
 }
 
 .row {
