@@ -1,10 +1,29 @@
 import Image from 'next/image';
 import styles from './EthosProfileCard.module.css';
 
+// Score name and color mapping
+const scoreLevels = [
+  { min: 0, max: 499, name: 'Untrusted', color: '#e74c3c' },
+  { min: 500, max: 799, name: 'Questionable', color: '#e1b000' },
+  { min: 800, max: 999, name: 'Neutral', color: '#e2e2e2', text: '#222' },
+  { min: 1000, max: 1299, name: 'Known', color: '#8cb6e6' },
+  { min: 1300, max: 1599, name: 'Established', color: '#5fa8d3' },
+  { min: 1600, max: 1899, name: 'Reputable', color: '#3b82f6' },
+  { min: 1900, max: 2199, name: 'Exemplary', color: '#34d399' },
+  { min: 2200, max: 2499, name: 'Distinguished', color: '#22c55e' },
+  { min: 2500, max: 2799, name: 'Revered', color: '#a78bfa' },
+  { min: 2800, max: Infinity, name: 'Renowned', color: '#a855f7' },
+];
+
+function getScoreLevel(score) {
+  return scoreLevels.find(l => score >= l.min && score <= l.max) || scoreLevels[0];
+}
+
 export default function EthosProfileCard({ profile }) {
   if (!profile) return null;
 
-  const { reviewStats, vouchGiven, vouchReceived, onChain, avatarUrl } = profile;
+  const { reviewStats, vouchGiven, vouchReceived, onChain, avatarUrl, score } = profile;
+  const scoreLevel = getScoreLevel(Number(score));
 
   const sections = [
     [
@@ -53,18 +72,18 @@ export default function EthosProfileCard({ profile }) {
 
   return (
     <div className={styles.card}>
-      <div className={styles.topCard}>
-        <div className={styles.avatarBigBlock}>
+      <div className={styles.topCardSmall}>
+        <div className={styles.avatarBigBlockSmall}>
           {avatarUrl ? (
             <Image
               src={avatarUrl}
               alt=""
-              width={128}
-              height={128}
-              className={styles.avatarBig}
+              width={88}
+              height={88}
+              className={styles.avatarBigSmall}
             />
           ) : (
-            <div className={styles.avatarBigFallback}>
+            <div className={styles.avatarBigFallbackSmall}>
               {profile.displayName
                 ? profile.displayName
                     .split(' ')
@@ -75,14 +94,17 @@ export default function EthosProfileCard({ profile }) {
                 : '?'}
             </div>
           )}
+          <span
+            className={styles.ethosTag}
+            style={{ background: scoreLevel.color, color: scoreLevel.text || '#fff' }}
+          >
+            {scoreLevel.name}
+          </span>
         </div>
-        <div className={styles.statusPillContainer}>
-          <span className={styles.statusPill}>{profile.status || 'KNOWN'}</span>
+        <div className={styles.infoBarSmall}>
+          <span className={styles.infoNameSmall}>{profile.displayName?.toUpperCase()}</span>
+          <span className={styles.infoHandleSmall}>@{profile.username?.toUpperCase()}</span>
         </div>
-      </div>
-      <div className={styles.infoBar}>
-        <span className={styles.infoName}>{profile.displayName?.toUpperCase()}</span>
-        <span className={styles.infoHandle}>@{profile.username?.toUpperCase()}</span>
       </div>
 
       {sections.map(([title, data]) => (
