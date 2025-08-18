@@ -53,18 +53,18 @@ export default function EthosProfileCard({ profile }) {
 
   return (
     <div className={styles.card}>
-      <div className={styles.profileContainer}>
-        <div className={styles.avatarBlock}>
+      <div className={styles.topCard}>
+        <div className={styles.avatarBigBlock}>
           {avatarUrl ? (
             <Image
               src={avatarUrl}
               alt=""
-              width={96}
-              height={96}
-              className={styles.avatar}
+              width={128}
+              height={128}
+              className={styles.avatarBig}
             />
           ) : (
-            <div className={styles.avatarFallback}>
+            <div className={styles.avatarBigFallback}>
               {profile.displayName
                 ? profile.displayName
                     .split(' ')
@@ -76,13 +76,13 @@ export default function EthosProfileCard({ profile }) {
             </div>
           )}
         </div>
-        <div className={styles.nameBlock}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div className={styles.username}>{profile.displayName}</div>
-            <span className={styles.statusTag}>{profile.status || 'Active'}</span>
-          </div>
-          <div className={styles.handle}>@{profile.username}</div>
+        <div className={styles.statusPillContainer}>
+          <span className={styles.statusPill}>{profile.status || 'KNOWN'}</span>
         </div>
+      </div>
+      <div className={styles.infoBar}>
+        <span className={styles.infoName}>{profile.displayName?.toUpperCase()}</span>
+        <span className={styles.infoHandle}>@{profile.username?.toUpperCase()}</span>
       </div>
 
       {sections.map(([title, data]) => (
