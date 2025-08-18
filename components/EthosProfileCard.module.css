@@ -395,8 +395,6 @@
 
 .tableContainer {
   width: 100%;
-  max-width: 480px;
-  margin: 1.2rem auto 1.5rem auto;
   background: transparent;
   border-radius: 0;
   box-shadow: none;
@@ -471,9 +469,6 @@
   display: block;
   text-align: left;
   border: none;
-  max-width: 480px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .row {
