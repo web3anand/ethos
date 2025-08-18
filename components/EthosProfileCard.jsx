@@ -53,27 +53,29 @@ export default function EthosProfileCard({ profile }) {
 
   return (
     <div className={styles.card}>
-      <div className={styles.header}>
-        {avatarUrl ? (
-          <Image
-            src={avatarUrl}
-            alt=""
-            width={64}
-            height={64}
-            className={styles.avatar}
-          />
-        ) : (
-          <div className={styles.avatarFallback}>
-            {profile.displayName
-              ? profile.displayName
-                  .split(' ')
-                  .map((n) => n[0])
-                  .join('')
-                  .toUpperCase()
-                  .slice(0, 2)
-              : '?'}
-          </div>
-        )}
+      <div className={styles.profileContainer}>
+        <div className={styles.avatarBlock}>
+          {avatarUrl ? (
+            <Image
+              src={avatarUrl}
+              alt=""
+              width={96}
+              height={96}
+              className={styles.avatar}
+            />
+          ) : (
+            <div className={styles.avatarFallback}>
+              {profile.displayName
+                ? profile.displayName
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .toUpperCase()
+                    .slice(0, 2)
+                : '?'}
+            </div>
+          )}
+        </div>
         <div className={styles.nameBlock}>
           <div className={styles.username}>{profile.displayName}</div>
           <div className={styles.handle}>@{profile.username}</div>
