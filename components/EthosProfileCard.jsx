@@ -84,7 +84,16 @@ export default function EthosProfileCard({ profile }) {
           {Object.entries(data).map(([label, value]) => (
             <div key={label} className={styles.row}>
               <span className={styles.rowLabel}>{label}</span>
-              <span className={styles.rowValue}>{value}</span>
+              <span className={styles.rowValue}>{value}
+                <button
+                  className={styles.copyBtn}
+                  title={`Copy ${label}`}
+                  style={{ marginLeft: '0.5rem', padding: '2px 8px', borderRadius: '4px', border: 'none', background: '#f0f0f0', cursor: 'pointer' }}
+                  onClick={() => navigator.clipboard.writeText(String(value))}
+                >
+                  📋
+                </button>
+              </span>
             </div>
           ))}
         </div>
