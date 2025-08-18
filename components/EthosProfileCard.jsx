@@ -61,7 +61,16 @@ export default function EthosProfileCard({ profile }) {
             className={styles.avatar}
           />
         ) : (
-          <div className={styles.avatarFallback} />
+          <div className={styles.avatarFallback}>
+            {profile.displayName
+              ? profile.displayName
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')
+                  .toUpperCase()
+                  .slice(0, 2)
+              : '?'}
+          </div>
         )}
         <div className={styles.nameBlock}>
           <div className={styles.username}>{profile.displayName}</div>
