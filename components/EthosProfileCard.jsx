@@ -25,6 +25,7 @@ export default function EthosProfileCard({ profile }) {
   const { reviewStats, vouchGiven, vouchReceived, onChain, avatarUrl, score } = profile;
   const scoreLevel = getScoreLevel(Number(score));
 
+
   const sections = [
     [
       'Main Stats',
@@ -72,14 +73,14 @@ export default function EthosProfileCard({ profile }) {
 
   return (
     <div className={styles.card}>
-      <div className={styles.topCardSmall}>
-        <div className={styles.avatarBigBlockSmall}>
+      <div className={styles.profileTopMinimal}>
+        <div className={styles.avatarEthosRow}>
           {avatarUrl ? (
             <Image
               src={avatarUrl}
               alt=""
-              width={88}
-              height={88}
+              width={80}
+              height={80}
               className={styles.avatarBigSmall}
             />
           ) : (
@@ -101,9 +102,9 @@ export default function EthosProfileCard({ profile }) {
             {scoreLevel.name}
           </span>
         </div>
-        <div className={styles.infoBarSmall}>
-          <span className={styles.infoNameSmall}>{profile.displayName?.toUpperCase()}</span>
-          <span className={styles.infoHandleSmall}>@{profile.username?.toUpperCase()}</span>
+        <div className={styles.profileNameBlock}>
+          <span className={styles.profileName}>{profile.displayName}</span>
+          <span className={styles.profileHandle}>@{profile.username}</span>
         </div>
       </div>
 

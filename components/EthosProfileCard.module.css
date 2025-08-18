@@ -1,3 +1,36 @@
+.profileTopMinimal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f9fafb;
+  border-radius: 1.5rem 1.5rem 0 0;
+  padding: 1.2rem 0 1.2rem 0;
+  margin-bottom: 0.5rem;
+}
+.avatarEthosRow {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+}
+.profileNameBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0.7rem;
+  gap: 0.15rem;
+}
+.profileName {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #23272f;
+  letter-spacing: 0.01em;
+}
+.profileHandle {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #7b7f8a;
+  letter-spacing: 0.01em;
+}
 .topCardSmall {
   display: flex;
   align-items: center;
