@@ -1,3 +1,16 @@
+.statusTag {
+  display: inline-block;
+  padding: 0.25em 0.9em;
+  border-radius: 1em;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: linear-gradient(90deg, #3b82f6 0%, #6ee7b7 100%);
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(59,130,246,0.10);
+  letter-spacing: 0.01em;
+  margin-left: 0.25rem;
+  border: none;
+}
 .profileContainer {
   display: flex;
   align-items: center;

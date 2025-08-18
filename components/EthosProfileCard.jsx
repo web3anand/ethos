@@ -77,7 +77,10 @@ export default function EthosProfileCard({ profile }) {
           )}
         </div>
         <div className={styles.nameBlock}>
-          <div className={styles.username}>{profile.displayName}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div className={styles.username}>{profile.displayName}</div>
+            <span className={styles.statusTag}>{profile.status || 'Active'}</span>
+          </div>
           <div className={styles.handle}>@{profile.username}</div>
         </div>
       </div>
