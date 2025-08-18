@@ -81,21 +81,27 @@ export default function EthosProfileCard({ profile }) {
       {sections.map(([title, data]) => (
         <div key={title} className={styles.section}>
           <h3 className={styles.sectionTitle}>{title}</h3>
-          {Object.entries(data).map(([label, value]) => (
-            <div key={label} className={styles.row}>
-              <span className={styles.rowLabel}>{label}</span>
-              <span className={styles.rowValue}>{value}
-                <button
-                  className={styles.copyBtn}
-                  title={`Copy ${label}`}
-                  style={{ marginLeft: '0.5rem', padding: '2px 8px', borderRadius: '4px', border: 'none', background: '#f0f0f0', cursor: 'pointer' }}
-                  onClick={() => navigator.clipboard.writeText(String(value))}
-                >
-                  📋
-                </button>
-              </span>
-            </div>
-          ))}
+          <div className={styles.tableContainer}>
+            <table className={styles.table}>
+              <tbody>
+                {Object.entries(data).map(([label, value]) => (
+                  <tr key={label} className={styles.tableRow}>
+                    <td className={styles.tableCellLabel}>{label}</td>
+                    <td className={styles.tableCellValue}>
+                      {value}
+                      <button
+                        className={styles.copyBtn}
+                        title={`Copy ${label}`}
+                        onClick={() => navigator.clipboard.writeText(String(value))}
+                      >
+                        📋
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ))}
     </div>
