@@ -1,29 +1,4 @@
-:root {
-  --bg: #f9fafb;
-  --surface: #ffffff;
-  --text-strong: #111827;
-  --text: #1f2937;
-  --text-muted: #6b7280;
-  --text-soft: #9ca3af;
-  --border: #e5e7eb;
-  --border-light: #f3f4f6;
 
-  --primary: #0d9488;   /* teal */
-  --primary-600: #0f766e;
-  --accent: #3b82f6;    /* blue */
-
-  --positive: #10b981;
-  --neutral: #f59e0b;
-  --negative: #ef4444;
-
-  --radius-lg: 24px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
-
-  --shadow: 0 6px 16px rgba(0,0,0,0.08);
-}
-
-/* Card */
 .card {
   background: var(--surface);
   box-shadow: var(--shadow);
