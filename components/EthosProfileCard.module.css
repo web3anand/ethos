@@ -394,18 +394,18 @@
 }
 
 .tableContainer {
-  width: 100%;
+  width: 92%;
   background: #f9fafb;
-  border-radius: 2.2em;
-  box-shadow: 0 2px 16px rgba(60,60,90,0.06);
-  padding: 1rem 0.3rem;
-  margin-bottom: 1.5rem;
+  border-radius: 1.2em;
+  box-shadow: 0 1px 8px rgba(60,60,90,0.04);
+  padding: 0.5rem 0.2rem;
+  margin: 0.7rem auto 1.1rem auto;
   overflow-x: auto;
-  border: 1.5px solid #ececec;
+  border: 1px solid #ececec;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 .table {
   width: 100%;
