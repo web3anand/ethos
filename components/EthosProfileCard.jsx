@@ -73,41 +73,38 @@ export default function EthosProfileCard({ profile }) {
 
   return (
     <div className={styles.card}>
-      <div className={styles.profileCardBanner}>
-        <div className={styles.profileCardRow}>
-          <div className={styles.profileCardAvatarWrap}>
-            {avatarUrl ? (
-              <Image
-                src={avatarUrl}
-                alt=""
-                width={120}
-                height={120}
-                className={styles.profileCardAvatar}
-              />
-            ) : (
-              <div className={styles.profileCardAvatarFallback}>
-                {profile.displayName
-                  ? profile.displayName
-                      .split(' ')
-                      .map((n) => n[0])
-                      .join('')
-                      .toUpperCase()
-                      .slice(0, 2)
-                  : '?'}
-              </div>
-            )}
-          </div>
-          <div className={styles.profileCardEthosPillWrap}>
-            <span
-              className={styles.profileCardEthosPill}
-              style={{ background: scoreLevel.color, color: scoreLevel.text || '#181818' }}
-            >
-              {scoreLevel.name}
-            </span>
-          </div>
+      <div className={styles.profileTopMinimal}>
+        <div className={styles.avatarEthosRow}>
+          {avatarUrl ? (
+            <Image
+              src={avatarUrl}
+              alt=""
+              width={80}
+              height={80}
+              className={styles.avatarBigSmall}
+            />
+          ) : (
+            <div className={styles.avatarBigFallbackSmall}>
+              {profile.displayName
+                ? profile.displayName
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .toUpperCase()
+                    .slice(0, 2)
+                : '?'}
+            </div>
+          )}
+          <span
+            className={styles.ethosTag}
+            style={{ background: scoreLevel.color, color: scoreLevel.text || '#fff' }}
+          >
+            {scoreLevel.name}
+          </span>
         </div>
-        <div className={styles.profileCardNameRow}>
-          <span className={styles.profileCardName}>{profile.displayName}</span>
+        <div className={styles.profileNameBlock}>
+          <span className={styles.profileName}>{profile.displayName}</span>
+          <span className={styles.profileHandle}>@{profile.username}</span>
         </div>
       </div>
 
