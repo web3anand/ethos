@@ -4,7 +4,7 @@
   padding: 2rem;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: flex-start;
   margin-bottom: 1.5rem;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
@@ -21,7 +21,7 @@
 .profileCardAvatarWrap {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-width: 120px;
   min-height: 120px;
   background: #fff;
@@ -86,6 +86,7 @@
   font-weight: 700;
   color: #23272f;
   margin: 0;
+  text-align: left;
 }
 .profileTopMinimal {
   display: flex;
@@ -120,6 +121,7 @@
   font-weight: 500;
   color: #7b7f8a;
   margin: 0;
+  text-align: left;
 }
 .topCardSmall {
   display: flex;
