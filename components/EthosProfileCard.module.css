@@ -458,17 +458,22 @@
 }
 
 .sectionTitle {
-  font-size: 1.13rem;
-  font-weight: 700;
+  font-size: 1.22rem;
+  font-weight: 800;
   color: #23272f;
   background: #fff;
-  border-radius: 1.1em;
-  box-shadow: 0 2px 12px rgba(60,60,90,0.07);
-  padding: 0.7rem 1.2rem;
-  margin-bottom: 0.7rem;
-  margin-top: 1.2rem;
-  letter-spacing: 0.02em;
-  display: inline-block;
+  border-radius: 1.2em;
+  box-shadow: 0 2px 12px rgba(60,60,90,0.09);
+  padding: 1.1rem 1.5rem 1.1rem 1.5rem;
+  margin-bottom: 1.1rem;
+  margin-top: 1.5rem;
+  letter-spacing: 0.01em;
+  display: block;
+  text-align: left;
+  border: none;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .row {
