@@ -52,7 +52,8 @@ export default function Home() {
           eth: (Number(data.stats?.vouch?.received?.amountWeiTotal || 0) / 1e18).toFixed(3),
         },
         onChain: {
-          primaryAddress: addresses[0]?.address,
+          primaryAddress: addresses.primaryAddress,
+          allAddresses: addresses.allAddresses,
         },
         ethPrice,
       };
