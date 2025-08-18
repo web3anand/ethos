@@ -91,13 +91,15 @@ export default function EthosProfileCard({ profile }) {
                     <td className={styles.tableCellLabel}>{label}</td>
                     <td className={styles.tableCellValue}>
                       {value}
-                      <button
-                        className={styles.copyBtn}
-                        title={`Copy ${label}`}
-                        onClick={() => navigator.clipboard.writeText(String(value))}
-                      >
-                        📋
-                      </button>
+                      {(label === 'ID' || label === 'Profile ID') && (
+                        <button
+                          className={styles.copyBtn}
+                          title={`Copy ${label}`}
+                          onClick={() => navigator.clipboard.writeText(String(value))}
+                        >
+                          📋
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
