@@ -43,7 +43,9 @@ export default function EthosProfileCard({ profile }) {
     [
       'On-Chain',
       {
-        'Primary Address': onChain?.primaryAddress,
+        'Primary Address': onChain?.primaryAddress
+          ? onChain.primaryAddress
+          : <span style={{color: '#aaa'}}>Not available</span>,
         'ETH Price (USD)': `$${Number(profile.ethPrice).toFixed(2)}`,
       },
     ],

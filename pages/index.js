@@ -28,6 +28,7 @@ export default function Home() {
         fetchUserAddresses(data.profileId),
         fetchExchangeRate(),
       ]);
+      console.log('Fetched addresses:', addresses);
       const profile = {
         id: data.id,
         profileId: data.profileId,
