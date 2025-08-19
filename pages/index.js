@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import SearchBar from '../components/SearchBar';
+import fetchUserSuggestions from '../utils/fetchUserSuggestions';
 import {
   fetchUserByTwitter,
   fetchExchangeRate,
@@ -8,19 +9,31 @@ import {
 import EthosProfileCard from '../components/EthosProfileCard';
 import styles from '../styles/Home.module.css';
 
+
 export default function Home() {
   const [username, setUsername] = useState('');
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSearch = async () => {
-    if (!username) return;
+  const handleSearch = async (searchName) => {
+    const searchValue = typeof searchName === 'string' ? searchName : username;
+    if (!searchValue) return;
     setLoading(true);
     setError(null);
     setUserData(null);
     try {
-      const data = await fetchUserByTwitter(username.trim());
+      let data = await fetchUserByTwitter(searchValue.trim());
+      // If not found, try to find a suggestion by display name
+      if (!data) {
+        const suggestions = await fetchUserSuggestions(searchValue.trim());
+        const match = suggestions.find(s =>
+          s.displayName && s.displayName.toLowerCase() === searchValue.trim().toLowerCase()
+        );
+        if (match) {
+          data = await fetchUserByTwitter(match.username);
+        }
+      }
       if (!data) {
         setError('User not found');
         return;
@@ -29,7 +42,6 @@ export default function Home() {
         fetchUserAddresses(data.profileId),
         fetchExchangeRate(),
       ]);
-      console.log('Fetched addresses:', addresses);
       const profile = {
         id: data.id,
         profileId: data.profileId,
@@ -67,6 +79,12 @@ export default function Home() {
     }
   };
 
+  const handleSuggestionSelect = (suggestion) => {
+    setUsername(suggestion.username);
+    setError(null);
+    handleSearch(suggestion.username);
+  };
+
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Ethos Search</h1>
@@ -76,6 +94,7 @@ export default function Home() {
           setUsername={setUsername}
           onSearch={handleSearch}
           loading={loading}
+          onSuggestionSelect={handleSuggestionSelect}
         />
       </div>
       {error && <div className={styles.error}>{error}</div>}
