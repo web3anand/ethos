@@ -1,7 +1,11 @@
+
 import Image from 'next/image';
 import styles from './EthosProfileCard.module.css';
+import { useEffect, useState } from 'react';
+import fetchEthPrice from '../utils/fetchEthPrice';
+import { fetchUserAddresses } from '../lib/ethos';
 
-// Score name and color mapping
+// Score levels for mapping score to name and color
 const scoreLevels = [
   { min: 0, max: 499, name: 'Untrusted', color: '#e74c3c' },
   { min: 500, max: 799, name: 'Questionable', color: '#e1b000' },
@@ -15,16 +19,65 @@ const scoreLevels = [
   { min: 2800, max: Infinity, name: 'Renowned', color: '#a855f7' },
 ];
 
+// Score name and color mapping
 function getScoreLevel(score) {
   return scoreLevels.find(l => score >= l.min && score <= l.max) || scoreLevels[0];
 }
 
 export default function EthosProfileCard({ profile }) {
+  const [ethPrice, setEthPrice] = useState(null);
+  const [primaryAddress, setPrimaryAddress] = useState(null);
+
+  useEffect(() => {
+    fetchEthPrice().then(setEthPrice).catch(() => setEthPrice(null));
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function resolvePrimaryAddress() {
+      if (!profile) return;
+      console.log('[EthosProfileCard] profile:', profile);
+      // 1. Try onChain.primaryAddress
+      if (profile.onChain && profile.onChain.primaryAddress) {
+        setPrimaryAddress(profile.onChain.primaryAddress);
+        console.log('[EthosProfileCard] Using onChain.primaryAddress:', profile.onChain.primaryAddress);
+        return;
+      }
+      // 2. Try profile.primaryAddress
+      if (profile.primaryAddress) {
+        setPrimaryAddress(profile.primaryAddress);
+        console.log('[EthosProfileCard] Using profile.primaryAddress:', profile.primaryAddress);
+        return;
+      }
+      // 3. Try fetchUserAddresses
+      if (profile.profileId) {
+        try {
+          const addresses = await fetchUserAddresses(profile.profileId);
+          console.log('[EthosProfileCard] fetched addresses:', addresses);
+          if (!cancelled && Array.isArray(addresses) && addresses.length > 0 && addresses[0].address) {
+            setPrimaryAddress(addresses[0].address);
+            console.log('[EthosProfileCard] Using fetched address:', addresses[0].address);
+            return;
+          }
+        } catch (e) {
+          console.error('[EthosProfileCard] Error fetching addresses:', e);
+        }
+      }
+      // Not available
+      setPrimaryAddress(null);
+      console.log('[EthosProfileCard] No primary address found');
+    }
+    resolvePrimaryAddress();
+    return () => { cancelled = true; };
+  }, [profile]);
+
   if (!profile) return null;
 
   const { reviewStats, vouchGiven, vouchReceived, onChain, avatarUrl, score } = profile;
   const scoreLevel = getScoreLevel(Number(score));
 
+  const vouchGivenUsd = ethPrice && vouchGiven.eth ? (Number(vouchGiven.eth) * ethPrice) : null;
+  const vouchReceivedUsd = ethPrice && vouchReceived.eth ? (Number(vouchReceived.eth) * ethPrice) : null;
 
   const sections = [
     [
@@ -51,6 +104,7 @@ export default function EthosProfileCard({ profile }) {
       {
         Count: vouchGiven.count,
         'Total ETH': `${vouchGiven.eth} ETH`,
+        ...(ethPrice && vouchGiven.eth ? { 'Total USD': `$${(Number(vouchGiven.eth) * ethPrice).toLocaleString(undefined, {maximumFractionDigits:2})}` } : {}),
       },
     ],
     [
@@ -58,57 +112,103 @@ export default function EthosProfileCard({ profile }) {
       {
         Count: vouchReceived.count,
         'Total ETH': `${vouchReceived.eth} ETH`,
+        ...(ethPrice && vouchReceived.eth ? { 'Total USD': `$${(Number(vouchReceived.eth) * ethPrice).toLocaleString(undefined, {maximumFractionDigits:2})}` } : {}),
       },
     ],
     [
       'On-Chain',
       {
-        'Primary Address': onChain?.primaryAddress
-          ? onChain.primaryAddress
+        'Primary Address': primaryAddress
+          ? primaryAddress
           : <span style={{color: '#aaa'}}>Not available</span>,
-        'ETH Price (USD)': `$${Number(profile.ethPrice).toFixed(2)}`,
+        'ETH Price (USD)': ethPrice ? `$${ethPrice.toLocaleString(undefined, {maximumFractionDigits:2})}` : 'Loading...',
       },
     ],
   ];
 
   return (
     <div className={styles.card}>
-      <div className={styles.profileTopMinimal}>
-        <div className={styles.avatarEthosRow}>
-          {avatarUrl ? (
-            <Image
-              src={avatarUrl}
-              alt=""
-              width={80}
-              height={80}
-              className={styles.avatarBigSmall}
-            />
-          ) : (
-            <div className={styles.avatarBigFallbackSmall}>
-              {profile.displayName
-                ? profile.displayName
-                    .split(' ')
-                    .map((n) => n[0])
-                    .join('')
-                    .toUpperCase()
-                    .slice(0, 2)
-                : '?'}
-            </div>
-          )}
-          <span
-            className={styles.ethosTag}
-            style={{ background: scoreLevel.color, color: scoreLevel.text || '#fff' }}
+      <div className={styles.profileCardBanner}>
+        <div className={styles.profileCardRow}>
+          <div
+            className={styles.profileCardAvatarWrap}
+            style={{ '--pfp-ring': scoreLevel.color }}
           >
-            {scoreLevel.name}
-          </span>
+            {avatarUrl ? (
+              <Image
+                src={avatarUrl}
+                alt={profile.displayName || 'Avatar'}
+                width={80}
+                height={80}
+                className={styles.profileCardAvatar}
+              />
+            ) : (
+              <div className={styles.profileCardAvatarFallback}>
+                {profile.displayName
+                  ? profile.displayName
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')
+                      .toUpperCase()
+                      .slice(0, 2)
+                  : '?'}
+              </div>
+            )}
+          </div>
+          <div className={styles.profileCardEthosPillWrap}>
+            <div
+              className={styles.profileCardEthosPill}
+              style={{ background: scoreLevel.color }}
+            >
+              {scoreLevel.name}
+            </div>
+          </div>
         </div>
-        <div className={styles.profileNameBlock}>
-          <span className={styles.profileName}>{profile.displayName}</span>
-          <span className={styles.profileHandle}>@{profile.username}</span>
+        <div className={styles.nameBar}>
+          <span className={styles.profileCardName}>{profile.displayName}</span>
         </div>
       </div>
 
-      {sections.map(([title, data]) => (
+      {/* Highlighted Main Stats section */}
+      <div className={styles.section}>
+        <h3 className={styles.sectionTitle}>Main Stats</h3>
+        <div className={styles.mainStatsHighlight}>
+          <table className={styles.table}>
+            <tbody>
+              {Object.entries(sections[0][1]).map(([label, value]) => (
+                <tr key={label} className={styles.tableRow}>
+                  <td className={styles.tableCellLabel}>{label}</td>
+                  <td className={styles.tableCellValue}>
+                    {label === 'Status' && String(value).toLowerCase() === 'active' ? (
+                      <span className={styles.statusActive}>ACTIVE</span>
+                    ) : (
+                      (label === 'ID' || label === 'Profile ID')
+                        ? value
+                        : (typeof value === 'number'
+                            ? value.toLocaleString()
+                            : (typeof value === 'string' && !isNaN(Number(value)) && value.trim() !== '' && isFinite(Number(value))
+                                ? Number(value).toLocaleString()
+                                : value))
+                    )}
+                    {(label === 'ID' || label === 'Profile ID') && (
+                      <button
+                        className={styles.copyBtn}
+                        title={`Copy ${label}`}
+                        onClick={() => navigator.clipboard.writeText(String(value))}
+                      >
+                        📋
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Render the rest of the sections except Main Stats */}
+      {sections.slice(1).map(([title, data], idx) => (
         <div key={title} className={styles.section}>
           <h3 className={styles.sectionTitle}>{title}</h3>
           <div className={styles.tableContainer}>
@@ -117,18 +217,15 @@ export default function EthosProfileCard({ profile }) {
                 {Object.entries(data).map(([label, value]) => (
                   <tr key={label} className={styles.tableRow}>
                     <td className={styles.tableCellLabel}>{label}</td>
-                    <td className={styles.tableCellValue}>
-                      {value}
-                      {(label === 'ID' || label === 'Profile ID') && (
-                        <button
-                          className={styles.copyBtn}
-                          title={`Copy ${label}`}
-                          onClick={() => navigator.clipboard.writeText(String(value))}
-                        >
-                          📋
-                        </button>
-                      )}
-                    </td>
+                    <td className={styles.tableCellValue}>{
+                      (label === 'ID' || label === 'Profile ID')
+                        ? value
+                        : (typeof value === 'number'
+                            ? value.toLocaleString()
+                            : (typeof value === 'string' && !isNaN(Number(value)) && value.trim() !== '' && isFinite(Number(value))
+                                ? Number(value).toLocaleString()
+                                : value))
+                    }</td>
                   </tr>
                 ))}
               </tbody>
@@ -139,3 +236,4 @@ export default function EthosProfileCard({ profile }) {
     </div>
   );
 }
+
