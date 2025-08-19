@@ -1,399 +1,150 @@
-.profileCardBanner {
-  background: #fff;
-  border-radius: 2rem;
-  padding: 2rem;
+/* ============ Core layout: avatar + name/tag in one row ============ */
+.profileHeader,            /* new compact header */
+.topCardSmall,             /* small variant you already have */
+.profileContainer,         /* generic container */
+.profileCardRow,           /* banner row */
+.avatarEthosRow {          /* legacy row */
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  width: 100%;
-  gap: 1.5rem;
-}
-.profileCardRow {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  width: 100%;
-  gap: 2.2rem;
-}
-.profileCardAvatarWrap {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  min-width: 120px;
-  min-height: 120px;
-  background: #fff;
-  border-radius: 50%;
-  box-shadow: 0 2px 12px rgba(60,60,90,0.06);
-}
-.profileCardAvatar {
-  width: 112px;
-  height: 112px;
-  border-radius: 50%;
-  border: 4px solid #f7f8fa;
-  object-fit: cover;
-  box-shadow: 0 2px 8px rgba(60,60,90,0.08);
-  background: #e3e7f0;
-}
-.profileCardAvatarFallback {
-  width: 112px;
-  height: 112px;
-  border-radius: 50%;
-  background: #e3e7f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.2rem;
-  color: #b0b4c0;
-  font-weight: 700;
-  border: 4px solid #f7f8fa;
-  box-shadow: 0 2px 8px rgba(60,60,90,0.08);
-}
-.profileCardEthosPillWrap {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  margin-left: 1rem;
-}
-.profileCardEthosPill {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-width: 220px;
-  height: 54px;
-  background: linear-gradient(90deg, #e0e7ff 0%, #c7d2fe 100%);
-  border-radius: 0 2em 2em 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #3b3b4f;
-  letter-spacing: 0.03em;
-  box-shadow: 0 1px 6px rgba(60,60,90,0.06);
-  padding-left: 1.2rem;
-  border: 1.5px solid #e0e7ff;
-}
-.profileCardNameRow {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 0.5rem;
-}
-.profileCardName {
-  font-size: 1.18rem;
-  font-weight: 700;
-  color: #23272f;
-  margin: 0;
-  text-align: left;
-}
-.profileTopMinimal {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: #f9fafb;
-  border-radius: 1.5rem 1.5rem 0 0;
-  padding: 1.2rem 0 1.2rem 0;
-  margin-bottom: 0.5rem;
-}
-.avatarEthosRow {
-  display: flex;
-  align-items: center;
-  gap: 1.1rem;
-}
-.profileNameBlock {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  margin-top: 0.7rem;
-  gap: 1.2rem;
-}
-.profileName {
-  font-size: 1.18rem;
-  font-weight: 700;
-  color: #23272f;
-  letter-spacing: 0.01em;
-  margin-bottom: 0;
-}
-.profileHandle {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #7b7f8a;
-  margin: 0;
-  text-align: left;
-}
-.topCardSmall {
-  display: flex;
-  align-items: center;
-  background: #f6f6f8;
-  border-radius: 1.5rem 1.5rem 0 0;
-  padding: 1rem 1rem 0.5rem 1rem;
+  align-items: center;      /* vertical alignment */
   gap: 1rem;
-  border-bottom: 1px solid #ececec;
 }
-.avatarBigBlockSmall {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  min-width: 80px;
-  min-height: 80px;
+
+/* Prevent layout jitter on narrow screens */
+.profileHeader,
+.topCardSmall,
+.profileCardRow,
+.avatarEthosRow {
+  min-width: 0;
 }
-.avatarBigSmall {
-  width: 80px;
-  height: 80px;
+
+/* Avatar sizes (reuse whichever you render) */
+.profileAvatar,
+.avatar,
+.avatarBigSmall,
+.avatarBig,
+.profileCardAvatar {
   border-radius: 50%;
-  border: 2px solid #e5e7eb;
   object-fit: cover;
+  background: #f0f2f7;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
-.avatarBigFallbackSmall {
-  width: 80px;
-  height: 80px;
+
+.profileAvatar,
+.avatar { width: 80px; height: 80px; border: 2px solid #e5e7eb; }
+.avatarBigSmall { width: 80px; height: 80px; border: 2px solid #e5e7eb; }
+.avatarBig { width: 128px; height: 128px; border: 4px solid #fff; }
+.profileCardAvatar { width: 112px; height: 112px; border: 4px solid #f7f8fa; }
+
+/* Fallback avatars */
+.avatarFallback,
+.avatarBigFallback,
+.avatarBigFallbackSmall,
+.profileCardAvatarFallback {
+  display: flex; align-items: center; justify-content: center;
   border-radius: 50%;
-  background: #f0f0f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.7rem;
-  color: #bbb;
-  font-weight: bold;
-  border: 2px solid #e5e7eb;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-}
-.ethosTag {
-  display: inline-block;
-  margin-left: -0.5rem;
-  padding: 0.32em 1.1em 0.32em 1.1em;
-  border-radius: 1.2em;
-  font-size: 1.08rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-  border: none;
-  vertical-align: middle;
-  margin-top: 0.1rem;
-  background: #e5e7eb;
-  color: #333;
-}
-.infoBarSmall {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.3rem;
-  background: #9256f7;
-  border-radius: 0 0 1.2rem 1.2rem;
-  padding: 0.7rem 1.5rem;
-  margin-bottom: 1.2rem;
-  min-width: 180px;
-}
-.infoNameSmall {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: 0.04em;
-}
-.infoHandleSmall {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #fff;
-  opacity: 0.85;
-  letter-spacing: 0.04em;
-}
-.topCard {
-  display: flex;
-  align-items: center;
-  background: #dbdbdb;
-  border-radius: 2rem 2rem 0 0;
-  padding: 2.5rem 2.5rem 1.5rem 2.5rem;
-  gap: 2.5rem;
-}
-.avatarBigBlock {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 128px;
-  min-height: 128px;
-}
-.avatarBig {
-  width: 128px;
-  height: 128px;
-  border-radius: 50%;
-  border: 4px solid #fff;
-  object-fit: cover;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.10);
-}
-.avatarBigFallback {
-  width: 128px;
-  height: 128px;
-  border-radius: 50%;
-  background: #e0e0e0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  color: #888;
-  font-weight: bold;
-  border: 4px solid #fff;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.10);
-}
-.statusPillContainer {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  height: 100%;
-}
-.statusPill {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-width: 220px;
-  height: 90px;
-  background: #ff6fd8;
-  border-radius: 0 80px 80px 0;
-  font-size: 2.8rem;
-  font-weight: 900;
-  color: #181818;
-  letter-spacing: 0.04em;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.10);
-}
-.infoBar {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 2.5rem;
-  background: #9256f7;
-  border-radius: 0 0 2rem 2rem;
-  padding: 1.1rem 2.5rem;
-  margin-bottom: 2.5rem;
-}
-.infoName {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: 0.04em;
-}
-.infoHandle {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #fff;
-  opacity: 0.85;
-  letter-spacing: 0.04em;
-}
-.statusTag {
-  display: inline-block;
-  padding: 0.25em 0.9em;
-  border-radius: 1em;
-  font-size: 0.95rem;
-  font-weight: 600;
-  background: linear-gradient(90deg, #3b82f6 0%, #6ee7b7 100%);
-  color: #fff;
-  box-shadow: 0 1px 4px rgba(59,130,246,0.10);
-  letter-spacing: 0.01em;
-  margin-left: 0.25rem;
-  border: none;
-}
-.profileContainer {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  padding: 2rem 1.5rem 1.5rem 1.5rem;
-  background: transparent;
-}
-.avatarBlock {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 96px;
-  min-height: 96px;
-}
-.copyBtn {
-  margin-left: 0.5rem;
-  padding: 2px 12px;
-  border-radius: 6px;
-  border: none;
-  background: #f4f4f4;
-  color: #444;
-  cursor: pointer;
-  font-size: 1.1rem;
-  font-weight: 600;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-  transition: background 0.2s, transform 0.1s;
-  outline: none;
-}
-.copyBtn:hover, .copyBtn:focus {
-  background: #e5e7eb;
-  color: #222;
-  transform: translateY(-2px) scale(1.05);
-}
-.card {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  padding: 2rem;
-  max-width: 600px;
-  width: 100%;
-  margin: 0 auto;
-  transition: box-shadow 0.2s;
-}
-.card:hover {
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  background: #e3e7f0; color: #9aa1b2; font-weight: 800;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.avatar {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  border: 3px solid #eee;
-  background: #f5f5f5;
-  object-fit: cover;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-}
-
-.avatarFallback {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  background: #e0e0e0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.5rem;
-  color: #888;
-  font-weight: bold;
-  border: 3px solid #eee;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-}
-
+/* Text block beside avatar */
+.nameBlockTight,
+.profileNameBlock,
+.profileCardNameRow,
 .nameBlock {
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 0.25rem;
+  min-width: 0;                 /* enables truncation */
 }
 
-.username {
-  font-size: 1.25rem;
-  font-weight: 600;
+/* Row containing name + pill (kept on one baseline) */
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
 }
 
-.handle {
-  color: #888;
+/* Typography */
+.profileName,
+.username,
+.profileCardName {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #23272f;
+  margin: 0;
+}
+
+.profileHandle,
+.handle,
+.infoHandleSmall,
+.infoHandle {
   font-size: 1rem;
-  margin-top: 0.25rem;
+  font-weight: 500;
+  color: #7b7f8a;
+  margin: 0.15rem 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.section {
+/* Status/tag pill (compact) */
+.statusTag,
+.ethosTag,
+.profileCardEthosPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.28em 0.9em;
+  border-radius: 1.1em;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: #e0e7ff;
+  color: #3b3b4f;
+  border: 1.5px solid #d7e0ff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  white-space: nowrap;          /* keep on same line as name */
+}
+
+/* Make the big curved pill optional via a modifier */
+.statusTag--large {
+  height: 54px;
+  border-radius: 999px;
+  padding: 0 1.2em;
+  font-size: 1.08rem;
+}
+
+/* Containers (cards/banners) */
+.profileCardBanner {
+  background: #fff;
+  border-radius: 2rem;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
   margin-bottom: 1.5rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
 }
 
+/* Info bars (kept, but simplified) */
+.infoBarSmall,
+.infoBar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #9256f7;
+  color: #fff;
+  border-radius: 0 0 1.2rem 1.2rem;
+  padding: 0.7rem 1.2rem;
+}
+
+.infoNameSmall,
+.infoName { color: #fff; font-weight: 800; letter-spacing: 0.04em; }
+.infoNameSmall { font-size: 1.1rem; }
+.infoName { font-size: 1.4rem; }
+
+/* Table/rows (unchanged, just tightened) */
 .tableContainer {
   width: 100%;
   background: #fff;
@@ -401,85 +152,53 @@
   box-shadow: 0 2px 12px rgba(60,60,90,0.09);
   padding: 1.2rem 1.5rem;
   overflow-x: auto;
-  border: none;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
   gap: 0.7rem;
 }
-.table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: transparent;
-}
-.tableRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f0f0f0;
-  background: none;
-  border-radius: 0;
-  box-shadow: none;
-  margin-bottom: 0;
-  transition: none;
-}
-.tableRow:last-child {
-  border-bottom: none;
-}
+
+.table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.tableRow { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; }
+.tableRow:last-child { border-bottom: none; }
+
 .tableCellLabel {
-  color: #23272f;
-  font-weight: 600;
-  padding: 0;
-  text-align: left;
-  min-width: 120px;
-  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-  font-size: 1.08rem;
-  letter-spacing: 0.01em;
-  background: none;
-  border: none;
+  color: #23272f; font-weight: 600; min-width: 120px;
+  font-family: Inter, Segoe UI, Arial, sans-serif; font-size: 1.08rem;
 }
+
 .tableCellValue {
-  color: #23272f;
-  font-weight: 600;
-  text-align: right;
-  padding: 0;
-  font-family: 'JetBrains Mono', 'Fira Mono', 'Menlo', monospace;
-  font-size: 1.13rem;
-  letter-spacing: 0.01em;
-  background: none;
-  border: none;
+  color: #23272f; font-weight: 600; text-align: right;
+  font-family: "JetBrains Mono","Fira Mono",Menlo,monospace; font-size: 1.13rem;
 }
 
+/* Section headings */
 .sectionTitle {
-  font-size: 1.18rem;
-  font-weight: 700;
-  color: #23272f;
-  background: none;
-  border-radius: 0;
-  box-shadow: none;
-  padding: 0 0 0.5rem 0;
-  margin-bottom: 0.7rem;
-  margin-top: 1.2rem;
-  letter-spacing: 0.01em;
-  display: block;
-  text-align: left;
-  border: none;
+  font-size: 1.18rem; font-weight: 700; color: #23272f;
+  margin: 1.2rem 0 0.7rem;
 }
 
-.row {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.25rem 0;
-  border-bottom: 1px solid #f0f0f0;
+/* Buttons */
+.copyBtn {
+  margin-left: 0.5rem; padding: 2px 12px; border-radius: 6px; border: none;
+  background: #f4f4f4; color: #444; cursor: pointer; font-size: 1.05rem; font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: background 0.2s, transform 0.1s;
 }
+.copyBtn:hover, .copyBtn:focus { background: #e5e7eb; color: #222; transform: translateY(-2px) scale(1.05); }
 
-.rowLabel {
-  color: #555;
-}
+/* ============ Responsive tweaks ============ */
+@media (max-width: 520px) {
+  .profileHeader,
+  .topCardSmall,
+  .profileCardRow,
+  .avatarEthosRow {
+    gap: 0.75rem;
+  }
 
-.rowValue {
-  color: #222;
-  font-weight: 500;
+  .profileAvatar,
+  .avatar,
+  .avatarBigSmall { width: 64px; height: 64px; }
+
+  .profileName { font-size: 1.05rem; }
+  .profileHandle { font-size: 0.95rem; }
+  .statusTag { font-size: 0.9rem; padding: 0.22em 0.8em; }
 }
