@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import SearchBar from '../components/SearchBar';
 import {
   fetchUserByTwitter,
   fetchExchangeRate,
@@ -70,20 +71,12 @@ export default function Home() {
     <div className={styles.container}>
       <h1 className={styles.title}>Ethos Search</h1>
       <div className={styles.searchContainer}>
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Twitter handle"
-          className={styles.input}
+        <SearchBar
+          username={username}
+          setUsername={setUsername}
+          onSearch={handleSearch}
+          loading={loading}
         />
-        <button
-          onClick={handleSearch}
-          disabled={loading}
-          className={styles.button}
-        >
-          {loading ? 'Loading...' : 'Search'}
-        </button>
       </div>
       {error && <div className={styles.error}>{error}</div>}
       {userData && <EthosProfileCard profile={userData} />}

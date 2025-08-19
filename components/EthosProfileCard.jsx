@@ -1,22 +1,55 @@
+// Copy button with tooltip for address
+function CopyAddress({ address }) {
+  const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef();
+  const handleCopy = () => {
+    navigator.clipboard.writeText(address);
+    setCopied(true);
+    clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setCopied(false), 1200);
+  };
+  return (
+    <span style={{ fontFamily: 'monospace', display: 'inline-flex', alignItems: 'center' }}>
+      {address.slice(0, 6)}...{address.slice(-4)}
+      <button
+        className={styles.copyBtn + (copied ? ' ' + styles.copied : '')}
+        onClick={handleCopy}
+        tabIndex={0}
+        aria-label="Copy address"
+        type="button"
+      >
+        <span style={{display:'inline-flex',alignItems:'center'}}>
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight:2}}>
+            <rect x="5" y="5" width="10" height="12" rx="2" fill="#fff" stroke="#ff3c00" strokeWidth="1.2"/>
+            <rect x="3" y="3" width="10" height="12" rx="2" fill="#ffede6" stroke="#ff3c00" strokeWidth="1.2"/>
+          </svg>
+        </span>
+      </button>
+    </span>
+  );
+}
+
 
 import Image from 'next/image';
 import styles from './EthosProfileCard.module.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import fetchEthPrice from '../utils/fetchEthPrice';
 import { fetchUserAddresses } from '../lib/ethos';
 
+// Copy button with tooltip for address
+
 // Score levels for mapping score to name and color
 const scoreLevels = [
-  { min: 0, max: 499, name: 'Untrusted', color: '#e74c3c' },
-  { min: 500, max: 799, name: 'Questionable', color: '#e1b000' },
-  { min: 800, max: 999, name: 'Neutral', color: '#e2e2e2', text: '#222' },
-  { min: 1000, max: 1299, name: 'Known', color: '#8cb6e6' },
-  { min: 1300, max: 1599, name: 'Established', color: '#5fa8d3' },
-  { min: 1600, max: 1899, name: 'Reputable', color: '#3b82f6' },
-  { min: 1900, max: 2199, name: 'Exemplary', color: '#34d399' },
-  { min: 2200, max: 2499, name: 'Distinguished', color: '#22c55e' },
-  { min: 2500, max: 2799, name: 'Revered', color: '#a78bfa' },
-  { min: 2800, max: Infinity, name: 'Renowned', color: '#a855f7' },
+  { min: 0, max: 1199, name: 'Untrusted', color: '#e74c3c' },
+  { min: 1200, max: 1399, name: 'Neutral', color: '#e2e2e2', text: '#222' },
+  { min: 1400, max: 1599, name: 'Known', color: '#8cb6e6' },
+  { min: 1600, max: 1799, name: 'Established', color: '#5fa8d3' },
+  { min: 1800, max: 1999, name: 'Reputable', color: '#3b82f6' },
+  { min: 2000, max: 2199, name: 'Exemplary', color: '#34d399' },
+  { min: 2200, max: 2399, name: 'Distinguished', color: '#22c55e' },
+  { min: 2400, max: 2599, name: 'Revered', color: '#a78bfa' },
+  { min: 2600, max: 2800, name: 'Renowned', color: '#a855f7' },
+  { min: 2801, max: Infinity, name: 'Renowned', color: '#a855f7' },
 ];
 
 // Score name and color mapping
@@ -119,8 +152,11 @@ export default function EthosProfileCard({ profile }) {
       'On-Chain',
       {
         'Primary Address': primaryAddress
-          ? primaryAddress
+          ? (
+              <CopyAddress address={primaryAddress} />
+            )
           : <span style={{color: '#aaa'}}>Not available</span>,
+// Copy button with tooltip for address
         'ETH Price (USD)': ethPrice ? `$${ethPrice.toLocaleString(undefined, {maximumFractionDigits:2})}` : 'Loading...',
       },
     ],
@@ -195,8 +231,15 @@ export default function EthosProfileCard({ profile }) {
                         className={styles.copyBtn}
                         title={`Copy ${label}`}
                         onClick={() => navigator.clipboard.writeText(String(value))}
+                        type="button"
+                        aria-label={`Copy ${label}`}
                       >
-                        📋
+                        <span style={{display:'inline-flex',alignItems:'center'}}>
+                          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight:2}}>
+                            <rect x="5" y="5" width="10" height="12" rx="2" fill="#fff" stroke="#ff3c00" strokeWidth="1.2"/>
+                            <rect x="3" y="3" width="10" height="12" rx="2" fill="#ffede6" stroke="#ff3c00" strokeWidth="1.2"/>
+                          </svg>
+                        </span>
                       </button>
                     )}
                   </td>
