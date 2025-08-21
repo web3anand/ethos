@@ -3,5 +3,24 @@
 @tailwind utilities;
 
 body {
-@apply bg-yellow-50 text-gray-900;
+  @apply bg-yellow-50 text-gray-900;
+  background: url('/bg-wood.jpg') repeat center center fixed;
+  background-size: cover;
+  position: relative;
+}
+
+/* Glassmorphic overlay for all pages */
+.glass-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  background: rgba(255,255,255,0.32);
+  border-radius: 0;
+  box-shadow: 0 8px 32px 0 rgba(36, 48, 68, 0.10), 0 1.5px 8px 0 rgba(36, 48, 68, 0.04);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
 }

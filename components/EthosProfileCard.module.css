@@ -1,83 +1,514 @@
-.card {
-  background: #ffffff;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
-  padding: 24px;
-  border-radius: 24px;
-  color: #59c497;
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+/* Font utility classes for Unbounded and Bodoni Moda */
+.unbounded-font {
+  font-family: "Unbounded", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
 }
-
-.header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: transparent;
-  border-radius: 16px;
-  padding: 12px 16px;
-  margin-bottom: 24px;
+.bodoni-moda-font {
+  font-family: "Bodoni Moda", serif;
+  font-optical-sizing: auto;
+  font-style: normal;
 }
-
-.avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: 2px solid #d0d7e2;
-  object-fit: cover;
+/* Badge styles for score levels and signals */
+.badge {
+  display: inline-block;
+  font-family: 'Inter', 'IBM Plex Sans', 'Segoe UI', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  border-radius: 2em;
+  padding: 0.18em 1.1em 0.18em 0.9em;
+  margin-left: 0.2em;
+  margin-right: 0.2em;
+  letter-spacing: 0.01em;
+  border: 1.5px solid #181818;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
-
-.avatarFallback {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: 2px solid #d0d7e2;
-  background: #d0d7e2;
+.badge-green {
+  background: #1aaf5d;
+  color: #fff;
+  border-color: #1aaf5d;
 }
-
-.nameBlock {
+.badge-blue {
+  background: #3a7bfd;
+  color: #fff;
+  border-color: #3a7bfd;
+}
+.badge-orange {
+  background: #ff9c2a;
+  color: #fff;
+  border-color: #ff9c2a;
+}
+.badge-red {
+  background: #e74c3c;
+  color: #fff;
+  border-color: #e74c3c;
+}
+.copyBtn.copied span, .copyBtn.copied .copyBtnText {
+  display: none !important;
+}
+/* ========== Profile banner (compact) ========== */
+.profileCardBanner {
+  background: rgba(255,255,255,0.72);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 18px;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  padding: 32px 32px 24px 32px;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07);
+  width: 100%;
+}
+/* Avatar + capsule row */
+.profileCardRow {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  gap: 0;
 }
 
-.username {
-  color: #223244;
-  font-weight: 600;
-}
-
-.handle {
-  color: #5a6270;
-}
-
-.section {
-  background: #f5f8ff;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-}
-
-.sectionTitle {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #0c0c0cd0;
-  margin-bottom: 12px;
-}
-
-.row {
+/* Avatar with thick ring, perfectly circular, overlaps capsule */
+.profileCardAvatarWrap {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  margin-right: 4px;
+  margin-left: 0;
+  z-index: 2;
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.72);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 16px;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
-.row:last-child {
+.profileCardAvatarWrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  box-shadow: 0 0 0 8px var(--pfp-ring, #bdbdbd) inset;
+  z-index: 0;
+}
+.profileCardAvatar,
+.profileCardAvatarFallback {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  object-fit: cover;
+  display: block;
+  background: #e3e7f0;
+  border: none;
+  box-shadow: none;
+  z-index: 1;
+  position: relative;
+}
+.profileCardAvatarFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 800 1.2rem/1 Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  color: #9aa1b2;
+}
+
+/* Long hot-pink capsule, only right side fully rounded */
+.profileCardEthosPillWrap {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  z-index: 1;
+  height: 96px;
+}
+.profileCardEthosPill {
+  width: 100%;
+  height: 88px;
+  background: var(--pfp-ring, #ff59b6);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 0 20px 0 24px;
+  color: #181818;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
+  font: 900 2rem/1 'Montserrat', Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  letter-spacing: 0.01em;
+  box-shadow: none;
+}
+
+/* Ethos logo in the pill: make it large and perfectly aligned */
+.profileCardEthosPill img {
+  height: 32px;
+  width: 32px;
+  object-fit: contain;
+  display: block;
   margin-bottom: 0;
+  margin-left: 6px;
 }
 
-.rowLabel {
-  color: #5a6270;
-  font-weight: 500;
+/* Add minimal gap between score name and end of pill */
+.profileCardEthosPill span:last-child {
+  margin-right: 8px;
 }
 
-.rowValue {
-  color: #223244;
+/* Grey name bar below capsule */
+.nameBar {
+  width: 100%;
+  height: 32px;
+  background: #83cf90; /* dark blue/black for contrast, matches theme */
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0 0 0 4px;
+  padding: 0 18px;
+  box-sizing: border-box;
+  position: relative;
+  top: -12px;
+  z-index: 0;
+}
+.profileCardName {
+  margin: 0;
+  color: #fff;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font: 900 1.1rem/1 'Unbounded', 'Montserrat', Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  letter-spacing: 0.06em;
+}
+
+/* ========== Generic header bits retained (used elsewhere) ========== */
+.profileName{
+  font-size:1.18rem;
+  font-weight:700;
+  color:#23272f;
+  letter-spacing:0.01em;
+  margin:0;
+  font-family:'Unbounded', 'Inter', 'IBM Plex Sans', 'Segoe UI', Arial, sans-serif;
+}
+.profileHandle{
+  font-size:1rem;
+  font-weight:500;
+  color:#7b7f8a;
+  margin:0;
+  text-align:left;
+  font-family:'Unbounded', 'Inter', 'IBM Plex Sans', 'Segoe UI', Arial, sans-serif;
+}
+
+/* ========== Cards & sections (unchanged core) ========== */
+.card {
+  background: rgba(255,255,255,0.72);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 18px;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  box-shadow: 0 8px 32px 0 rgba(36, 48, 68, 0.10), 0 1.5px 8px 0 rgba(36, 48, 68, 0.04);
+  padding: 2.5rem 2.2rem 2.2rem 2.2rem;
+  max-width: 700px;
+  width: 100%;
+  margin: 0 auto;
+  font-family: 'Inter', 'IBM Plex Sans', 'Segoe UI', Arial, sans-serif;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+}
+.card:hover{box-shadow:0 8px 32px rgba(0,0,0,0.12);}
+.header{display:flex;align-items:center;margin-bottom:2rem;}
+.avatar{width:96px;height:96px;border-radius:50%;border:3px solid #eee;background:#f5f5f5;object-fit:cover;box-shadow:0 2px 12px rgba(0,0,0,0.07);}
+.avatarFallback{width:96px;height:96px;border-radius:50%;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#888;font-weight:bold;border:3px solid #eee;box-shadow:0 2px 12px rgba(0,0,0,0.07);}
+.nameBlock{display:flex;flex-direction:column;justify-content:center;gap:0.25rem;}
+.username{font-size:1.25rem;font-weight:600;}
+.handle{color:#888;font-size:1rem;margin-top:0.25rem;}
+.section{margin-bottom:1.5rem;}
+
+/* Tables */
+.tableContainer{
+  width: 100%;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  padding: 1.2rem 1.5rem;
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  background: #fff;
+}
+.table{width:100%;border-collapse:separate;border-spacing:0;background:transparent;}
+.tableRow {
+  display: grid;
+  grid-template-columns: 1fr minmax(120px, 1.2fr);
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 0.5rem;
+}
+.tableRow:last-child {
+  border-bottom: none;
+}
+.tableCellLabel {
+  color: #181818;
+  font-weight: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0 0.5rem 0 0;
+  text-align: left;
+  min-width: 100px;
+  letter-spacing: 0.01em;
+  background: none;
+  border: none;
+  justify-self: start;
+  vertical-align: middle;
+}
+.tableCellValue {
+  color: #181818;
+  font-weight: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  letter-spacing: 0.01em;
   text-align: right;
+  padding: 0 0 0 0.5rem;
+  background: none;
+  border: none;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'ss01' 1;
+  min-width: 80px;
+  justify-self: end;
+}
+/* Special number style for scores */
+.scoreNumber {
+  font-family:  "Bodoni Moda", serif;
+  font-weight: 700;
+  font-size: 2.1rem;
+  letter-spacing: 0.01em;
+  color: #181818;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'ss01' 1;
+}
+
+.sectionTitle{
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: #083335;
+  background: none;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  background: rgba(255,255,255,0.72);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  margin-bottom: 0.7rem;
+  margin-top: 1.2rem;
+  letter-spacing: 0.01em;
+  display: block;
+  text-align: left;
+  border: none;
+  font-family: 'Montserrat', Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  padding-left: 18px;
+}
+.row {
+  display: grid;
+  grid-template-columns: 1fr minmax(80px, 1.2fr);
+  align-items: center;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 0.5rem;
+}
+.rowLabel {
+  color: #555;
+  font-weight: 400;
+  text-align: left;
+  justify-self: start;
+}
+.rowValue {
+  color: #222;
+  font-weight: 400;
+  text-align: right;
+  justify-self: end;
+}
+
+/* Utilities */
+.profileContainer{
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem 1.5rem 1.5rem;
+  background: rgba(255,255,255,0.68); /* glass effect base */
+  border-radius: 24px;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  box-shadow: 0 8px 32px 0 rgba(36, 48, 68, 0.10), 0 1.5px 8px 0 rgba(36, 48, 68, 0.04);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+}
+.avatarBlock{display:flex;align-items:center;justify-content:center;min-width:96px;min-height:96px;}
+.copyBtn {
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #23272f;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: none;
+  transition: background .2s, color .2s, border .2s, transform .1s;
+  outline: none;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  height: 2rem;
+}
+.copyBtn:hover, .copyBtn:focus {
+  background: rgba(255,255,255,0.92);
+  border: 1.5px solid #181818;
+  box-shadow: 0 2px 12px rgba(36, 48, 68, 0.13), 0 1.5px 8px 0 rgba(36, 48, 68, 0.07);
+  color: #23272f;
+  transition: background 0.2s, border 0.2s, box-shadow 0.2s;
+}
+.copyBtn:hover .copyTooltip, .copyBtn:focus .copyTooltip, .copyBtn.copied .copyTooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ========== Responsive: preserve proportions ========== */
+@media (max-width:1024px){
+  .profileCardRow{grid-template-columns:120px 1fr;gap:18px;}
+  .profileCardAvatarWrap{width:120px;height:120px;}
+  .profileCardAvatar{width:100px;height:100px;}
+  .profileCardAvatarWrap::before{box-shadow:0 0 0 10px var(--ring) inset;}
+  .profileCardEthosPill{height:120px;border-radius:60px;font-size:40px;padding:0 28px;}
+  .nameBar{height:52px;}
+  .profileCardName{font-size:22px;}
+}
+@media (max-width:560px){
+  .profileCardBanner {
+    padding: 16px 6px 10px 6px;
+    border-radius: 16px;
+    gap: 10px;
+  }
+  .profileCardRow {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+  .profileCardAvatarWrap {
+    width: 64px;
+    height: 64px;
+    margin: 0 0 8px 0;
+  }
+  .profileCardAvatar, .profileCardAvatarFallback {
+    width: 54px;
+    height: 54px;
+    font-size: 1rem;
+  }
+  .profileCardEthosPillWrap {
+    width: 100%;
+    margin: 0;
+    justify-content: center;
+  }
+  .profileCardEthosPill {
+    height: 48px;
+    border-radius: 24px;
+    font-size: 1.1rem;
+    padding: 0 10px;
+    min-width: 0;
+    width: auto;
+    max-width: 90vw;
+  }
+  .nameBar {
+    width: 90%;
+    height: 32px;
+    font-size: 0.95rem;
+    margin: 0 auto 0 auto;
+    padding: 0 8px;
+    top: -6px;
+  }
+  .profileCardName {
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+  }
+  .card {
+    padding: 1.2rem 1rem;
+    border-radius: 12px;
+    max-width: 99vw;
+    background: rgba(220, 245, 255, 0.92);
+  }
+  .mainStatsHighlight, .tableContainer {
+    padding: 1rem 1rem;
+    border-radius: 0.7em;
+    font-size: 0.95rem;
+    background: rgba(220, 245, 255, 0.92);
+  }
+  .tableCellLabel, .tableCellValue {
+    font-size: 0.95rem;
+    min-width: 80px;
+    word-break: break-word;
+  }
+  .copyBtn {
+    font-size: 1rem;
+    padding: 2px 8px;
+  }
+}
+
+/* ========== Main stats highlight ========== */
+.mainStatsHighlight {
+  background: rgba(255,255,255,0.72);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 18px;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  padding: 1.2rem 1.5rem;
+  box-shadow: 0 2px 12px rgba(36, 48, 68, 0.13), 0 1.5px 8px 0 rgba(36, 48, 68, 0.07);
+  margin-bottom: 1.2rem;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+}
+
+/* Active status style */
+.statusActive {
+  display: inline-flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 1em;
+  padding: 0.18em 1.1em 0.18em 0.7em;
+  font-weight: 600;
+  color: #e74c3c;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  font-size: 1rem;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  margin-left: 0.2em;
+}
+.statusActive::before {
+  content: "";
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  background: #e74c3c;
+  border-radius: 50%;
+  margin-right: 0.6em;
+  box-shadow: 0 0 0 2px #fff;
+  animation: blinkRedDot 1s steps(1, start) infinite;
+}
+
+@keyframes blinkRedDot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
 }

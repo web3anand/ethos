@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import SearchBar from '../components/SearchBar';
+import fetchUserSuggestions from '../utils/fetchUserSuggestions';
 import {
   fetchUserByTwitter,
   fetchExchangeRate,
@@ -7,19 +9,31 @@ import {
 import EthosProfileCard from '../components/EthosProfileCard';
 import styles from '../styles/Home.module.css';
 
+
 export default function Home() {
   const [username, setUsername] = useState('');
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSearch = async () => {
-    if (!username) return;
+  const handleSearch = async (searchName) => {
+    const searchValue = typeof searchName === 'string' ? searchName : username;
+    if (!searchValue) return;
     setLoading(true);
     setError(null);
     setUserData(null);
     try {
-      const data = await fetchUserByTwitter(username.trim());
+      let data = await fetchUserByTwitter(searchValue.trim());
+      // If not found, try to find a suggestion by display name
+      if (!data) {
+        const suggestions = await fetchUserSuggestions(searchValue.trim());
+        const match = suggestions.find(s =>
+          s.displayName && s.displayName.toLowerCase() === searchValue.trim().toLowerCase()
+        );
+        if (match) {
+          data = await fetchUserByTwitter(match.username);
+        }
+      }
       if (!data) {
         setError('User not found');
         return;
@@ -52,7 +66,8 @@ export default function Home() {
           eth: (Number(data.stats?.vouch?.received?.amountWeiTotal || 0) / 1e18).toFixed(3),
         },
         onChain: {
-          primaryAddress: addresses[0]?.address,
+          primaryAddress: addresses.primaryAddress,
+          allAddresses: addresses.allAddresses,
         },
         ethPrice,
       };
@@ -64,24 +79,23 @@ export default function Home() {
     }
   };
 
+  const handleSuggestionSelect = (suggestion) => {
+    setUsername(suggestion.username);
+    setError(null);
+    handleSearch(suggestion.username);
+  };
+
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Ethos Search</h1>
+      <h1 className={styles.title}>Check Your Social Score</h1>
       <div className={styles.searchContainer}>
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Twitter handle"
-          className={styles.input}
+        <SearchBar
+          username={username}
+          setUsername={setUsername}
+          onSearch={handleSearch}
+          loading={loading}
+          onSuggestionSelect={handleSuggestionSelect}
         />
-        <button
-          onClick={handleSearch}
-          disabled={loading}
-          className={styles.button}
-        >
-          {loading ? 'Loading...' : 'Search'}
-        </button>
       </div>
       {error && <div className={styles.error}>{error}</div>}
       {userData && <EthosProfileCard profile={userData} />}
