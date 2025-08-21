@@ -87,7 +87,7 @@ export default function Home() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Ethos Search</h1>
+      <h1 className={styles.title}>Check Your Social Score</h1>
       <div className={styles.searchContainer}>
         <SearchBar
           username={username}

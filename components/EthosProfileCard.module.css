@@ -48,9 +48,11 @@
 }
 /* ========== Profile banner (compact) ========== */
 .profileCardBanner {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 0;
+  background: rgba(255,255,255,0.72);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 18px;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
   padding: 32px 32px 24px 32px;
   display: flex;
   flex-direction: column;
@@ -61,37 +63,38 @@
 }
 /* Avatar + capsule row */
 .profileCardRow {
- 
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 96px 1fr;
   align-items: center;
   position: relative;
   width: 100%;
   min-width: 0;
-  /* Center vertically */
-  justify-content: flex-start;
+  gap: 0;
 }
 
 /* Avatar with thick ring, perfectly circular, overlaps capsule */
 .profileCardAvatarWrap {
   position: relative;
-  width: 96px;
-  height: 96px;
-  margin-right: -32px; /* Increase overlap for better alignment */
-  margin-left: 8px;    /* Add left margin for centering in banner */
+  width: 92px;
+  height: 92px;
+  margin-right: 4px;
+  margin-left: 0;
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Remove background and border */
-  background: none;
-  border: none;
+  background: rgba(255,255,255,0.72);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 16px;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
 .profileCardAvatarWrap::before {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 50%;
+  border-radius: 16px;
   box-shadow: 0 0 0 8px var(--pfp-ring, #bdbdbd) inset;
   z-index: 0;
 }
@@ -99,7 +102,7 @@
 .profileCardAvatarFallback {
   width: 80px;
   height: 80px;
-  border-radius: 50%;
+  border-radius: 10px;
   object-fit: cover;
   display: block;
   background: #e3e7f0;
@@ -118,21 +121,22 @@
 
 /* Long hot-pink capsule, only right side fully rounded */
 .profileCardEthosPillWrap {
-  flex: 1;
   display: flex;
   align-items: center;
   min-width: 0;
   z-index: 1;
+  height: 96px;
 }
 .profileCardEthosPill {
   width: 100%;
-  height: 60px;
-  background: var(--pfp-ring, #ff59b6); /* Use dynamic color */
-  border-radius: 0 32px 32px 0;
+  height: 88px;
+  background: var(--pfp-ring, #ff59b6);
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 32px 0 40px;
+  gap: 18px;
+  padding: 0 20px 0 24px;
   color: #181818;
   text-transform: uppercase;
   white-space: nowrap;
@@ -144,16 +148,31 @@
   box-shadow: none;
 }
 
+/* Ethos logo in the pill: make it large and perfectly aligned */
+.profileCardEthosPill img {
+  height: 32px;
+  width: 32px;
+  object-fit: contain;
+  display: block;
+  margin-bottom: 0;
+  margin-left: 6px;
+}
+
+/* Add minimal gap between score name and end of pill */
+.profileCardEthosPill span:last-child {
+  margin-right: 8px;
+}
+
 /* Grey name bar below capsule */
 .nameBar {
-  width: 70%;
+  width: 100%;
   height: 32px;
   background: #83cf90; /* dark blue/black for contrast, matches theme */
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  margin: 0 0 0 12px;
+  margin: 0 0 0 4px;
   padding: 0 18px;
   box-sizing: border-box;
   position: relative;
@@ -192,8 +211,10 @@
 /* ========== Cards & sections (unchanged core) ========== */
 .card {
   background: rgba(255,255,255,0.72);
-  border: 1px solid #e5e7eb;
+  border: 1.5px solid rgba(255,255,255,0.35);
   border-radius: 18px;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
   box-shadow: 0 8px 32px 0 rgba(36, 48, 68, 0.10), 0 1.5px 8px 0 rgba(36, 48, 68, 0.04);
   padding: 2.5rem 2.2rem 2.2rem 2.2rem;
   max-width: 700px;
@@ -215,7 +236,7 @@
 /* Tables */
 .tableContainer{
   width: 100%;
-  border-radius: 0;
+  border-radius: 18px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.07);
   padding: 1.2rem 1.5rem;
   overflow-x: auto;
@@ -226,19 +247,30 @@
   background: #fff;
 }
 .table{width:100%;border-collapse:separate;border-spacing:0;background:transparent;}
-.tableRow{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #f0f0f0;}
-.tableRow:last-child{border-bottom:none;}
-.tableCellLabel{
-  color:#181818;
+.tableRow {
+  display: grid;
+  grid-template-columns: 1fr minmax(120px, 1.2fr);
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 0.5rem;
+}
+.tableRow:last-child {
+  border-bottom: none;
+}
+.tableCellLabel {
+  color: #181818;
   font-weight: inherit;
   font-size: inherit;
   font-family: inherit;
-  padding:0;
-  text-align:left;
-  min-width:120px;
-  letter-spacing:0.01em;
-  background:none;
-  border:none;
+  padding: 0 0.5rem 0 0;
+  text-align: left;
+  min-width: 100px;
+  letter-spacing: 0.01em;
+  background: none;
+  border: none;
+  justify-self: start;
+  vertical-align: middle;
 }
 .tableCellValue {
   color: #181818;
@@ -247,12 +279,14 @@
   font-family: inherit;
   letter-spacing: 0.01em;
   text-align: right;
-  padding: 0;
+  padding: 0 0 0 0.5rem;
   background: none;
   border: none;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1, 'ss01' 1;
+  min-width: 80px;
+  justify-self: end;
 }
 /* Special number style for scores */
 .scoreNumber {
@@ -266,34 +300,59 @@
 }
 
 .sectionTitle{
-  font-size:1.45rem;
-  font-weight:700;
-  color:#181818;
-  background:none;
-  border-radius:0;
-  box-shadow:none;
-  padding:0 0 0.5rem 0;
-  margin-bottom:0.7rem;
-  margin-top:1.2rem;
-  letter-spacing:0.01em;
-  display:block;
-  text-align:left;
-  border:none;
-  font-family:'Unbounded', 'Playfair Display', 'Fraunces', serif;
-  font-variation-settings: 'wght' 700;
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: #083335;
+  background: none;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  background: rgba(255,255,255,0.72);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  margin-bottom: 0.7rem;
+  margin-top: 1.2rem;
+  letter-spacing: 0.01em;
+  display: block;
+  text-align: left;
+  border: none;
+  font-family: 'Montserrat', Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  padding-left: 18px;
 }
-.row{display:flex;justify-content:space-between;padding:0.25rem 0;border-bottom:1px solid #f0f0f0;}
-.rowLabel{
-  color:#555;
-  font-weight:400;
+.row {
+  display: grid;
+  grid-template-columns: 1fr minmax(80px, 1.2fr);
+  align-items: center;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 0.5rem;
 }
-.rowValue{
-  color:#222;
-  font-weight:400;
+.rowLabel {
+  color: #555;
+  font-weight: 400;
+  text-align: left;
+  justify-self: start;
+}
+.rowValue {
+  color: #222;
+  font-weight: 400;
+  text-align: right;
+  justify-self: end;
 }
 
 /* Utilities */
-.profileContainer{display:flex;align-items:center;gap:2rem;padding:2rem 1.5rem 1.5rem;background:transparent;}
+.profileContainer{
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem 1.5rem 1.5rem;
+  background: rgba(255,255,255,0.68); /* glass effect base */
+  border-radius: 24px;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  box-shadow: 0 8px 32px 0 rgba(36, 48, 68, 0.10), 0 1.5px 8px 0 rgba(36, 48, 68, 0.04);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+}
 .avatarBlock{display:flex;align-items:center;justify-content:center;min-width:96px;min-height:96px;}
 .copyBtn {
   margin-left: 0.5rem;
@@ -411,8 +470,10 @@
 /* ========== Main stats highlight ========== */
 .mainStatsHighlight {
   background: rgba(255,255,255,0.72);
-  border: 1px solid #e5e7eb;
-  border-radius: 1.2em;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 18px;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
   padding: 1.2rem 1.5rem;
   box-shadow: 0 2px 12px rgba(36, 48, 68, 0.13), 0 1.5px 8px 0 rgba(36, 48, 68, 0.07);
   margin-bottom: 1.2rem;
