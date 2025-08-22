@@ -1,0 +1,903 @@
+/* Activities Section */
+.activitiesSection {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.activitiesToggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, 
+    rgba(255,255,255,0.85) 0%, 
+    rgba(255,255,255,0.75) 100%
+  );
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 18px;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.03);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Benzin Semibold', 'Benzin', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: #2d3748;
+  letter-spacing: 0.05em;
+}
+
+.activitiesToggle:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, 
+    rgba(255,255,255,0.9) 0%, 
+    rgba(255,255,255,0.8) 100%
+  );
+}
+
+.activitiesToggle:hover .chevron {
+  color: #4f46e5;
+}
+
+.chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  transition: transform 0.3s ease, color 0.2s ease;
+  color: #6b7280;
+}
+
+.chevron svg {
+  width: 100%;
+  height: auto;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.activitiesContent {
+  margin-top: 0.75rem;
+  background: linear-gradient(135deg, 
+    rgba(255,255,255,0.85) 0%, 
+    rgba(255,255,255,0.75) 100%
+  );
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 18px;
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.03);
+  overflow: visible;
+  position: relative;
+}
+
+/* Activities controls with glass design and proper alignment */
+.activitiesControls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px 20px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: visible;
+  z-index: 100;
+}
+
+/* Backdrop blur overlay when dropdown is open - Fixed positioning and reduced effect */
+.activitiesContent.dropdownOpen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 18px;
+}
+
+.activitiesControls::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.8),
+    transparent
+  );
+}
+
+.activitiesControls::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.8),
+    transparent,
+    rgba(255, 255, 255, 0.3)
+  );
+}
+
+/* Ensure all three controls are aligned in one line */
+.activitiesControls > * {
+  flex: 0 0 auto;
+  z-index: 1;
+  position: relative;
+}
+
+/* Custom Dropdown Styling - Glass Design */
+.customDropdown {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 150px;
+  height: 48px;
+  z-index: 1000;
+}
+
+.dropdownTrigger {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #333333;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  overflow: hidden;
+}
+
+.dropdownTrigger::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.8),
+    transparent
+  );
+}
+
+.dropdownTrigger::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.8),
+    transparent,
+    rgba(255, 255, 255, 0.3)
+  );
+}
+
+.dropdownArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: #6b7280;
+  transition: transform 0.3s ease, color 0.2s ease;
+  z-index: 1;
+  position: relative;
+}
+
+.dropdownArrow svg {
+  width: 100%;
+  height: auto;
+}
+
+.dropdownArrowOpen {
+  transform: rotate(180deg);
+}
+
+.dropdownTrigger:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 6px 16px rgba(0,0,0,0.08),
+    0 2px 6px rgba(0,0,0,0.04);
+}
+
+.dropdownTrigger:hover .dropdownArrow {
+  color: #4f46e5;
+}
+
+.dropdownTrigger:focus {
+  background: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 0 0 3px rgba(59, 130, 246, 0.2),
+    0 16px 48px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Dropdown Menu - Like your reference image */
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  z-index: 10000;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.2s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownOption {
+  padding: 0.75rem 1rem;
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #333333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background: transparent;
+}
+
+.dropdownOption:last-child {
+  border-bottom: none;
+}
+
+.dropdownOption:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.dropdownOptionSelected {
+  background: rgba(59, 130, 246, 0.15);
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.dropdownOptionSelected:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+/* Refresh Button */
+.refreshButton {
+  flex: 0 0 auto;
+  height: 48px;
+  padding: 0.75rem 1rem;
+  min-width: 100px;
+  background: rgba(34, 197, 94, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 4px 16px rgba(34, 197, 94, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+  color: white;
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.refreshButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.8),
+    transparent
+  );
+}
+
+.refreshButton::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.8),
+    transparent,
+    rgba(255, 255, 255, 0.3)
+  );
+}
+
+.refreshButton:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 12px 40px rgba(34, 197, 94, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.refreshButton:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 
+    0 8px 24px rgba(34, 197, 94, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.refreshButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  background: rgba(156, 163, 175, 0.3);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Activities List */
+.activitiesList {
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  position: relative;
+  z-index: 10;
+}
+
+.activityItem {
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.activityByUser {
+  border-left: 4px solid #22c55e;
+  background: linear-gradient(135deg, 
+    rgba(34, 197, 94, 0.05) 0%, 
+    rgba(255, 255, 255, 0.7) 100%
+  );
+}
+
+.activityToUser {
+  border-left: 4px solid #3b82f6;
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.05) 0%, 
+    rgba(255, 255, 255, 0.7) 100%
+  );
+}
+
+.activityItem:hover {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transform: translateY(-1px);
+}
+
+/* Disable hover effects when dropdown is open */
+.activitiesContent.dropdownOpen .activityItem:hover {
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  transform: none;
+}
+
+.activitiesContent.dropdownOpen .activityItem {
+  pointer-events: none;
+}
+
+.activitiesContent.dropdownOpen .activitiesControls {
+  pointer-events: auto;
+}
+
+.activitiesContent.dropdownOpen .customDropdown {
+  pointer-events: auto;
+}
+
+.activitiesContent.dropdownOpen .refreshButton {
+  pointer-events: auto;
+}
+
+.activityItem:last-child {
+  margin-bottom: 0;
+}
+
+.activityHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.activityTypeSection {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.activityDirection {
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  padding: 0.25rem 0.5rem;
+  background: rgba(107, 114, 128, 0.1);
+  border-radius: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.activityMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.activityType {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  color: white;
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.activityDate {
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.activityLink {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  background: #23C661;
+  color: white;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.activityLink:hover {
+  background: #1EA553;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(35, 198, 97, 0.3);
+}
+
+.activityContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.activityParticipants {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.75rem;
+  background: rgba(248, 250, 252, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(229, 231, 235, 0.3);
+}
+
+.activityAuthor,
+.activityTarget {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.participantLabel {
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 600;
+  color: #6b7280;
+  min-width: 60px;
+  font-size: 0.8125rem;
+}
+
+.participantName {
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.participantId {
+  font-family: "JetBrains Mono", "SF Mono", monospace;
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.activityDescription {
+  margin-top: 0.5rem;
+}
+
+.descriptionLabel {
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500;
+  color: #6b7280;
+  font-size: 0.8125rem;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.descriptionText {
+  margin: 0;
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #374151;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 6px;
+  border: 1px solid rgba(229, 231, 235, 0.3);
+}
+
+.activityAmount,
+.activityScore {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.activityAmountLabel,
+.activityScoreLabel {
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500;
+  color: #6b7280;
+  min-width: 60px;
+}
+
+.activityTargetValue,
+.activityAmountValue {
+  font-family: "JetBrains Mono", "SF Mono", monospace;
+  font-weight: 500;
+  color: #1f2937;
+  font-size: 0.8125rem;
+}
+
+.activityScoreValue {
+  font-family: "Space Grotesk", "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 600;
+  color: #1f2937;
+  font-variant-numeric: tabular-nums;
+}
+
+.activityDebug {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(229, 231, 235, 0.3);
+}
+
+.loadingState,
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.loadingSpinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #23C661;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 0.75rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.emptyState p {
+  margin: 0;
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.875rem;
+}
+
+/* Enhanced Activity Item Styles */
+.vouchAmount {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.activityLinks {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.activityLink,
+.transactionLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.activityLink:hover,
+.transactionLink:hover {
+  background: rgba(59, 130, 246, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
+
+.transactionLink {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.transactionLink:hover {
+  background: rgba(245, 158, 11, 0.2);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
+
+.participantInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.participantAvatar {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 3px solid var(--pfp-ring, #e5e7eb);
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.avatarFallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.participantDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.participantLabel {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.participantName {
+  font-size: 0.875rem;
+  color: #1f2937;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.participantId {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 560px) {
+  .activitiesToggle {
+    padding: 0.875rem 1rem;
+    font-size: 1.125rem;
+    font-family: 'Benzin Semibold', 'Benzin', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    letter-spacing: 0.05em;
+  }
+  
+  .activitiesControls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .customDropdown,
+  .refreshButton {
+    width: 100%;
+    min-width: auto;
+    height: 48px;
+    font-size: 0.875rem;
+  }
+  
+  .dropdownTrigger {
+    padding: 0.875rem 1rem;
+  }
+  
+  .activityItem {
+    padding: 0.875rem;
+  }
+  
+  .activityHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .activityMeta {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .participantAvatar {
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--pfp-ring, #e5e7eb);
+  }
+  
+  .avatarImage {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .avatarFallback {
+    width: 100%;
+    height: 100%;
+    font-size: 0.875rem;
+  }
+  
+  .activityLinks {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .vouchAmount {
+    font-size: 0.6875rem;
+    padding: 0.125rem 0.375rem;
+  }
+}
+
+/* Medium screens */
+@media (min-width: 561px) and (max-width: 768px) {
+  .activitiesControls {
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .customDropdown {
+    min-width: 140px;
+  }
+  
+  .refreshButton {
+    min-width: 100px;
+  }
+}
+

@@ -1,13 +1,21 @@
-/* Font utility classes for Unbounded and Bodoni Moda */
-.unbounded-font {
-  font-family: "Unbounded", sans-serif;
+/* Font utility classes for Ethos typography system */
+.heading-font {
+  font-family: "Space Grotesk", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
+  letter-spacing: -0.02em;
 }
-.bodoni-moda-font {
-  font-family: "Bodoni Moda", serif;
+.body-font {
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
+  letter-spacing: -0.01em;
+}
+.mono-font {
+  font-family: "JetBrains Mono", "SF Mono", monospace;
+  font-optical-sizing: auto;
+  font-style: normal;
+  letter-spacing: -0.02em;
 }
 /* Badge styles for score levels and signals */
 .badge {
@@ -48,18 +56,27 @@
 }
 /* ========== Profile banner (compact) ========== */
 .profileCardBanner {
-  background: rgba(255,255,255,0.72);
-  border: 1.5px solid rgba(255,255,255,0.35);
-  border-radius: 18px;
-  backdrop-filter: blur(18px) saturate(180%);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 24px;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   padding: 32px 32px 24px 32px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 18px;
-  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07);
+  box-shadow: 
+    0 4px 24px 0 rgba(0,0,0,0.06),
+    0 1px 2px 0 rgba(0,0,0,0.02);
   width: 100%;
+  transition: all 0.3s ease;
+}
+.profileCardBanner:hover {
+  box-shadow: 
+    0 8px 32px 0 rgba(0,0,0,0.08),
+    0 2px 4px 0 rgba(0,0,0,0.03);
+  transform: translateY(-1px);
 }
 /* Avatar + capsule row */
 .profileCardRow {
@@ -83,12 +100,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.72);
-  border: 1.5px solid rgba(255,255,255,0.35);
-  border-radius: 16px;
-  backdrop-filter: blur(18px) saturate(180%);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  background: rgba(255,255,255,0.9);
+  border: 2px solid rgba(255,255,255,0.8);
+  border-radius: 20px;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 
+    0 4px 16px rgba(0,0,0,0.08),
+    0 2px 4px rgba(0,0,0,0.03);
+  transition: all 0.3s ease;
+}
+.profileCardAvatarWrap:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    0 6px 20px rgba(0,0,0,0.1),
+    0 2px 6px rgba(0,0,0,0.04);
 }
 .profileCardAvatarWrap::before {
   content: "";
@@ -123,29 +149,56 @@
 .profileCardEthosPillWrap {
   display: flex;
   align-items: center;
-  min-width: 0;
+  flex: 1;
+  min-width: 280px;
   z-index: 1;
   height: 96px;
+  overflow: visible;
 }
 .profileCardEthosPill {
   width: 100%;
+  min-width: 280px;
   height: 88px;
   background: var(--pfp-ring, #ff59b6);
-  border-radius: 16px;
+  border-radius: 20px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 18px;
-  padding: 0 20px 0 24px;
-  color: #181818;
+  justify-content: flex-start;
+  padding: 0 28px;
+  color: #ffffff;
   text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   line-height: 1;
-  font: 900 2rem/1 'Montserrat', Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  font-family: "Space Grotesk", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem;
   letter-spacing: 0.01em;
-  box-shadow: none;
+  box-shadow: 
+    0 4px 20px rgba(0,0,0,0.12),
+    0 2px 6px rgba(0,0,0,0.06),
+    inset 0 1px 1px rgba(255,255,255,0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.profileCardEthosPill::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    rgba(255,255,255,0) 0%, 
+    rgba(255,255,255,0.3) 50%, 
+    rgba(255,255,255,0) 100%
+  );
+}
+.profileCardEthosPill:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 6px 24px rgba(0,0,0,0.15),
+    0 2px 8px rgba(0,0,0,0.08),
+    inset 0 1px 1px rgba(255,255,255,0.2);
 }
 
 /* Ethos logo in the pill: make it large and perfectly aligned */
@@ -165,19 +218,31 @@
 
 /* Grey name bar below capsule */
 .nameBar {
-  width: 100%;
-  height: 32px;
-  background: #83cf90; /* dark blue/black for contrast, matches theme */
-  border-radius: 8px;
+  width: calc(100% - 4px);
+  min-width: 280px;
+  max-width: 672px;
+  height: 40px;
+  background: linear-gradient(90deg, #83cf90 0%, #6ac278 100%);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   margin: 0 0 0 4px;
-  padding: 0 18px;
+  padding: 0 24px;
   box-sizing: border-box;
   position: relative;
   top: -12px;
   z-index: 0;
+  box-shadow: 
+    0 4px 12px rgba(0,0,0,0.08),
+    0 2px 4px rgba(0,0,0,0.04);
+  transition: all 0.3s ease;
+}
+.nameBar:hover {
+  box-shadow: 
+    0 6px 16px rgba(0,0,0,0.1),
+    0 2px 6px rgba(0,0,0,0.06);
+  transform: translateY(-1px);
 }
 .profileCardName {
   margin: 0;
@@ -210,7 +275,10 @@
 
 /* ========== Cards & sections (unchanged core) ========== */
 .card {
-  background: rgba(255,255,255,0.72);
+  background: linear-gradient(135deg, 
+    rgba(255,255,255,0.85) 0%, 
+    rgba(255,255,255,0.75) 100%
+  );
   border: 1.5px solid rgba(255,255,255,0.35);
   border-radius: 18px;
   backdrop-filter: blur(18px) saturate(180%);
@@ -236,15 +304,26 @@
 /* Tables */
 .tableContainer{
   width: 100%;
-  border-radius: 18px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-  padding: 1.2rem 1.5rem;
+  border-radius: 20px;
+  box-shadow: 
+    0 4px 20px rgba(0,0,0,0.06),
+    0 2px 6px rgba(0,0,0,0.03);
+  padding: 1.5rem;
   overflow-x: auto;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(229,231,235,0.6);
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
-  background: #fff;
+  gap: 0.8rem;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.3s ease;
+}
+.tableContainer:hover {
+  box-shadow: 
+    0 6px 24px rgba(0,0,0,0.08),
+    0 2px 8px rgba(0,0,0,0.04);
+  transform: translateY(-1px);
 }
 .table{width:100%;border-collapse:separate;border-spacing:0;background:transparent;}
 .tableRow {
@@ -259,65 +338,91 @@
   border-bottom: none;
 }
 .tableCellLabel {
-  color: #181818;
-  font-weight: inherit;
-  font-size: inherit;
-  font-family: inherit;
+  color: #1a1a1a;
+  font-weight: 500;
+  font-size: 0.95rem;
+  font-family: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
   padding: 0 0.5rem 0 0;
   text-align: left;
   min-width: 100px;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
   background: none;
   border: none;
   justify-self: start;
   vertical-align: middle;
 }
 .tableCellValue {
-  color: #181818;
-  font-weight: inherit;
-  font-size: inherit;
-  font-family: inherit;
-  letter-spacing: 0.01em;
+  color: #1a1a1a;
+  font-weight: 500;
+  font-size: 1.05rem;
+  font-family: "Space Grotesk", "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: -0.02em;
   text-align: right;
   padding: 0 0 0 0.5rem;
   background: none;
   border: none;
-  line-height: 1.1;
+  line-height: 1.2;
   font-variant-numeric: tabular-nums;
-  font-feature-settings: 'tnum' 1, 'ss01' 1;
+  font-feature-settings: 'tnum' 1, 'ss01' 1, 'zero' 1;
   min-width: 80px;
   justify-self: end;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 /* Special number style for scores */
 .scoreNumber {
-  font-family:  "Bodoni Moda", serif;
-  font-weight: 700;
-  font-size: 2.1rem;
-  letter-spacing: 0.01em;
-  color: #181818;
+  font-family: "Space Grotesk", "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 800;
+  font-size: 2rem;
+  letter-spacing: -0.04em;
+  color: #1a1a1a;
   font-variant-numeric: tabular-nums;
-  font-feature-settings: 'tnum' 1, 'ss01' 1;
+  font-feature-settings: 'tnum' 1, 'ss01' 1, 'zero' 1;
+  background: linear-gradient(135deg, #1a1a1a 0%, #404040 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Enhanced numeric styling for all numbers */
+.numericValue {
+  font-family: "Space Grotesk", "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'ss01' 1, 'zero' 1;
+  letter-spacing: -0.02em;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .sectionTitle{
-  font-size: 1.4rem;
-  font-weight: 400;
-  color: #083335;
-  background: none;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #2d3748;
+  background: rgba(255,255,255,0.85);
+  border: 1.5px solid rgba(255,255,255,0.4);
+  backdrop-filter: blur(20px) saturate(180%);
   border-radius: 18px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-  background: rgba(255,255,255,0.72);
-  border: 1.5px solid rgba(255,255,255,0.35);
-  backdrop-filter: blur(18px) saturate(180%);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  padding: 16px 20px;
+  margin-bottom: 1.5rem;
+  font-family: 'Benzin Semibold', 'Benzin', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
   -webkit-backdrop-filter: blur(18px) saturate(180%);
   margin-bottom: 0.7rem;
   margin-top: 1.2rem;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.02em;
   display: block;
   text-align: left;
   border: none;
-  font-family: 'Montserrat', Inter, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-  padding-left: 18px;
+  font-family: "Space Grotesk", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: 0.8rem 1.2rem;
 }
 .row {
   display: grid;
@@ -398,40 +503,57 @@
 }
 @media (max-width:560px){
   .profileCardBanner {
-    padding: 16px 6px 10px 6px;
+    padding: 16px;
     border-radius: 16px;
-    gap: 10px;
+    gap: 12px;
+    background: rgba(255,255,255,0.95);
   }
   .profileCardRow {
+    display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 8px;
+    align-items: stretch;
+    gap: 12px;
     width: 100%;
   }
   .profileCardAvatarWrap {
-    width: 64px;
-    height: 64px;
-    margin: 0 0 8px 0;
+    width: 56px;
+    height: 56px;
+    margin: 0;
+    align-self: center;
   }
   .profileCardAvatar, .profileCardAvatarFallback {
-    width: 54px;
-    height: 54px;
+    width: 48px;
+    height: 48px;
     font-size: 1rem;
+    border-radius: 12px;
   }
   .profileCardEthosPillWrap {
     width: 100%;
+    height: auto;
     margin: 0;
-    justify-content: center;
   }
   .profileCardEthosPill {
-    height: 48px;
-    border-radius: 24px;
+    height: auto;
+    min-height: 44px;
+    border-radius: 12px;
     font-size: 1.1rem;
-    padding: 0 10px;
-    min-width: 0;
-    width: auto;
-    max-width: 90vw;
+    padding: 8px 12px;
+    width: 100%;
+    white-space: nowrap;
+    text-align: center;
+    justify-content: center;
+    gap: 8px;
   }
+  .profileCardEthosPill img {
+    height: 24px;
+    width: 24px;
+  }
+  .profileCardEthosPill span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
   .nameBar {
     width: 90%;
     height: 32px;
@@ -445,27 +567,95 @@
     letter-spacing: 0.04em;
   }
   .card {
-    padding: 1.2rem 1rem;
-    border-radius: 12px;
-    max-width: 99vw;
-    background: rgba(220, 245, 255, 0.92);
+    padding: 16px 12px;
+    border-radius: 16px;
+    max-width: 100%;
+    margin: 0;
+    background: rgba(246, 248, 250, 0.7);
+    border: 1px solid rgba(229, 231, 235, 0.5);
+  }
+  
+  /* Special fields styling */
+  .statusActive {
+    font-size: 0.875rem;
+    padding: 4px 12px;
+  }
+  
+  /* Score and numbers */
+  .scoreNumber {
+    font-size: 1.5rem;
+  }
+  
+  /* ETH amounts */
+  .tableCellValue[data-type="eth"] {
+    font-family: "Space Grotesk", "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1, 'ss01' 1, 'zero' 1;
+  }
+  
+  /* Address display */
+  .tableCellValue[data-type="address"] {
+    font-family: "Space Grotesk", "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1, 'ss01' 1, 'zero' 1;
   }
   .mainStatsHighlight, .tableContainer {
-    padding: 1rem 1rem;
-    border-radius: 0.7em;
-    font-size: 0.95rem;
-    background: rgba(220, 245, 255, 0.92);
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.9375rem;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    margin-bottom: 8px;
   }
-  .tableCellLabel, .tableCellValue {
-    font-size: 0.95rem;
-    min-width: 80px;
+  .tableRow {
+    padding: 8px 0;
+    gap: 12px;
+  }
+  .tableCellLabel {
+    font-size: 0.9375rem;
+    min-width: 120px;
+    word-break: normal;
+    color: #4B5563;
+  }
+  .tableCellValue {
+    font-size: 1rem;
+    min-width: 90px;
     word-break: break-word;
+    color: #111827;
+    font-weight: 500;
   }
   .copyBtn {
-    font-size: 1rem;
-    padding: 2px 8px;
+    font-size: 0.875rem;
+    padding: 4px 8px;
+    height: 28px;
+    margin-left: 6px;
   }
-}
+  .sectionTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2d3748;
+    background: rgba(255,255,255,0.9);
+    border: 1.5px solid rgba(255,255,255,0.5);
+    backdrop-filter: blur(15px) saturate(180%);
+    border-radius: 16px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    padding: 12px 16px;
+    margin-top: 16px;
+    margin-bottom: 12px;
+    font-family: 'Benzin Semibold', 'Benzin', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+  }
 
 /* ========== Main stats highlight ========== */
 .mainStatsHighlight {

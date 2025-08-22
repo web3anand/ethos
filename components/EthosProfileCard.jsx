@@ -1,3 +1,12 @@
+import Image from 'next/image';
+import styles from './EthosProfileCard.module.css';
+import { useEffect, useState, useRef } from 'react';
+import fetchEthPrice from '../utils/fetchEthPrice';
+import { fetchUserAddresses } from '../lib/ethos';
+import { getUserStats } from '../utils/ethosApiClient';
+import UserActivities from './UserActivities';
+// import EthosLogo from './EthosLogo';
+
 // Copy button with tooltip for address
 function CopyAddress({ address }) {
   const [copied, setCopied] = useState(false);
@@ -29,13 +38,48 @@ function CopyAddress({ address }) {
   );
 }
 
-
-import Image from 'next/image';
-import styles from './EthosProfileCard.module.css';
-import { useEffect, useState, useRef } from 'react';
-import fetchEthPrice from '../utils/fetchEthPrice';
-import { fetchUserAddresses } from '../lib/ethos';
-// import EthosLogo from './EthosLogo';
+// Helper function to fetch validator NFT data
+async function fetchValidatorNftData(profileId) {
+  try {
+    // Format the profileId correctly
+    const formattedProfileId = `profileId:${profileId}`;
+    
+    // First get user's addresses
+    const addressRes = await fetch(`https://api.ethos.network/api/v1/addresses/${formattedProfileId}`, {
+      method: 'GET',
+      headers: {
+        'Accept': '*/*'
+      }
+    });
+    
+    if (!addressRes.ok) {
+      console.error('[EthosProfileCard] Failed to fetch addresses:', addressRes.status, addressRes.statusText);
+      return null;
+    }
+    
+    // Then check for validator NFTs
+    const nftRes = await fetch(`https://api.ethos.network/api/v2/nfts/user/${formattedProfileId}/owns-validator`, {
+      method: 'GET',
+      headers: {
+        'Accept': '*/*'
+      }
+    });
+    
+    if (!nftRes.ok) {
+      console.error('[EthosProfileCard] Validator NFT check failed:', nftRes.status, nftRes.statusText);
+      return null;
+    }
+    
+    const data = await nftRes.json();
+    // API returns an array of validator NFTs, get the first one if exists
+    const validatorNft = Array.isArray(data) && data.length > 0 ? data[0] : null;
+    console.log('[EthosProfileCard] Validator NFT data for', formattedProfileId, ':', validatorNft);
+    return validatorNft;
+  } catch (error) {
+    console.error('[EthosProfileCard] Error checking validator NFT:', error);
+    return null;
+  }
+}
 
 // Copy button with tooltip for address
 
@@ -61,10 +105,79 @@ function getScoreLevel(score) {
 export default function EthosProfileCard({ profile }) {
   const [ethPrice, setEthPrice] = useState(null);
   const [primaryAddress, setPrimaryAddress] = useState(null);
+  const [validatorNft, setValidatorNft] = useState(null); // Store full NFT data
+  const [influenceScore, setInfluenceScore] = useState(null);
 
   useEffect(() => {
     fetchEthPrice().then(setEthPrice).catch(() => setEthPrice(null));
   }, []);
+
+  // Fetch influencer score
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchInfluenceScore() {
+      if (!profile) {
+        setInfluenceScore(null);
+        return;
+      }
+
+      // Try to get userkey for stats API
+      let userkey = null;
+      
+      // Check if profile has userkeys array with X service
+      if (profile.userkeys && Array.isArray(profile.userkeys)) {
+        const xUserkey = profile.userkeys.find(uk => uk.service === 'x.com');
+        if (xUserkey) {
+          userkey = `service:x.com:${xUserkey.username}`;
+        }
+      }
+      
+      // If no X userkey found, try using profileId
+      if (!userkey && profile.profileId) {
+        userkey = `profileId:${profile.profileId}`;
+      }
+
+      if (!userkey) {
+        console.log('[EthosProfileCard] No suitable userkey found for influence score');
+        setInfluenceScore(null);
+        return;
+      }
+
+      try {
+        console.log('[EthosProfileCard] Fetching influence score for userkey:', userkey);
+        const stats = await getUserStats(userkey);
+        if (!cancelled && stats && stats.influenceFactor !== undefined) {
+          setInfluenceScore(stats.influenceFactor);
+          console.log('[EthosProfileCard] Influence score:', stats.influenceFactor);
+        } else {
+          setInfluenceScore(null);
+        }
+      } catch (error) {
+        console.error('[EthosProfileCard] Error fetching influence score:', error);
+        if (!cancelled) setInfluenceScore(null);
+      }
+    }
+    
+    fetchInfluenceScore();
+    return () => { cancelled = true; };
+  }, [profile]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchValidatorNft() {
+      if (!profile || !profile.profileId) {
+        console.log('[EthosProfileCard] No profile or profileId available');
+        setValidatorNft(null);
+        return;
+      }
+      setValidatorNft(null); // loading
+      console.log('[EthosProfileCard] Checking validator NFT for profileId:', profile.profileId);
+      const nftData = await fetchValidatorNftData(profile.profileId);
+      if (!cancelled) setValidatorNft(nftData);
+    }
+    fetchValidatorNft();
+    return () => { cancelled = true; };
+  }, [profile]);
 
   useEffect(() => {
     let cancelled = false;
@@ -121,6 +234,7 @@ export default function EthosProfileCard({ profile }) {
         'Profile ID': profile.profileId,
         Status: profile.status,
         Score: profile.score,
+        'Influence Factor': influenceScore !== null ? influenceScore : 'Loading...',
         'XP Total': profile.xpTotal,
         'XP Streak Days': profile.xpStreakDays,
       },
@@ -157,7 +271,37 @@ export default function EthosProfileCard({ profile }) {
               <CopyAddress address={primaryAddress} />
             )
           : <span style={{color: '#aaa'}}>Not available</span>,
-// Copy button with tooltip for address
+'Validator NFT': validatorNft === null
+          ? <span style={{color:'#aaa'}}>Checking...</span>
+          : validatorNft
+            ? (
+                <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                  <span style={{color:'#22c55e', fontWeight:600}}>Yes</span>
+                  {validatorNft.imageUrl && (
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '4px',
+                      overflow: 'hidden',
+                      border: '1px solid #ddd'
+                    }}>
+                      <Image
+                        src={validatorNft.imageUrl}
+                        alt={validatorNft.name || 'Validator NFT'}
+                        width={32}
+                        height={32}
+                        style={{objectFit: 'cover'}}
+                      />
+                    </div>
+                  )}
+                  {validatorNft.name && (
+                    <span style={{color: '#666', fontSize: '0.9em'}}>
+                      {validatorNft.name}
+                    </span>
+                  )}
+                </div>
+              )
+            : <span style={{color:'#e74c3c', fontWeight:600}}>No</span>,
         'ETH Price (USD)': ethPrice ? `$${ethPrice.toLocaleString(undefined, {maximumFractionDigits:2})}` : 'Loading...',
       },
     ],
@@ -195,14 +339,39 @@ export default function EthosProfileCard({ profile }) {
           <div className={styles.profileCardEthosPillWrap}>
             <div
               className={styles.profileCardEthosPill}
-              style={{ background: scoreLevel.color }}
+              style={{ 
+                background: scoreLevel.color,
+                padding: '8px 16px',
+                borderRadius: '20px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
             >
-              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 18 }}>
-                <img
+              <span style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'flex-start',
+                gap: '12px',
+                minWidth: '280px',
+                width: '100%'
+              }}>
+                <Image
                   src="/ethos.png"
                   alt="Ethos Logo"
+                  width={24}
+                  height={24}
+                  style={{
+                    flexShrink: 0,
+                    objectFit: 'contain'
+                  }}
                 />
-                <span>{scoreLevel.name}</span>
+                <span style={{
+                  fontSize: '1.1em',
+                  fontWeight: 600,
+                  color: scoreLevel.color === '#e2e2e2' ? '#222' : '#fff',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}>{scoreLevel.name}</span>
               </span>
             </div>
           </div>
@@ -247,9 +416,9 @@ export default function EthosProfileCard({ profile }) {
                             </>
                           )
                         : (typeof value === 'number'
-                            ? value.toLocaleString()
+                            ? <span className={styles.numericValue}>{value.toLocaleString()}</span>
                             : (typeof value === 'string' && !isNaN(Number(value)) && value.trim() !== '' && isFinite(Number(value))
-                                ? Number(value).toLocaleString()
+                                ? <span className={styles.numericValue}>{Number(value).toLocaleString()}</span>
                                 : value))
                     )}
                   </td>
@@ -274,9 +443,9 @@ export default function EthosProfileCard({ profile }) {
                       (label === 'ID' || label === 'Profile ID')
                         ? value
                         : (typeof value === 'number'
-                            ? value.toLocaleString()
+                            ? <span className={styles.numericValue}>{value.toLocaleString()}</span>
                             : (typeof value === 'string' && !isNaN(Number(value)) && value.trim() !== '' && isFinite(Number(value))
-                                ? Number(value).toLocaleString()
+                                ? <span className={styles.numericValue}>{Number(value).toLocaleString()}</span>
                                 : value))
                     }</td>
                   </tr>
@@ -286,6 +455,9 @@ export default function EthosProfileCard({ profile }) {
           </div>
         </div>
       ))}
+
+      {/* User Activities Section */}
+      <UserActivities profile={profile} />
     </div>
   );
 }
