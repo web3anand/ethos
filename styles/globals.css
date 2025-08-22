@@ -2,11 +2,59 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Viewport and mobile optimization */
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   @apply bg-yellow-50 text-gray-900;
   background: url('/bg-wood.jpg') repeat center center fixed;
   background-size: cover;
   position: relative;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  body {
+    background-attachment: scroll; /* Better performance on mobile */
+  }
+  
+  /* Mobile navbar adjustments */
+  .navbar-mobile {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  /* Ensure proper spacing on mobile */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Mobile-friendly button sizes */
+  .mobile-nav-button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 8px 12px;
+  }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Improve touch targets */
+  button, .button, [role="button"] {
+    min-height: 44px; /* iOS accessibility guidelines */
+    min-width: 44px;
+  }
+  
+  /* Prevent iOS zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
 }
 
 /* Glassmorphic overlay for all pages */

@@ -364,14 +364,16 @@ export default function EthosProfileCard({ profile }) {
                     objectFit: 'contain'
                   }}
                 />
-                <span style={{
-                  fontSize: '1.1em',
-                  fontWeight: 600,
-                  color: scoreLevel.color === '#e2e2e2' ? '#222' : '#fff',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}>{scoreLevel.name}</span>
+                <span 
+                  style={{
+                    fontWeight: 600,
+                    color: scoreLevel.color === '#e2e2e2' ? '#222' : '#fff',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}
+                  data-length={scoreLevel.name.length}
+                >{scoreLevel.name}</span>
               </span>
             </div>
           </div>

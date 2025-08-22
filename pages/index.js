@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import Head from 'next/head';
+import Navbar from '../components/Navbar';
 import SearchBar from '../components/SearchBar';
 import fetchUserSuggestions from '../utils/fetchUserSuggestions';
 import {
@@ -86,19 +88,43 @@ export default function Home() {
   };
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Check Your Social Score</h1>
-      <div className={styles.searchContainer}>
-        <SearchBar
-          username={username}
-          setUsername={setUsername}
-          onSearch={handleSearch}
-          loading={loading}
-          onSuggestionSelect={handleSuggestionSelect}
-        />
+    <>
+      <Head>
+        <title>Check Your Social Score - Ethos</title>
+        <meta name="description" content="Check your social reputation score and credibility with Ethos" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="theme-color" content="#4f7cf0" />
+        
+        {/* Google Fonts */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
+        <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Allura&family=Alex+Brush&display=swap" rel="stylesheet" />
+        
+        {/* iOS specific meta tags */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Ethos Score" />
+        
+        {/* Prevent zoom on input focus for iOS */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+      </Head>
+      
+      <Navbar />
+      <div className={styles.container}>
+        <h1 className={styles.title}>Check reputation</h1>
+        <div className={styles.searchContainer}>
+          <SearchBar
+            username={username}
+            setUsername={setUsername}
+            onSearch={handleSearch}
+            loading={loading}
+            onSuggestionSelect={handleSuggestionSelect}
+          />
+        </div>
+        {error && <div className={styles.error}>{error}</div>}
+        {userData && <EthosProfileCard profile={userData} />}
       </div>
-      {error && <div className={styles.error}>{error}</div>}
-      {userData && <EthosProfileCard profile={userData} />}
-    </div>
+    </>
   );
 }

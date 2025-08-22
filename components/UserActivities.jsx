@@ -23,7 +23,7 @@ function getScoreLevel(score) {
 }
 
 // Custom Dropdown Component
-const CustomDropdown = ({ value, onChange, options, className, placeholder, onOpenChange }) => {
+const CustomDropdown = ({ value, onChange, options, className, placeholder, onOpenChange, id, closeOtherDropdowns }) => {
   const [isOpen, setIsOpen] = useState(false);
   
   const selectedOption = options.find(option => option.value === value);
@@ -31,21 +31,49 @@ const CustomDropdown = ({ value, onChange, options, className, placeholder, onOp
   const handleSelect = (optionValue) => {
     onChange(optionValue);
     setIsOpen(false);
-    onOpenChange && onOpenChange(false);
+    onOpenChange && onOpenChange(false, id);
   };
   
   const handleToggle = () => {
     const newIsOpen = !isOpen;
+    
+    // Close other dropdowns if this one is opening
+    if (newIsOpen && closeOtherDropdowns) {
+      closeOtherDropdowns(id);
+    }
+    
     setIsOpen(newIsOpen);
-    onOpenChange && onOpenChange(newIsOpen);
+    onOpenChange && onOpenChange(newIsOpen, id);
   };
   
   const handleBlur = () => {
     setTimeout(() => {
       setIsOpen(false);
-      onOpenChange && onOpenChange(false);
+      onOpenChange && onOpenChange(false, id);
     }, 150);
   };
+
+  // Expose a method to close this dropdown
+  React.useImperativeHandle(React.forwardRef(() => null), () => ({
+    close: () => {
+      setIsOpen(false);
+      onOpenChange && onOpenChange(false, id);
+    }
+  }));
+
+  // External close function
+  React.useEffect(() => {
+    // Register this dropdown's close function
+    window[`closeDropdown_${id}`] = () => {
+      setIsOpen(false);
+      onOpenChange && onOpenChange(false, id);
+    };
+    
+    // Cleanup on unmount
+    return () => {
+      delete window[`closeDropdown_${id}`];
+    };
+  }, [id, onOpenChange]);
   
   return (
     <div className={`${styles.customDropdown} ${className}`}>
@@ -86,6 +114,7 @@ export default function UserActivities({ profile }) {
   const [selectedType, setSelectedType] = useState('all');
   const [selectedDirection, setSelectedDirection] = useState('all');
   const [isAnyDropdownOpen, setIsAnyDropdownOpen] = useState(false);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
   const [userScores, setUserScores] = useState({}); // Cache for user scores
 
   // Debug: Log userScores changes
@@ -93,28 +122,60 @@ export default function UserActivities({ profile }) {
     console.log('[UserActivities] UserScores updated:', userScores);
   }, [userScores]);
 
+  // Function to close other dropdowns
+  const closeOtherDropdowns = (currentDropdownId) => {
+    const dropdownIds = ['type-filter', 'direction-filter'];
+    dropdownIds.forEach(id => {
+      if (id !== currentDropdownId && window[`closeDropdown_${id}`]) {
+        window[`closeDropdown_${id}`]();
+      }
+    });
+  };
+
   // Function to fetch user score by profile ID
   const fetchUserScore = async (profileId) => {
-    if (!profileId || userScores[profileId]) {
-      return userScores[profileId] || 0;
+    console.log('[UserActivities] fetchUserScore called with profileId:', profileId, 'type:', typeof profileId);
+    
+    if (!profileId) {
+      console.log('[UserActivities] No profileId provided, returning 0');
+      return 0;
+    }
+    
+    if (userScores[profileId] !== undefined) {
+      console.log('[UserActivities] Score already cached for', profileId, ':', userScores[profileId]);
+      return userScores[profileId];
     }
 
     try {
       console.log('[UserActivities] Fetching score for profileId:', profileId);
+      console.log('[UserActivities] Calling getUserStats with:', `profileId:${profileId}`);
+      
       const userStats = await getUserStats(`profileId:${profileId}`);
-      console.log('[UserActivities] Received stats for', profileId, ':', userStats);
+      console.log('[UserActivities] Raw API response for', profileId, ':', userStats);
+      
       const score = userStats?.score || userStats?.influenceScore || 0;
-      console.log('[UserActivities] Extracted score:', score);
+      console.log('[UserActivities] Extracted score for', profileId, ':', score);
       
       // Cache the score
-      setUserScores(prev => ({
-        ...prev,
-        [profileId]: score
-      }));
+      setUserScores(prev => {
+        const newScores = {
+          ...prev,
+          [profileId]: score
+        };
+        console.log('[UserActivities] Updated userScores cache:', newScores);
+        return newScores;
+      });
       
       return score;
     } catch (error) {
       console.error('[UserActivities] Error fetching user score for profileId:', profileId, error);
+      
+      // Cache the error result as 0
+      setUserScores(prev => ({
+        ...prev,
+        [profileId]: 0
+      }));
+      
       return 0;
     }
   };
@@ -137,8 +198,14 @@ export default function UserActivities({ profile }) {
     { value: 'received', label: 'Received by User' }
   ];
 
-  const handleDropdownOpenChange = (isDropdownOpen) => {
+  const handleDropdownOpenChange = (isDropdownOpen, dropdownId) => {
     setIsAnyDropdownOpen(isDropdownOpen);
+    
+    if (isDropdownOpen) {
+      setOpenDropdownId(dropdownId);
+    } else {
+      setOpenDropdownId(null);
+    }
   };
 
   useEffect(() => {
@@ -191,7 +258,10 @@ export default function UserActivities({ profile }) {
       // Fetch scores for all unique participants
       for (const profileId of participantIds) {
         if (profileId && !userScores[profileId]) {
+          console.log('[UserActivities] Calling fetchUserScore for profileId:', profileId);
           fetchUserScore(profileId);
+        } else {
+          console.log('[UserActivities] Skipping fetchUserScore for profileId:', profileId, 'already cached:', userScores[profileId]);
         }
       }
     } catch (error) {
@@ -494,7 +564,50 @@ export default function UserActivities({ profile }) {
       </button>
       
       {isOpen && (
-        <div className={`${styles.activitiesContent} ${isAnyDropdownOpen ? styles.dropdownOpen : ''}`}>
+        <>
+          {/* Profile Banner */}
+          <div className={styles.profileBanner}>
+            <div className={styles.profileBannerRow}>
+              <div 
+                className={styles.profileBannerAvatar}
+                style={{ '--pfp-ring': getScoreLevel(userScores[profile?.profileId] || profile?.score || 0).color }}
+              >
+                {profile?.avatarUrl ? (
+                  <img 
+                    src={profile.avatarUrl} 
+                    alt={profile.displayName || 'User'} 
+                    className={styles.profileBannerAvatarImage}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div className={styles.profileBannerAvatarFallback} style={{ display: profile?.avatarUrl ? 'none' : 'flex' }}>
+                  {(profile?.displayName || 'U')[0].toUpperCase()}
+                </div>
+              </div>
+              <div className={styles.profileBannerBadges}>
+                <div 
+                  className={styles.profileBannerBadgeKnown}
+                  style={{ background: getScoreLevel(userScores[profile?.profileId] || profile?.score || 0).color }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 6h18l-2 13H5L3 6z" stroke="currentColor" strokeWidth="2" fill="none"/>
+                    <path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke="currentColor" strokeWidth="2" fill="none"/>
+                  </svg>
+                  <span>{getScoreLevel(userScores[profile?.profileId] || profile?.score || 0).name.toUpperCase()}</span>
+                </div>
+                {profile?.status === 'active' && (
+                  <div className={styles.profileBannerBadgeActive}>
+                    <span>DAYBOT</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <div className={`${styles.activitiesContent} ${isAnyDropdownOpen ? styles.dropdownOpen : ''}`}>
           <div className={`${styles.activitiesControls} ${isAnyDropdownOpen ? styles.dropdownOpen : ''}`}>
             <CustomDropdown
               value={selectedType}
@@ -503,6 +616,8 @@ export default function UserActivities({ profile }) {
               className={styles.typeFilter}
               placeholder="Select Activity Type"
               onOpenChange={handleDropdownOpenChange}
+              id="type-filter"
+              closeOtherDropdowns={closeOtherDropdowns}
             />
 
             <CustomDropdown
@@ -512,6 +627,8 @@ export default function UserActivities({ profile }) {
               className={styles.directionFilter}
               placeholder="Select Direction"
               onOpenChange={handleDropdownOpenChange}
+              id="direction-filter"
+              closeOtherDropdowns={closeOtherDropdowns}
             />
             
             <button 
@@ -538,6 +655,7 @@ export default function UserActivities({ profile }) {
             )}
           </div>
         </div>
+        </>
       )}
     </div>
   );

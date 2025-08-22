@@ -15,47 +15,16 @@ export default async function fetchUserSuggestions(query) {
     // Use comprehensive Ethos API search (combines v1 and v2 APIs)
     const ethosResults = await searchUsers(cleanQuery, 8);
     
-    // Fetch influence scores for each user
-    const resultsWithInfluence = await Promise.all(
-      ethosResults.map(async (user) => {
-        let influenceScore = null;
-        
-        try {
-          // Try to get userkey for stats API
-          let userkey = null;
-          
-          // Check if user has userkeys array with X service
-          if (user.userkeys && Array.isArray(user.userkeys)) {
-            const xUserkey = user.userkeys.find(uk => uk.service === 'x.com');
-            if (xUserkey) {
-              userkey = `service:x.com:${xUserkey.username}`;
-            }
-          }
-          
-          // If no X userkey found, try using profileId
-          if (!userkey && user.profileId) {
-            userkey = `profileId:${user.profileId}`;
-          }
-
-          if (userkey) {
-            const stats = await getUserStats(userkey);
-            if (stats && stats.influenceFactor !== undefined) {
-              influenceScore = stats.influenceFactor;
-            }
-          }
-        } catch (error) {
-          console.warn(`[fetchUserSuggestions] Could not fetch influence score for ${user.username}:`, error);
-        }
-        
-        return {
-          ...user,
-          influenceScore
-        };
-      })
-    );
+    // Skip individual influence score fetching for faster response
+    // The search results already contain score data
+    const optimizedResults = ethosResults.map(user => ({
+      ...user,
+      // Use the score from search results as influence score if available
+      influenceScore: user.score || user.influenceScore || null
+    }));
     
     // Sort by relevance and score
-    const sortedSuggestions = resultsWithInfluence
+    const sortedSuggestions = optimizedResults
       .sort((a, b) => {
         // Exact matches first
         const aExactMatch = a.username?.toLowerCase() === cleanQuery.toLowerCase() ||

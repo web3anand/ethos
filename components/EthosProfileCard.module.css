@@ -509,49 +509,142 @@
     background: rgba(255,255,255,0.95);
   }
   .profileCardRow {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    align-items: center;
+    position: relative;
     width: 100%;
+    min-width: 0;
+    gap: 0;
   }
   .profileCardAvatarWrap {
-    width: 56px;
-    height: 56px;
-    margin: 0;
-    align-self: center;
+    width: 92px;
+    height: 92px;
+    margin-right: 4px;
+    margin-left: 0;
+    z-index: 2;
   }
   .profileCardAvatar, .profileCardAvatarFallback {
-    width: 48px;
-    height: 48px;
-    font-size: 1rem;
-    border-radius: 12px;
+    width: 80px;
+    height: 80px;
+    font-size: 1.2rem;
+    border-radius: 10px;
   }
   .profileCardEthosPillWrap {
-    width: 100%;
-    height: auto;
-    margin: 0;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    z-index: 1;
+    height: 96px;
+    overflow: visible;
   }
   .profileCardEthosPill {
-    height: auto;
-    min-height: 44px;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    padding: 8px 12px;
     width: 100%;
-    white-space: nowrap;
-    text-align: center;
-    justify-content: center;
-    gap: 8px;
+    height: 88px;
+    border-radius: 20px;
+    padding: 0 16px 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    overflow: hidden;
+    min-width: 0;
   }
   .profileCardEthosPill img {
     height: 24px;
     width: 24px;
+    flex-shrink: 0;
+    margin-right: 8px;
   }
   .profileCardEthosPill span {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+    flex: 1;
+  }
+  .profileCardEthosPill span span {
+    /* Dynamic text sizing based on content length */
+    font-weight: 700;
+    color: inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+    line-height: 1;
+    /* Ensure text fits properly with slightly larger base size */
+    font-size: clamp(1.1rem, 3.2vw, 1.6rem);
+  }
+  /* Specific adjustments for different text lengths */
+  .profileCardEthosPill span span[data-length="1"],
+  .profileCardEthosPill span span[data-length="2"],
+  .profileCardEthosPill span span[data-length="3"],
+  .profileCardEthosPill span span[data-length="4"] {
+    font-size: clamp(1.3rem, 3.6vw, 1.6rem);
+  }
+  .profileCardEthosPill span span[data-length="5"],
+  .profileCardEthosPill span span[data-length="6"],
+  .profileCardEthosPill span span[data-length="7"] {
+    font-size: clamp(1.2rem, 3.4vw, 1.5rem);
+  }
+  .profileCardEthosPill span span[data-length="8"],
+  .profileCardEthosPill span span[data-length="9"] {
+    font-size: clamp(1.1rem, 3.2vw, 1.4rem);
+  }
+  .profileCardEthosPill span span[data-length="10"],
+  .profileCardEthosPill span span[data-length="11"] {
+    font-size: clamp(1rem, 3vw, 1.3rem);
+  }
+  .profileCardEthosPill span span[data-length="12"],
+  .profileCardEthosPill span span[data-length="13"],
+  .profileCardEthosPill span span[data-length="14"] {
+    font-size: clamp(0.95rem, 2.8vw, 1.2rem);
+    letter-spacing: 0;
+  }
+}
+
+/* Extra responsive adjustments for very small screens */
+@media (max-width: 375px) {
+  .profileCardEthosPill {
+    padding: 0 12px 0 24px;
+  }
+  .profileCardEthosPill img {
+    margin-right: 6px;
+  }
+  .profileCardEthosPill span {
+    gap: 6px;
+  }
+  .profileCardEthosPill span span {
+    font-size: clamp(1rem, 2.8vw, 1.4rem);
+  }
+  .profileCardEthosPill span span[data-length="1"],
+  .profileCardEthosPill span span[data-length="2"],
+  .profileCardEthosPill span span[data-length="3"],
+  .profileCardEthosPill span span[data-length="4"] {
+    font-size: clamp(1.2rem, 3.2vw, 1.5rem);
+  }
+  .profileCardEthosPill span span[data-length="5"],
+  .profileCardEthosPill span span[data-length="6"],
+  .profileCardEthosPill span span[data-length="7"] {
+    font-size: clamp(1.1rem, 3vw, 1.4rem);
+  }
+  .profileCardEthosPill span span[data-length="8"],
+  .profileCardEthosPill span span[data-length="9"] {
+    font-size: clamp(1rem, 2.8vw, 1.3rem);
+  }
+  .profileCardEthosPill span span[data-length="10"],
+  .profileCardEthosPill span span[data-length="11"],
+  .profileCardEthosPill span span[data-length="12"],
+  .profileCardEthosPill span span[data-length="13"],
+  .profileCardEthosPill span span[data-length="14"] {
+    font-size: clamp(0.95rem, 2.6vw, 1.2rem);
+    letter-spacing: -0.02em;
   }
 }
   .nameBar {

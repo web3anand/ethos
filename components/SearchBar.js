@@ -27,11 +27,11 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
     }
 
     // Show suggestions immediately if we have a query
-    if (username && username.length >= 1) {
+    if (username && username.length >= 2) {
       setShowSuggestions(true);
       setIsLoading(true);
       
-      // Debounce API calls by 150ms for better performance
+      // Reduced debounce time from 150ms to 100ms for faster response
       debounceTimer.current = setTimeout(async () => {
         try {
           const results = await fetchUserSuggestions(username);
@@ -43,7 +43,7 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
         } finally {
           setIsLoading(false);
         }
-      }, 150);
+      }, 100);
     } else {
       // Hide suggestions for empty or single character input
       setSuggestions([]);
@@ -101,52 +101,65 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
   };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-lg gap-2 relative">
+    <div className="flex flex-col items-center w-full max-w-lg gap-2 relative px-2 sm:px-0">
       <div className="flex items-center w-full gap-2">
-        <div className="relative flex-grow">
+        <div className="relative flex-grow w-full">
           <input
             ref={inputRef}
             type="text"
             value={username}
             onChange={e => {
               setUsername(e.target.value);
-              // Automatically show suggestions when typing
-              if (e.target.value.length >= 1) {
+              // Automatically show suggestions when typing (reduced from 1 to 2 characters)
+              if (e.target.value.length >= 2) {
                 setShowSuggestions(true);
               }
             }}
             onFocus={() => {
-              // Show suggestions on focus if we have content
-              if (username && username.length >= 1) {
+              // Show suggestions on focus if we have content (reduced from 1 to 2 characters)
+              if (username && username.length >= 2) {
                 setShowSuggestions(true);
               }
             }}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
             onKeyDown={handleKeyDown}
             placeholder="Search by Twitter Username or Name"
-            className="w-full p-3 bg-gray-900/90 backdrop-blur-lg border border-gray-700 rounded-2xl shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400/50 transition-all duration-300 placeholder-gray-400 text-white"
+            className="w-full p-3 sm:p-3 bg-gray-800/30 backdrop-blur-xl border border-gray-600/40 rounded-2xl shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-gray-500/50 transition-all duration-300 placeholder-gray-400 text-white text-sm sm:text-base"
             autoComplete="off"
             style={{
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
             }}
           />
           
           {showSuggestions && (suggestions.length > 0 || isLoading) && (
-            <div className="absolute top-full left-0 w-full bg-black/95 backdrop-blur-xl border border-gray-800 rounded-2xl shadow-2xl z-50 mt-2 max-h-96 overflow-y-auto" style={{ minWidth: '450px' }}>
+            <div className="absolute top-full left-0 w-full bg-gray-800/30 backdrop-blur-xl border border-gray-600/40 rounded-2xl shadow-2xl z-50 mt-2 max-h-96 overflow-y-auto" style={{
+              scrollbarWidth: 'none', /* Firefox */
+              msOverflowStyle: 'none', /* IE and Edge */
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+            }}>
+              <style jsx>{`
+                div {
+                  scrollbar-width: none; /* Firefox */
+                  -ms-overflow-style: none; /* IE and Edge */
+                }
+                div::-webkit-scrollbar {
+                  display: none; /* Chrome, Safari, Opera */
+                }
+              `}</style>
               <div className="p-2">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-4">
-                    <div className="w-5 h-5 border-2 border-gray-600 border-t-blue-400 rounded-full animate-spin mr-2"></div>
-                    <span className="text-gray-400 text-sm">Searching...</span>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-blue-400 rounded-full animate-spin mr-2"></div>
+                    <span className="text-gray-300 text-sm">Searching...</span>
                   </div>
                 ) : suggestions.length > 0 ? (
                   suggestions.map((suggestion, index) => (
+                  <div key={suggestion.username + index} className="mb-2 last:mb-0">
                   <div
-                    key={suggestion.username + index}
-                    className={`flex items-center gap-3 px-3 py-3 cursor-pointer rounded-xl transition-all duration-200 ${
+                    className={`flex items-center gap-2 px-3 py-2 cursor-pointer rounded-xl transition-all duration-200 ${
                       selectedIndex === index 
-                        ? 'bg-gray-800/80 shadow-md' 
-                        : 'hover:bg-gray-800/50'
+                        ? 'bg-gray-700/50 backdrop-blur-sm shadow-md' 
+                        : 'hover:bg-gray-700/30 backdrop-blur-sm'
                     }`}
                     onMouseDown={() => selectSuggestion(suggestion)}
                     onMouseEnter={() => setSelectedIndex(index)}
@@ -157,10 +170,10 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
                         <img 
                           src={suggestion.avatarUrl} 
                           alt={suggestion.displayName || suggestion.username} 
-                          className="w-12 h-12 rounded-full object-cover border border-gray-700" 
+                          className="w-8 h-8 rounded-full object-cover border border-gray-700" 
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg border border-gray-700">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm border border-gray-700">
                           {(suggestion.displayName || suggestion.username)[0].toUpperCase()}
                         </div>
                       )}
@@ -168,28 +181,23 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
 
                     {/* User Info */}
                     <div className="flex-1 min-w-0 overflow-hidden">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-bold text-white text-lg leading-tight">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-white text-sm leading-tight truncate">
                           {suggestion.displayName || suggestion.username}
                         </span>
                         {suggestion.verified && (
-                          <svg className="w-5 h-5 text-blue-400 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                          <svg className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z"/>
                           </svg>
                         )}
                       </div>
-                      <div className="text-gray-400 text-base truncate">
+                      <div className="text-gray-400 text-xs truncate">
                         @{suggestion.username}
                       </div>
-                      {suggestion.bio && (
-                        <div className="text-gray-500 text-sm truncate mt-1">
-                          {suggestion.bio}
-                        </div>
-                      )}
                     </div>
 
                     {/* Stats */}
-                    <div className="flex flex-col items-end flex-shrink-0 text-right">
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
                       {suggestion.followers && (
                         <div className="flex items-center gap-1 text-gray-400 text-sm">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,19 +206,9 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
                           <span>{formatNumber(suggestion.followers)}</span>
                         </div>
                       )}
-                      {suggestion.influenceScore !== null && suggestion.influenceScore !== undefined && (
-                        <div className="flex items-center gap-1 mt-1">
-                          <svg className="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                          </svg>
-                          <span className="text-purple-400 text-sm font-medium">{suggestion.influenceScore}</span>
-                        </div>
-                      )}
                       {suggestion.score && (
-                        <div className="flex items-center gap-1 mt-1">
-                          <div className="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">
-                            {suggestion.score}
-                          </div>
+                        <div className="bg-green-600 text-white text-xs font-bold px-1.5 py-0.5 rounded">
+                          {suggestion.score}
                         </div>
                       )}
                       {(suggestion.isEthos || suggestion.isX) && (
@@ -220,10 +218,11 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
                       )}
                     </div>
                   </div>
+                  </div>
                   ))
                 ) : (
                   <div className="flex items-center justify-center py-4">
-                    <span className="text-gray-500 text-sm">No users found</span>
+                    <span className="text-gray-300 text-sm">No users found</span>
                   </div>
                 )}
               </div>
@@ -234,22 +233,22 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
         <button
           onClick={onSearch}
           disabled={loading}
-          className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-3 rounded-2xl hover:from-blue-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 backdrop-blur-sm"
+          className="bg-gradient-to-r from-blue-500/80 to-cyan-500/80 backdrop-blur-xl border border-gray-600/40 text-white px-3 sm:px-4 py-3 rounded-2xl hover:from-blue-600/90 hover:to-cyan-600/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex-shrink-0"
           style={{
             boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
           }}
         >
           {loading ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              Loading...
+              <span className="hidden sm:inline">Loading...</span>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              Search
+              <span className="hidden sm:inline">Search</span>
             </div>
           )}
         </button>

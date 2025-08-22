@@ -243,7 +243,179 @@ class EthosApiClient {
     }
   }
 
-  // Comprehensive search that combines multiple approaches
+  // V1 API: Official search endpoint from documentation
+  async officialSearchV1(query, limit = 10) {
+    const cacheKey = `v1official:${query}:${limit}`;
+    const cached = this.getCachedResult(cacheKey);
+    
+    if (cached) {
+      console.log(`[Ethos API v1] Cache hit for official search: ${query}`);
+      return cached;
+    }
+
+    try {
+      // Using the official search API from documentation
+      const url = `${this.baseUrlV1}/search?query=${encodeURIComponent(query)}&limit=${limit}`;
+      const data = await this.makeRequest(url);
+      
+      if (data && data.ok && data.data && data.data.values && Array.isArray(data.data.values)) {
+        this.setCachedResult(cacheKey, data.data.values);
+        console.log(`[Ethos API v1] Official search success for: ${query} (${data.data.values.length} results)`);
+        return data.data.values;
+      }
+      
+      return [];
+    } catch (error) {
+      console.error(`[Ethos API v1] Official search error for ${query}:`, error);
+      throw error;
+    }
+  }
+
+  // Enhanced X-style user lookup similar to Twitter search
+  async xStyleUserLookup(query, limit = 8) {
+    const results = new Map();
+    const cleanQuery = query.replace(/^@/, '').trim().toLowerCase();
+
+    try {
+      // 1. Official Ethos search API (primary source)
+      try {
+        const officialResults = await this.officialSearchV1(cleanQuery, limit);
+        officialResults.forEach(user => {
+          if (user.profileId || user.userkey) {
+            const key = user.profileId || user.userkey;
+            results.set(key, this.normalizeOfficialSearchResult(user));
+          }
+        });
+        console.log(`[X-Style Search] Official search returned ${officialResults.length} results`);
+      } catch (error) {
+        console.warn('[X-Style Search] Official search failed:', error);
+      }
+
+      // 2. V2 Users Search for additional coverage
+      if (results.size < limit) {
+        try {
+          const v2Users = await this.searchUsersV2(cleanQuery, limit - results.size);
+          v2Users.forEach(user => {
+            if (user.profileId && !results.has(user.profileId)) {
+              results.set(user.profileId, this.normalizeUserV2(user));
+            }
+          });
+          console.log(`[X-Style Search] V2 search added ${v2Users.length} more results`);
+        } catch (error) {
+          console.warn('[X-Style Search] V2 search failed:', error);
+        }
+      }
+
+      // 3. Direct username/X username lookup for exact matches
+      if (results.size < limit && /^[a-zA-Z0-9_]+$/.test(cleanQuery)) {
+        try {
+          // Try X username lookup
+          const xUser = await this.getUserByXUsernameV2(cleanQuery);
+          if (xUser && xUser.profileId && !results.has(xUser.profileId)) {
+            results.set(xUser.profileId, {
+              ...this.normalizeUserV2(xUser),
+              isExactMatch: true
+            });
+          }
+
+          // Try regular username lookup
+          const user = await this.getUserByUsernameV2(cleanQuery);
+          if (user && user.profileId && !results.has(user.profileId)) {
+            results.set(user.profileId, {
+              ...this.normalizeUserV2(user),
+              isExactMatch: true
+            });
+          }
+        } catch (error) {
+          console.warn('[X-Style Search] Direct lookup failed:', error);
+        }
+      }
+
+      // Sort results X-style: exact matches first, then by relevance/score
+      const finalResults = Array.from(results.values()).sort((a, b) => {
+        // Exact matches first
+        if (a.isExactMatch && !b.isExactMatch) return -1;
+        if (!a.isExactMatch && b.isExactMatch) return 1;
+
+        // Username exact matches
+        const aUsernameMatch = a.username?.toLowerCase() === cleanQuery;
+        const bUsernameMatch = b.username?.toLowerCase() === cleanQuery;
+        if (aUsernameMatch && !bUsernameMatch) return -1;
+        if (!aUsernameMatch && bUsernameMatch) return 1;
+
+        // Display name exact matches
+        const aDisplayMatch = a.displayName?.toLowerCase() === cleanQuery;
+        const bDisplayMatch = b.displayName?.toLowerCase() === cleanQuery;
+        if (aDisplayMatch && !bDisplayMatch) return -1;
+        if (!aDisplayMatch && bDisplayMatch) return 1;
+
+        // Username starts with query
+        const aStartsWith = a.username?.toLowerCase().startsWith(cleanQuery);
+        const bStartsWith = b.username?.toLowerCase().startsWith(cleanQuery);
+        if (aStartsWith && !bStartsWith) return -1;
+        if (!aStartsWith && bStartsWith) return 1;
+
+        // Finally by score (higher is better)
+        return (b.score || 0) - (a.score || 0);
+      }).slice(0, limit);
+
+      console.log(`[X-Style Search] Final results for "${query}": ${finalResults.length} users`);
+      return finalResults;
+
+    } catch (error) {
+      console.error('[X-Style Search] Failed:', error);
+      return [];
+    }
+  }
+
+  // Normalize official search API results
+  normalizeOfficialSearchResult(result) {
+    return {
+      username: result.username || result.userkey,
+      displayName: result.name || result.displayName || result.username,
+      avatarUrl: result.avatar || result.avatarUrl,
+      profileId: result.profileId || result.userkey,
+      score: result.score || result.scoreXpMultiplier * 10 || 0,
+      verified: result.verified || false,
+      followers: this.calculateFollowersFromOfficialResult(result),
+      isEthos: true,
+      bio: result.description || result.bio,
+      userkey: result.userkey,
+      primaryAddress: result.primaryAddress,
+      // Additional fields from official API
+      xpTotal: result.xpTotal || 0,
+      reputation: this.calculateReputation(result.score),
+      isActive: true,
+      platform: 'ethos'
+    };
+  }
+
+  // Calculate followers from official search result
+  calculateFollowersFromOfficialResult(result) {
+    if (result.followers) return result.followers;
+    
+    let estimatedFollowers = 0;
+    if (result.score) {
+      // Estimate followers based on score (rough approximation)
+      estimatedFollowers = Math.floor(result.score / 10);
+    }
+    if (result.vouchCount) {
+      estimatedFollowers += result.vouchCount * 25;
+    }
+    
+    return Math.max(0, estimatedFollowers);
+  }
+
+  // Calculate reputation tier based on score
+  calculateReputation(score) {
+    if (!score) return 'New';
+    if (score >= 2000) return 'Elite';
+    if (score >= 1000) return 'Established';
+    if (score >= 500) return 'Growing';
+    return 'Newcomer';
+  }
+
+  // Legacy comprehensive search method for backward compatibility
   async comprehensiveUserSearch(query, limit = 8) {
     const results = new Map(); // Use Map to avoid duplicates by profileId
 
@@ -442,7 +614,7 @@ const ethosApiClient = new EthosApiClient();
 export default ethosApiClient;
 
 // Convenience functions
-export const searchUsers = (query, limit) => ethosApiClient.comprehensiveUserSearch(query, limit);
+export const searchUsers = (query, limit) => ethosApiClient.xStyleUserLookup(query, limit);
 export const getUserByXUsername = (username) => ethosApiClient.getUserByXUsernameV2(username);
 export const getUserByUsername = (username) => ethosApiClient.getUserByUsernameV2(username);
 export const getUserStats = (userkey) => ethosApiClient.getUserStats(userkey);
