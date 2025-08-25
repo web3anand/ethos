@@ -1,12 +1,17 @@
 import { useState } from 'react';
+import Head from 'next/head';
+import Navbar from '../components/Navbar';
 import SearchBar from '../components/SearchBar';
 import fetchUserSuggestions from '../utils/fetchUserSuggestions';
 import {
   fetchUserByTwitter,
   fetchExchangeRate,
   fetchUserAddresses,
+  fetchUserStats,
 } from '../lib/ethos';
 import EthosProfileCard from '../components/EthosProfileCard';
+import DesktopDashboard from '../components/DesktopDashboard';
+import { useViewport } from '../utils/useViewport';
 import styles from '../styles/Home.module.css';
 
 
@@ -15,6 +20,8 @@ export default function Home() {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { width } = useViewport();
+  const isDesktop = width > 1024; // Breakpoint for desktop view
 
   const handleSearch = async (searchName) => {
     const searchValue = typeof searchName === 'string' ? searchName : username;
@@ -38,9 +45,10 @@ export default function Home() {
         setError('User not found');
         return;
       }
-      const [addresses, ethPrice] = await Promise.all([
+      const [addresses, ethPrice, stats] = await Promise.all([
         fetchUserAddresses(data.profileId),
         fetchExchangeRate(),
+        fetchUserStats(`profileId:${data.profileId}`),
       ]);
       const profile = {
         id: data.id,
@@ -50,8 +58,10 @@ export default function Home() {
         avatarUrl: data.avatarUrl,
         status: data.status,
         score: data.score,
+        influenceScore: stats?.influenceFactor,
         xpTotal: data.xpTotal ?? data.xp?.total ?? 0,
         xpStreakDays: data.xpStreakDays ?? data.xp?.streakDays ?? 0,
+        userkeys: data.userkeys || [`profileId:${data.profileId}`], // Add userkeys for API calls
         reviewStats: data.stats?.review?.received ?? {
           positive: 0,
           neutral: 0,
@@ -86,19 +96,45 @@ export default function Home() {
   };
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Check Your Social Score</h1>
-      <div className={styles.searchContainer}>
-        <SearchBar
-          username={username}
-          setUsername={setUsername}
-          onSearch={handleSearch}
-          loading={loading}
-          onSuggestionSelect={handleSuggestionSelect}
-        />
+    <>
+      <Head>
+        <title>Ethos: Social Reputation Protocol</title>
+        <meta name="description" content="Check your social reputation score and credibility with Ethos" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="theme-color" content="#0D1117" />
+        
+        {/* iOS specific meta tags */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Ethos" />
+      </Head>
+      
+      <Navbar />
+      <div className={styles.container}>
+        {!userData && (
+          <>
+            <h1 className={styles.title}>Social Reputation Protocol</h1>
+            <div className={styles.searchContainer}>
+              <SearchBar
+                username={username}
+                setUsername={setUsername}
+                onSearch={handleSearch}
+                loading={loading}
+                onSuggestionSelect={handleSuggestionSelect}
+              />
+            </div>
+          </>
+        )}
+        {error && <div className={styles.error}>{error}</div>}
+        {userData && (
+          isDesktop ? (
+            <DesktopDashboard profile={userData} />
+          ) : (
+            <EthosProfileCard profile={userData} />
+          )
+        )}
       </div>
-      {error && <div className={styles.error}>{error}</div>}
-      {userData && <EthosProfileCard profile={userData} />}
-    </div>
+    </>
   );
 }

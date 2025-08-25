@@ -1,66 +1,88 @@
 .container {
-  max-width: 600px;
+  max-width: 840px; /* Increased max-width for a more spacious feel */
   margin: 0 auto;
-  padding: 2rem;
+  padding: 3rem 2rem; /* Adjusted padding */
   text-align: center;
-  font-family: sans-serif;
-  background: transparent;
-  color: #223244;
+  color: #c9d1d9; /* Softer text color from our palette */
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .container {
+    padding: 2rem 1.5rem;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1.5rem 1rem;
+  }
 }
 
 .title {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
+  font-size: 2.75rem; /* Slightly smaller for a more refined look */
+  font-weight: 600; /* Adjusted font-weight */
+  color: #e6e6e6; /* Brighter title color */
+  margin-bottom: 2rem; /* Increased margin */
   position: relative;
   z-index: 2;
   text-align: center;
-  margin-left: 0;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-shadow: 0 1px 10px rgba(230, 230, 230, 0.1);
+}
+
+/* Mobile title sizing */
+@media (max-width: 768px) {
+  .title {
+    font-size: 2.25rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+  }
 }
 
 .searchContainer {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem; /* Increased margin */
   width: 100%;
+  max-width: 640px; /* Max-width for the search bar container */
+  margin-left: auto;
+  margin-right: auto;
   position: relative;
   z-index: 2;
 }
 
-.input {
-  flex: 1;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d0d7e2;
-  border-radius: 8px;
-  background: transparent;
-  color: #223244;
-}
-.input::placeholder {
-  color: #5a6270;
-}
-.input:focus {
-  outline: none;
-  border-color: #4f7cf0;
-}
-
-.button {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 8px;
-  background: #4f7cf0;
-  color: #ffffff;
-  cursor: pointer;
-}
-.button:hover:not(:disabled) {
-  background: #3c5bd9;
-}
-.button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .error {
-  color: #dc2626;
-  margin-bottom: 1rem;
+  color: #f87171; /* Softer red for errors */
+  background-color: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin: 1.5rem auto 0;
+  max-width: 640px;
+  text-align: center;
 }
+
+.desktopDashboardWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.loading {
+  color: #c9d1d9;
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+

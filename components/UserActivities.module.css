@@ -1,0 +1,389 @@
+/* UserActivities.module.css */
+
+.activitiesSection {
+  margin-top: 1.5rem;
+}
+
+.activitiesToggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: #161b22;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: #e6e6e6;
+}
+.activitiesToggle:hover {
+  background: #21262d;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.chevron {
+  transition: transform 0.3s ease;
+}
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.activitiesContent {
+  margin-top: 1rem;
+  background: #0D1117;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.activitiesControls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: #161b22;
+}
+
+.customDropdown {
+  position: relative;
+  flex: 1;
+}
+
+.dropdownTrigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #0D1117;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: 'Sora', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #c9d1d9;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.dropdownTrigger:hover {
+  background: #161b22;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dropdownArrow {
+  transition: transform 0.3s ease;
+}
+.dropdownArrowOpen {
+  transform: rotate(180deg);
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.5rem;
+  background: #161b22;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.dropdownOption {
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  color: #c9d1d9;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.dropdownOption:hover {
+  background-color: #21262d;
+}
+.dropdownOptionSelected {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.refreshButton {
+  height: 48px;
+  padding: 0 1.5rem;
+  background: #238636;
+  border-radius: 12px;
+  border: 1px solid #2ea043;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.refreshButton:hover:not(:disabled) {
+  background: #2ea043;
+}
+.refreshButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #30363d;
+  border-color: #484f58;
+}
+
+.activitiesList {
+  max-height: 500px;
+  overflow-y: scroll;
+  padding: 0.5rem;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.activitiesList::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+.activityItem {
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  background: #161b22;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+.activityItem:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.activityByUser {
+  border-left: 4px solid #2ea043;
+}
+.activityToUser {
+  border-left: 4px solid #58a6ff;
+}
+
+.activityHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.activityTypeSection {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.activityType {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.activityDirection {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #8b949e;
+  text-transform: uppercase;
+}
+
+.vouchAmount {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #238636;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.activityMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.activityDate {
+  font-size: 0.875rem;
+  color: #8b949e;
+}
+
+.activityLinks {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.activityLink,
+.transactionLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #21262d;
+  color: #58a6ff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid #30363d;
+}
+.activityLink:hover,
+.transactionLink:hover {
+  background: #30363d;
+  color: #80b6ff;
+}
+
+.activityContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.activityParticipants {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #0D1117;
+  border-radius: 8px;
+}
+
+.participantInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.participantAvatar {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--pfp-ring, #30363d);
+  padding: 2px;
+  background: #0D1117;
+}
+
+.avatarImage,
+.avatarFallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.avatarFallback {
+  background: #21262d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c9d1d9;
+  font-weight: 600;
+}
+
+.participantDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.participantLabel {
+  font-size: 0.75rem;
+  color: #8b949e;
+}
+
+.participantName {
+  font-size: 0.9rem;
+  color: #c9d1d9;
+  font-weight: 600;
+}
+
+.participantId {
+  font-size: 0.75rem;
+  color: #8b949e;
+}
+
+.activityDescription {
+  margin-top: 0.5rem;
+}
+
+.descriptionLabel {
+  font-weight: 500;
+  color: #8b949e;
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.descriptionText {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #c9d1d9;
+  padding: 0.75rem;
+  background: #0D1117;
+  border-radius: 6px;
+}
+
+.activityAmount,
+.activityScore {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.activityAmountLabel,
+.activityScoreLabel {
+  font-weight: 500;
+  color: #8b949e;
+}
+
+.activityAmountValue,
+.activityScoreValue {
+  font-weight: 600;
+  color: #c9d1d9;
+}
+
+.loadingState,
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: #8b949e;
+}
+
+.loadingSpinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #30363d;
+  border-top: 2px solid #58a6ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 0.75rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 560px) {
+  .activitiesControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+

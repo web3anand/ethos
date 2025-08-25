@@ -1,0 +1,39 @@
+.card {
+    background-color: var(--background-secondary);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    border: 1px solid var(--border-color);
+  }
+  
+  .title {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+  }
+  
+  .valueContainer {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  
+  .value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .change {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  
+  .positive {
+    color: #4caf50;
+  }
+  
+  .negative {
+    color: #f44336;
+  }
+  
