@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,15 +9,28 @@ html {
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  height: 100%;
+  width: 100%;
 }
 
 body {
-  @apply bg-yellow-50 text-gray-900;
-  background: url('/bg-wood.jpg') repeat center center fixed;
-  background-size: cover;
+  background-color: #0D1117;
+  color: #E6E6E6;
+  font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+#__next {
+  min-height: 100vh;
+  width: 100%;
 }
 
 /* Mobile-specific improvements */
@@ -57,18 +72,73 @@ body {
   }
 }
 
-/* Glassmorphic overlay for all pages */
-.glass-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 0;
-  pointer-events: none;
-  background: rgba(255,255,255,0.32);
-  border-radius: 0;
-  box-shadow: 0 8px 32px 0 rgba(36, 48, 68, 0.10), 0 1.5px 8px 0 rgba(36, 48, 68, 0.04);
-  backdrop-filter: blur(18px) saturate(180%);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
+.glass-container {
+  background: rgba(22, 27, 34, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 24px; /* Increased border-radius for a more curved look */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+}
+
+/* New Layout & Component Styles */
+
+/* Wide container styles for desktop vertical layout */
+.pfp-container-wide,
+.stats-container-wide,
+.xp-distribution-container-wide,
+.activities-container-wide {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Main container for horizontal desktop layout */
+.desktop-view-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* Left column for PFP, stats, and XP distribution */
+.profile-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 480px; /* Increased width for better desktop view */
+  flex-shrink: 0;
+}
+
+/* Activities container to span full width below other content */
+.activities-container-full-width {
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+/* Specific component containers */
+.pfp-container,
+.stats-container,
+.xp-distribution-container,
+.activities-container {
+  width: 100%;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 1024px) {
+  .desktop-view-container {
+    flex-direction: column;
+  }
+
+  .profile-column {
+    width: 100%;
+  }
+  
+  .pfp-container-wide,
+  .stats-container-wide,
+  .xp-distribution-container-wide,
+  .activities-container-wide {
+    max-width: 100%;
+  }
 }

@@ -53,15 +53,7 @@ const CustomDropdown = ({ value, onChange, options, className, placeholder, onOp
     }, 150);
   };
 
-  // Expose a method to close this dropdown
-  React.useImperativeHandle(React.forwardRef(() => null), () => ({
-    close: () => {
-      setIsOpen(false);
-      onOpenChange && onOpenChange(false, id);
-    }
-  }));
-
-  // External close function
+  // External close function using a global registry
   React.useEffect(() => {
     // Register this dropdown's close function
     window[`closeDropdown_${id}`] = () => {
@@ -107,9 +99,9 @@ const CustomDropdown = ({ value, onChange, options, className, placeholder, onOp
   );
 };
 
-export default function UserActivities({ profile }) {
-  const [activities, setActivities] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
+export default function UserActivities({ profile, activities: initialActivities }) {
+  const [activities, setActivities] = useState(initialActivities || []);
+  const [isOpen, setIsOpen] = useState(true); // Default to open in dashboard view
   const [isLoading, setIsLoading] = useState(false);
   const [selectedType, setSelectedType] = useState('all');
   const [selectedDirection, setSelectedDirection] = useState('all');
@@ -209,10 +201,10 @@ export default function UserActivities({ profile }) {
   };
 
   useEffect(() => {
-    if (isOpen && profile?.profileId) {
+    if (profile?.profileId) {
       loadActivities();
     }
-  }, [isOpen, profile?.profileId, selectedType, selectedDirection]);
+  }, [profile?.profileId, selectedType, selectedDirection]);
 
   const loadActivities = async () => {
     if (!profile?.profileId) return;
@@ -548,6 +540,62 @@ export default function UserActivities({ profile }) {
     );
   };
 
+  // In dashboard view, we don't want the toggle button
+  if (initialActivities) {
+    return (
+      <div className={styles.activitiesSection}>
+        <div className={styles.activitiesContent}>
+          <div className={styles.activitiesControls}>
+            <CustomDropdown
+              value={selectedType}
+              onChange={setSelectedType}
+              options={activityTypes}
+              className={styles.typeFilter}
+              placeholder="Select Activity Type"
+              onOpenChange={handleDropdownOpenChange}
+              id="type-filter"
+              closeOtherDropdowns={closeOtherDropdowns}
+            />
+
+            <CustomDropdown
+              value={selectedDirection}
+              onChange={setSelectedDirection}
+              options={directionTypes}
+              className={styles.directionFilter}
+              placeholder="Select Direction"
+              onOpenChange={handleDropdownOpenChange}
+              id="direction-filter"
+              closeOtherDropdowns={closeOtherDropdowns}
+            />
+            
+            <button 
+              onClick={loadActivities} 
+              className={styles.refreshButton}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Loading...' : 'Refresh'}
+            </button>
+          </div>
+
+          <div className={styles.activitiesList}>
+            {isLoading ? (
+              <div className={styles.loadingState}>
+                <div className={styles.loadingSpinner}></div>
+                <span>Loading activities...</span>
+              </div>
+            ) : activities.length > 0 ? (
+              activities.map((activity, index) => renderActivityItem(activity, index))
+            ) : (
+              <div className={styles.emptyState}>
+                <p>No {selectedType === 'all' ? '' : selectedType} activities found.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.activitiesSection}>
       <button 
@@ -564,50 +612,7 @@ export default function UserActivities({ profile }) {
       </button>
       
       {isOpen && (
-        <>
-          {/* Profile Banner */}
-          <div className={styles.profileBanner}>
-            <div className={styles.profileBannerRow}>
-              <div 
-                className={styles.profileBannerAvatar}
-                style={{ '--pfp-ring': getScoreLevel(userScores[profile?.profileId] || profile?.score || 0).color }}
-              >
-                {profile?.avatarUrl ? (
-                  <img 
-                    src={profile.avatarUrl} 
-                    alt={profile.displayName || 'User'} 
-                    className={styles.profileBannerAvatarImage}
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'flex';
-                    }}
-                  />
-                ) : null}
-                <div className={styles.profileBannerAvatarFallback} style={{ display: profile?.avatarUrl ? 'none' : 'flex' }}>
-                  {(profile?.displayName || 'U')[0].toUpperCase()}
-                </div>
-              </div>
-              <div className={styles.profileBannerBadges}>
-                <div 
-                  className={styles.profileBannerBadgeKnown}
-                  style={{ background: getScoreLevel(userScores[profile?.profileId] || profile?.score || 0).color }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 6h18l-2 13H5L3 6z" stroke="currentColor" strokeWidth="2" fill="none"/>
-                    <path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke="currentColor" strokeWidth="2" fill="none"/>
-                  </svg>
-                  <span>{getScoreLevel(userScores[profile?.profileId] || profile?.score || 0).name.toUpperCase()}</span>
-                </div>
-                {profile?.status === 'active' && (
-                  <div className={styles.profileBannerBadgeActive}>
-                    <span>DAYBOT</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          
-          <div className={`${styles.activitiesContent} ${isAnyDropdownOpen ? styles.dropdownOpen : ''}`}>
+        <div className={`${styles.activitiesContent} ${isAnyDropdownOpen ? styles.dropdownOpen : ''}`}>
           <div className={`${styles.activitiesControls} ${isAnyDropdownOpen ? styles.dropdownOpen : ''}`}>
             <CustomDropdown
               value={selectedType}
@@ -655,7 +660,6 @@ export default function UserActivities({ profile }) {
             )}
           </div>
         </div>
-        </>
       )}
     </div>
   );

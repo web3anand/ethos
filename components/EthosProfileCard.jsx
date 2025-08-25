@@ -21,7 +21,7 @@ function CopyAddress({ address }) {
     <span style={{ fontFamily: 'monospace', display: 'inline-flex', alignItems: 'center' }}>
       {address.slice(0, 6)}...{address.slice(-4)}
       <button
-        className={styles.copyBtn + (copied ? ' ' + styles.copied : '')}
+        className={`${styles.copyBtn}${copied ? ' ' + styles.copied : ''}`}
         onClick={handleCopy}
         tabIndex={0}
         aria-label="Copy address"
@@ -29,8 +29,8 @@ function CopyAddress({ address }) {
       >
         <span style={{display:'inline-flex',alignItems:'center'}}>
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight:2}}>
-            <rect x="5" y="5" width="10" height="12" rx="2" fill="#fff" stroke="#ff3c00" strokeWidth="1.2"/>
-            <rect x="3" y="3" width="10" height="12" rx="2" fill="#ffede6" stroke="#ff3c00" strokeWidth="1.2"/>
+            <rect x="5" y="5" width="10" height="12" rx="2" strokeWidth="1.2"/>
+            <rect x="3" y="3" width="10" height="12" rx="2" strokeWidth="1.2"/>
           </svg>
         </span>
       </button>
@@ -102,7 +102,7 @@ function getScoreLevel(score) {
   return scoreLevels.find(l => score >= l.min && score <= l.max) || scoreLevels[0];
 }
 
-export default function EthosProfileCard({ profile }) {
+export default function EthosProfileCard({ profile, isDesktop = false }) {
   const [ethPrice, setEthPrice] = useState(null);
   const [primaryAddress, setPrimaryAddress] = useState(null);
   const [validatorNft, setValidatorNft] = useState(null); // Store full NFT data
@@ -225,6 +225,87 @@ export default function EthosProfileCard({ profile }) {
 
   const vouchGivenUsd = ethPrice && vouchGiven.eth ? (Number(vouchGiven.eth) * ethPrice) : null;
   const vouchReceivedUsd = ethPrice && vouchReceived.eth ? (Number(vouchReceived.eth) * ethPrice) : null;
+
+  if (isDesktop) {
+    // Render a simplified version for the desktop dashboard's left column
+    return (
+      <div className={styles.desktopContainer}>
+        <div className={styles.profileCardBanner}>
+          <div className={styles.profileCardRow}>
+            <div
+              className={styles.profileCardAvatarWrap}
+              style={{ '--pfp-ring': scoreLevel.color }}
+            >
+              {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt={profile.displayName || 'Avatar'}
+                  width={80}
+                  height={80}
+                  className={styles.profileCardAvatar}
+                />
+              ) : (
+                <div className={styles.profileCardAvatarFallback}>
+                  {profile.displayName
+                    ? profile.displayName
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')
+                        .toUpperCase()
+                        .slice(0, 2)
+                    : '?'}
+                </div>
+              )}
+            </div>
+            <div className={styles.profileCardEthosPillWrap}>
+              <div
+                className={styles.profileCardEthosPill}
+                style={{ 
+                  background: scoreLevel.color,
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}
+              >
+                <span style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'flex-start',
+                  gap: '12px',
+                  minWidth: '280px',
+                  width: '100%'
+                }}>
+                  <Image
+                    src="/ethos.png"
+                    alt="Ethos Logo"
+                    width={24}
+                    height={24}
+                    style={{
+                      flexShrink: 0,
+                      objectFit: 'contain'
+                    }}
+                  />
+                  <span 
+                    style={{
+                      fontWeight: 600,
+                      color: scoreLevel.color === '#e2e2e2' ? '#222' : '#fff',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                    data-length={scoreLevel.name.length}
+                  >{scoreLevel.name}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className={styles.nameBar}>
+            <span className={styles.profileCardName}>{profile.displayName}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const sections = [
     [
