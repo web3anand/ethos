@@ -1,0 +1,40 @@
+.dashboardContainer {
+  display: flex;
+  background-color: #111827;
+  color: #d1d5db;
+  min-height: 100vh;
+}
+
+.mainContent {
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.cardsGrid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.portfolioCards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .portfolioCards {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    padding: 1rem;
+  }
+  .dashboardContainer {
+    flex-direction: column;
+  }
+}

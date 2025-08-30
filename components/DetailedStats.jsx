@@ -28,7 +28,7 @@ const DetailedStats = ({ stats }) => {
   };
 
   return (
-    <div className={styles.statsContainer}>
+    <div className={`${styles.statsContainer} glass-container`}>
       <div className={styles.statSection}>
         <h3 className={styles.sectionTitle}>Main Stats</h3>
         <div className={styles.tableContainer}>

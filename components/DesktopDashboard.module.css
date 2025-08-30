@@ -27,7 +27,6 @@
 
 .pfpContainer,
 .detailedStatsContainer,
-.xpContainer,
 .activityContainer {
   background: rgba(18, 18, 18, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -41,7 +40,6 @@
 
 .pfpContainer:hover,
 .detailedStatsContainer:hover,
-.xpContainer:hover,
 .activityContainer:hover {
   transform: translateY(-5px);
   border-color: rgba(255, 255, 255, 0.12);
@@ -65,7 +63,6 @@
 
   .pfpContainer,
   .detailedStatsContainer,
-  .xpContainer,
   .activityContainer {
     padding: 1rem;
     border-radius: 16px;

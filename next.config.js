@@ -2,7 +2,20 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['images.ethos.network', 'pbs.twimg.com', 'arweave.net'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.ethos.network',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pbs.twimg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'arweave.net',
+      },
+    ],
   },
 };
 

@@ -1,0 +1,19 @@
+.card {
+  background-color: #1f2937;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #374151;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #9ca3af;
+  margin-bottom: 0.75rem;
+}
+
+.value {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #ffffff;
+}

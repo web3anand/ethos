@@ -1,5 +1,8 @@
-import LockedPage from '../components/LockedPage';
-
 export default function R4RChecker() {
-  return <LockedPage pageName="R4R Checker" />;
+  return (
+    <div style={{ padding: '20px', textAlign: 'center' }}>
+      <h1>R4R Checker Page</h1>
+      <p>This page is under development.</p>
+    </div>
+  );
 }

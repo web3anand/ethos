@@ -69,20 +69,3 @@
   text-align: center;
 }
 
-.desktopDashboardWrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.loading {
-  color: #c9d1d9;
-  text-align: center;
-  padding: 2rem;
-  font-size: 1.1rem;
-}
-

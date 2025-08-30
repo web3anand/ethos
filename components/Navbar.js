@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import EthosLogo from './EthosLogo'; // Assuming you have an EthosLogo component
 
 export default function Navbar() {
   const router = useRouter();

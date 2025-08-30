@@ -1,0 +1,52 @@
+.card {
+  background-color: #1f2937;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #374151;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #9ca3af;
+  margin-bottom: 1.5rem;
+}
+
+.distributionList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.distributionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: #d1d5db;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.miEth {
+  background-color: #22c55e;
+}
+
+.miUsdc {
+  background-color: #f59e0b;
+}
+
+.amount {
+  font-weight: 500;
+  color: #d1d5db;
+}
