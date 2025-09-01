@@ -1,182 +1,210 @@
-/* XP Distribution Component Styles */
-.xpActivitiesContainer {
-  background: #0D1117;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 18px;
-  overflow: hidden;
-}
+/* Lightweight XP Distribution CSS - Optimized for Performance */
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: #161b22;
-}
-
-.titleSection {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.title {
-  font-family: 'Sora', sans-serif;
-  font-weight: 600;
-  font-size: 1.25rem;
-  color: #e6e6e6;
-  margin: 0;
-}
-
-.seasonInfo {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: #8b949e;
-  background: #21262d;
-  padding: 0.25rem 0.5rem;
-  border-radius: 8px;
-  border: 1px solid #30363d;
-}
-
-.filtersContainer {
-  padding: 1.5rem;
-}
-
-.weekSelector {
+.xpSection {
+  width: 100%;
+  background: rgba(18, 18, 18, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  /* Removed backdrop-filter - very expensive! */
+  overflow: visible;
+  /* Simplified transition - only specific properties */
+  transition: border-color 0.2s ease;
+  margin-top: 1.5rem;
   position: relative;
+  z-index: 1;
 }
 
-.weekSelect {
+.xpSection:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  /* Removed transform and box-shadow - expensive on mobile */
+}
+
+/* Toggle Button */
+.xpToggle {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1rem;
-  background: #0D1117;
-  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  background: #161b22;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  font-family: 'Sora', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #c9d1d9;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-.weekSelect:hover {
-  background: #161b22;
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.activitiesList {
-  max-height: 500px;
-  overflow-y: auto;
-  padding: 0 1rem 1rem;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE 10+ */
-}
-.activitiesList::-webkit-scrollbar {
-  display: none; /* Safari, Chrome */
-}
-
-.activityItem {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
-  background: #161b22;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  transition: all 0.2s ease;
-  border-left: 4px solid #58a6ff; /* Consistent with activity items */
-}
-.activityItem:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-.activityIcon {
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: #21262d;
-  color: #58a6ff;
+  /* Simplified transition */
+  transition: background-color 0.2s ease;
+  font-family: 'Sora', sans-serif;
   font-weight: 600;
-  font-size: 1rem;
-  margin-right: 1rem;
+  font-size: 1.25rem;
+  color: #e6e6e6;
 }
 
-.activityContent {
-  flex-grow: 1;
+.xpToggle:hover {
+  background: #21262d;
 }
 
-.activityDescription {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #c9d1d9;
+.chevron {
+  /* Removed transition - not needed for basic functionality */
+  color: #94a3b8;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* Content Styles */
+.xpContent {
+  padding: 1.25rem;
+  background: rgba(22, 27, 34, 0.8);
+  border-radius: 0 0 12px 12px;
+}
+
+/* Stats Cards */
+.statsOverview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  /* Removed transitions for performance */
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
   margin-bottom: 0.25rem;
 }
 
-.activityDate {
-  font-size: 0.8rem;
-  color: #8b949e;
+.statLabel {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
 }
 
-.activityAmount {
+/* Controls */
+.activitiesControls {
   display: flex;
-  align-items: baseline;
-  gap: 0.25rem;
-  margin-left: 1rem;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
-.xpAmount {
+.seasonSelector {
+  min-width: 120px;
+}
+
+/* Calendar Grid */
+.calendarTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #e6e6e6;
+  margin-bottom: 1rem;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.calendarCell {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 1rem;
+  /* Removed hover effects for performance */
+}
+
+.weekNumber {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.weekXp {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #58a6ff;
+  color: #ffffff;
+  margin-bottom: 0.25rem;
 }
 
-.xpLabel {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: #8b949e;
-  text-transform: uppercase;
+.weekChange {
+  font-size: 0.75rem;
 }
 
-.loading, .error, .noActivities {
+.positiveChange {
+  color: #34d399;
+}
+
+.negativeChange {
+  color: #f87171;
+}
+
+/* Loading States - Simplified */
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   padding: 2rem;
+  color: #94a3b8;
+}
+
+.loadingSpinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  /* Simplified animation - less resource intensive */
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Remove shimmer animation entirely */
+
+/* Empty State */
+.emptyState {
   text-align: center;
-  color: #8b949e;
+  padding: 2rem;
+  color: #94a3b8;
 }
 
-.retryButton {
-  margin-top: 1rem;
-  background: #238636;
-  border: 1px solid #2ea043;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  .statsOverview {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .calendarGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .activitiesControls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  .seasonSelector {
+    width: 100%;
+  }
 }
-.retryButton:hover {
-  background: #2ea043;
-}
-
-.noActivitiesIcon {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
-
-.noActivitiesText {
-  font-weight: 600;
-  color: #c9d1d9;
-}
-
-

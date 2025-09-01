@@ -39,12 +39,7 @@ export default function UserResults({ data }) {
           <span className="font-medium">Followers:</span> {user.followers}
         </p>
         <p>
-          <span className="font-medium">
-            
-
-
-             
-             
+          <span className="font-medium">             
         </p>
         {user.other && (
           <pre className="mt-2 text-xs bg-gray-100 p-2 rounded">

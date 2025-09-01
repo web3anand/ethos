@@ -9,9 +9,6 @@ const DesktopDashboard = ({ profile }) => {
     return null;
   }
 
-  // Extract userkey from profile for API calls
-  const userkey = profile.userkeys && profile.userkeys.length > 0 ? profile.userkeys[0] : null;
-
   return (
     <div className={styles.dashboardWrapper}>
       <div className="pfp-container-wide glass-container">
@@ -21,7 +18,7 @@ const DesktopDashboard = ({ profile }) => {
         <DetailedStats stats={profile} />
       </div>
       <div className="xp-distribution-container-wide glass-container">
-        <XpDistribution userkey={userkey} profile={profile} />
+        <XpDistribution profile={profile} />
       </div>
       <div className="activities-container-wide glass-container">
         <UserActivities profile={profile} />

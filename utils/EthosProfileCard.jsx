@@ -5,7 +5,6 @@ import fetchEthPrice from '../utils/fetchEthPrice';
 import { fetchUserAddresses } from '../lib/ethos';
 import { getUserStats } from '../utils/ethosApiClient';
 import UserActivities from './UserActivities';
-import XpDistribution from './XpDistribution';
 // import EthosLogo from './EthosLogo';
 
 // Copy button with tooltip for address
@@ -543,9 +542,6 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
 
       {/* User Activities Section */}
       <UserActivities profile={profile} />
-
-      {/* XP Distribution Section */}
-      <XpDistribution profile={profile} />
     </div>
   );
 }

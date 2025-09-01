@@ -42,7 +42,7 @@ export default function Navbar() {
         <div className="md:hidden w-full flex justify-end">
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="text-gray-300 hover:text-white focus:outline-none p-3 rounded-lg hover:bg-gray-700/50 transition-colors duration-200"
+            className="text-gray-300 hover:text-white focus:outline-none p-2 rounded-lg hover:bg-gray-700/50"
           >
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               {isMenuOpen ? (
