@@ -1,0 +1,736 @@
+// Fast Distribution API - Optimized for speed and user experience
+import BaseEthosContractApi from './baseEthosContractApi.js';
+import ethosApiClient from './ethosApiClient.js';
+
+class FastDistributionApi {
+  constructor() {
+    this.contractApi = new BaseEthosContractApi();
+    this.cache = new Map();
+    this.profileCache = new Map();
+    this.cacheTimeout = 60 * 60 * 1000; // 1 hour cache
+    this.batchProfileCache = new Map();
+    this.fileProfilesCache = null; // Cache for file-based profiles
+    
+    // Load cache from localStorage if available
+    this.loadCacheFromStorage();
+  }
+
+  // Load profiles from file database
+  async loadProfilesFromFile() {
+    if (this.fileProfilesCache) {
+      return this.fileProfilesCache;
+    }
+    
+    try {
+      // Check if we're in Node.js environment (server-side)
+      if (typeof window === 'undefined') {
+        // We're on the server - try to load from file system
+        try {
+          const fs = await import('fs');
+          const path = await import('path');
+          const profilesPath = './data/user-profiles.json';
+          
+          if (fs.existsSync(profilesPath)) {
+            const data = fs.readFileSync(profilesPath, 'utf8');
+            const profiles = JSON.parse(data);
+            
+            console.log(`[Fast API] 📁 Loaded ${profiles.length} profiles from file database`);
+            
+            // Sort by score descending
+            profiles.sort((a, b) => (b.score || 0) - (a.score || 0));
+            
+            this.fileProfilesCache = profiles;
+            return profiles;
+          }
+        } catch (fsError) {
+          console.warn('[Fast API] File system access failed:', fsError.message);
+        }
+      }
+      
+      // Fallback: return empty array if can't access file system
+      console.log('[Fast API] 📁 File database not available (browser environment or file not found)');
+      return [];
+      
+    } catch (error) {
+      console.warn('[Fast API] Failed to load profiles from file:', error);
+      return [];
+    }
+  }
+
+  // Get profiles database status
+  async getProfileDatabaseStatus() {
+    try {
+      const profiles = await this.loadProfilesFromFile();
+      let metadata = null;
+      
+      if (typeof window === 'undefined') {
+        try {
+          const fs = await import('fs');
+          const metadataPath = './data/database-metadata.json';
+          
+          if (fs.existsSync(metadataPath)) {
+            const metaData = fs.readFileSync(metadataPath, 'utf8');
+            metadata = JSON.parse(metaData);
+          }
+        } catch (fsError) {
+          // Metadata not critical
+        }
+      }
+      
+      return {
+        totalProfiles: profiles.length,
+        lastUpdated: metadata?.lastUpdated || null,
+        lastProfileId: metadata?.buildMeta?.lastProfileId || null,
+        isAvailable: profiles.length > 0
+      };
+    } catch (error) {
+      return {
+        totalProfiles: 0,
+        lastUpdated: null,
+        lastProfileId: null,
+        isAvailable: false
+      };
+    }
+  }
+
+  // Initialize the fast API
+  async initialize() {
+    console.log('[Fast API] 🚀 Initializing fast distribution system...');
+    
+    try {
+      // Check profile database first
+      const dbStatus = await this.getProfileDatabaseStatus();
+      console.log(`[Fast API] 📁 Profile database: ${dbStatus.totalProfiles} profiles available`);
+      
+      const contractReady = await this.contractApi.initialize();
+      if (contractReady) {
+        console.log('[Fast API] ✅ Contract API ready');
+        return true;
+      } else {
+        console.log('[Fast API] ⚠️ Contract API failed, using file database + API mode');
+        return dbStatus.isAvailable; // Return true if we have file database
+      }
+    } catch (error) {
+      console.error('[Fast API] ❌ Initialization failed:', error);
+      return false;
+    }
+  }
+
+  // Load cache from localStorage
+  loadCacheFromStorage() {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const stored = localStorage.getItem('fast-distribution-cache');
+        if (stored) {
+          const parsedCache = JSON.parse(stored);
+          Object.entries(parsedCache).forEach(([key, value]) => {
+            if (Date.now() - value.timestamp < this.cacheTimeout) {
+              this.cache.set(key, value);
+            }
+          });
+          console.log(`[Fast API] Loaded ${this.cache.size} cached items from localStorage`);
+        }
+      } catch (error) {
+        console.warn('[Fast API] Failed to load cache:', error);
+      }
+    }
+  }
+
+  // Get cached result
+  getCachedResult(key) {
+    const cached = this.cache.get(key);
+    if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+      return cached.data;
+    }
+    return null;
+  }
+
+  // Set cached result
+  setCachedResult(key, data) {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now()
+    });
+    this.saveCacheToStorage();
+  }
+
+  // Fast leaderboard using file database as primary source, blockchain as enhancement
+  async getFastLeaderboard(limit = 20000, progressCallback = null) {
+    const cacheKey = `fast-leaderboard:${limit}:file-db-v2`;
+    
+    try {
+      // Step 1: Load profiles from file database first (instant)
+      if (progressCallback) {
+        progressCallback({
+          stage: 'Loading profile database...',
+          current: 0,
+          target: limit,
+          percentage: 10
+        });
+      }
+      
+      const fileProfiles = await this.loadProfilesFromFile();
+      
+      if (fileProfiles && fileProfiles.length > 0) {
+        console.log(`[Fast API] 📁 File database loaded: ${fileProfiles.length} profiles`);
+        
+        if (progressCallback) {
+          progressCallback({
+            stage: 'Database loaded, sorting profiles...',
+            current: fileProfiles.length,
+            target: limit,
+            percentage: 90
+          });
+        }
+        
+        // Sort by score and limit results
+        const sortedProfiles = fileProfiles
+          .sort((a, b) => (b.score || 0) - (a.score || 0))
+          .slice(0, limit);
+        
+        if (progressCallback) {
+          progressCallback({
+            stage: 'Ready!',
+            current: sortedProfiles.length,
+            target: limit,
+            percentage: 100
+          });
+        }
+        
+        // Cache the result
+        this.setCachedResult(cacheKey, sortedProfiles);
+        
+        console.log(`[Fast API] ✅ File database leaderboard ready: ${sortedProfiles.length} profiles`);
+        return sortedProfiles;
+      }
+    } catch (error) {
+      console.warn('[Fast API] File database loading failed:', error);
+    }
+    
+    // Fallback to cache if file loading fails
+    const cached = this.getCachedResult(cacheKey);
+    if (cached) {
+      console.log(`[Fast API] Cache hit for fast leaderboard (${cached.length} users)`);
+      if (progressCallback) {
+        progressCallback({
+          stage: 'Loaded from cache',
+          current: cached.length,
+      }
+      
+      const fileProfiles = await this.loadProfilesFromFile();
+      
+      if (fileProfiles.length > 0) {
+        console.log(`[Fast API] 📁 Using file database with ${fileProfiles.length} profiles`);
+        
+        if (progressCallback) {
+          progressCallback({
+            stage: `Processing ${fileProfiles.length} profiles from database...`,
+            current: fileProfiles.length,
+            target: limit,
+            percentage: 50
+          });
+        }
+        
+        // Take the top profiles up to the limit
+        const topProfiles = fileProfiles.slice(0, limit);
+        
+        // Format profiles for leaderboard
+        const leaderboardData = topProfiles.map((profile, index) => ({
+          rank: index + 1,
+          address: profile.primaryAddr || profile.userkeys?.[0] || `profile_${profile.profileId}`,
+          username: profile.username || profile.displayName || null,
+          displayName: profile.displayName || profile.username || null,
+          score: profile.score || 0,
+          reviews: {
+            positive: profile.stats?.review?.received?.positive || 0,
+            negative: profile.stats?.review?.received?.negative || 0,
+            neutral: profile.stats?.review?.received?.neutral || 0
+          },
+          vouches: {
+            received: profile.stats?.vouch?.received?.count || 0,
+            given: profile.stats?.vouch?.given?.count || 0
+          },
+          xp: profile.xpTotal || 0,
+          profileId: profile.profileId || profile.id,
+          avatarUrl: profile.avatarUrl || null,
+          source: 'file-database',
+          fetchedAt: profile.fetchedAt || null
+        }));
+        
+        if (progressCallback) {
+          progressCallback({
+            stage: `File database leaderboard ready!`,
+            current: leaderboardData.length,
+            target: limit,
+            percentage: 100
+          });
+        }
+        
+        // Cache the result
+        this.setCachedResult(cacheKey, leaderboardData);
+        
+        console.log(`[Fast API] ✅ File database leaderboard ready: ${leaderboardData.length} users`);
+        return leaderboardData;
+      }
+      
+      // Fallback to blockchain if no file database
+      console.log(`[Fast API] 📁 No file database available, falling back to blockchain...`);
+      return await this.getFastLeaderboardFromBlockchain(limit, progressCallback);
+      
+    } catch (error) {
+      console.error('[Fast API] Failed to build fast leaderboard from file:', error);
+      
+      // Fallback to blockchain
+      console.log(`[Fast API] 🔗 Falling back to blockchain approach...`);
+      return await this.getFastLeaderboardFromBlockchain(limit, progressCallback);
+    }
+  }
+
+  // Fallback method for blockchain-based leaderboard
+  async getFastLeaderboardFromBlockchain(limit = 1000, progressCallback = null) {
+    const cacheKey = `fast-leaderboard-blockchain:${limit}:v2`;
+    const cached = this.getCachedResult(cacheKey);
+    
+    if (cached) {
+      console.log(`[Fast API] Cache hit for fast leaderboard (${cached.length} users)`);
+      if (progressCallback) {
+        progressCallback({
+          stage: 'Loaded from cache',
+          current: cached.length,
+          total: cached.length,
+          percentage: 100
+        });
+      }
+      return cached;
+    }
+
+    try {
+      if (progressCallback) {
+        progressCallback({
+          stage: 'Initializing fast leaderboard...',
+          current: 0,
+          total: limit,
+          percentage: 0
+        });
+      }
+
+      console.log(`[Fast API] 📊 Building fast leaderboard with blockchain data...`);
+      
+      // Strategy 1: Try blockchain-first approach (Ethos vouchers)
+      let leaderboard = await this.enhanceWithBlockchainData(progressCallback);
+      
+      if (leaderboard && leaderboard.length > 0) {
+        console.log(`[Fast API] ✅ Blockchain approach successful: ${leaderboard.length} Ethos vouchers`);
+        
+        // If we don't have enough users, supplement with API search
+        if (leaderboard.length < limit / 2) {
+          if (progressCallback) {
+            progressCallback({
+              stage: 'Supplementing with API search...',
+              current: leaderboard.length,
+              total: limit,
+              percentage: 75
+            });
+          }
+          
+          const apiUsers = await this.fetchSeasonLeaderboard((progress) => {
+            if (progressCallback) {
+              progressCallback({
+                ...progress,
+                stage: 'API: ' + progress.stage,
+                current: leaderboard.length + (progress.current || 0),
+                total: limit
+              });
+            }
+          });
+          
+          // Merge and deduplicate
+          const userMap = new Map();
+          
+          // Add blockchain users first (they get priority)
+          leaderboard.forEach(user => {
+            if (user.profileId) {
+              userMap.set(user.profileId, { ...user, source: 'blockchain' });
+            }
+          });
+          
+          // Add API users (only if not already present)
+          apiUsers.forEach(user => {
+            if (user.profileId && !userMap.has(user.profileId)) {
+              userMap.set(user.profileId, { ...user, source: 'api' });
+            }
+          });
+          
+          leaderboard = Array.from(userMap.values());
+        }
+        
+      } else {
+        console.log('[Fast API] Blockchain approach failed, using API fallback...');
+        
+        // Strategy 2: Fallback to API-based approach
+        leaderboard = await this.fetchSeasonLeaderboard(progressCallback);
+      }
+
+      if (!leaderboard || leaderboard.length === 0) {
+        throw new Error('No leaderboard data available from any source');
+      }
+
+      // Sort by XP and add rankings
+      const sortedUsers = leaderboard
+        .filter(user => user && user.xpTotal !== undefined)
+        .sort((a, b) => (b.xpTotal || 0) - (a.xpTotal || 0))
+        .slice(0, limit);
+
+      const totalXP = sortedUsers.reduce((sum, user) => sum + (user.xpTotal || 0), 0);
+      
+      const rankedUsers = sortedUsers.map((user, index) => ({
+        ...user,
+        rank: index + 1,
+        xpPercentage: totalXP > 0 ? ((user.xpTotal || 0) / totalXP) * 100 : 0
+      }));
+
+      if (progressCallback) {
+        progressCallback({
+          stage: 'Complete!',
+          current: rankedUsers.length,
+          total: rankedUsers.length,
+          percentage: 100
+        });
+      }
+
+      console.log(`[Fast API] ✅ Fast leaderboard ready: ${rankedUsers.length} users`);
+      this.setCachedResult(cacheKey, rankedUsers);
+      return rankedUsers;
+      
+    } catch (error) {
+      console.error('[Fast API] Error building fast leaderboard:', error);
+      throw error;
+    }
+  }
+
+  // Fetch season leaderboard efficiently
+  async fetchSeasonLeaderboard(progressCallback = null) {
+    try {
+      console.log('[Fast API] Fetching comprehensive user data...');
+      
+      if (progressCallback) {
+        progressCallback({
+          stage: 'Searching for users...',
+          current: 0,
+          total: 100,
+          percentage: 10
+        });
+      }
+
+      // Use comprehensive search for popular queries to get users with XP data
+      const popularQueries = ['', 'a', 'e', 'i', 'o', 'u', 'user', 'test', 'crypto', 'eth'];
+      const allUsers = new Map();
+      let processed = 0;
+
+      for (const query of popularQueries) {
+        try {
+          if (progressCallback) {
+            progressCallback({
+              stage: `Searching: "${query || 'all'}"...`,
+              current: processed * 10,
+              total: popularQueries.length * 10,
+              percentage: 20 + (processed / popularQueries.length) * 60
+            });
+          }
+
+          const searchResults = await ethosApiClient.comprehensiveUserSearch(query, 20);
+          
+          if (searchResults && searchResults.length > 0) {
+            searchResults.forEach(user => {
+              if (user.profileId && user.xpTotal !== undefined) {
+                allUsers.set(user.profileId, user);
+              }
+            });
+          }
+
+          // Stop if we have enough users
+          if (allUsers.size >= 200) {
+            console.log(`[Fast API] Sufficient users found: ${allUsers.size}`);
+            break;
+          }
+
+          // Rate limiting
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+        } catch (error) {
+          console.warn(`[Fast API] Search failed for "${query}":`, error.message);
+        }
+        
+        processed++;
+      }
+
+      const userArray = Array.from(allUsers.values());
+      console.log(`[Fast API] ✅ Comprehensive search collected ${userArray.length} users`);
+      
+      return userArray;
+      
+    } catch (error) {
+      console.error('[Fast API] Error fetching comprehensive user data:', error);
+      
+      // Final fallback
+      if (progressCallback) {
+        progressCallback({
+          stage: 'Using emergency fallback...',
+          current: 50,
+          total: 100,
+          percentage: 50
+        });
+      }
+
+      return await this.fetchFallbackLeaderboard(progressCallback);
+    }
+  }
+
+  // Fallback method using profile search
+  async fetchFallbackLeaderboard(progressCallback = null) {
+    try {
+      console.log('[Fast API] Using fallback comprehensive search method...');
+      
+      const popularQueries = [
+        '', // Get general profiles
+        'a', 'e', 'i', 'o', 'u', // Vowels for broad coverage
+        'the', 'user', 'crypto', 'eth', 'web3',
+        '1', '2', '3', '0', // Numbers
+        'test', 'demo', 'admin'
+      ];
+
+      const allUsers = new Map(); // Use Map to avoid duplicates
+      let processed = 0;
+
+      for (const query of popularQueries) {
+        try {
+          if (progressCallback) {
+            progressCallback({
+              stage: `Searching profiles: "${query}"...`,
+              current: processed * 5,
+              total: popularQueries.length * 5,
+              percentage: (processed / popularQueries.length) * 100
+            });
+          }
+
+          const searchResults = await ethosApiClient.comprehensiveUserSearch(query, 15);
+          
+          if (searchResults && searchResults.length > 0) {
+            searchResults.forEach(user => {
+              if (user.profileId && user.xpTotal !== undefined) {
+                allUsers.set(user.profileId, user);
+              }
+            });
+          }
+
+          // Stop if we have enough users
+          if (allUsers.size >= 100) {
+            console.log(`[Fast API] Sufficient users found: ${allUsers.size}`);
+            break;
+          }
+
+          // Rate limiting
+          await new Promise(resolve => setTimeout(resolve, 150));
+          
+        } catch (error) {
+          console.warn(`[Fast API] Search failed for "${query}":`, error.message);
+        }
+        
+        processed++;
+      }
+
+      const userArray = Array.from(allUsers.values());
+      console.log(`[Fast API] ✅ Fallback method collected ${userArray.length} users`);
+      
+      return userArray;
+      
+    } catch (error) {
+      console.error('[Fast API] Fallback method failed:', error);
+      return [];
+    }
+  }
+
+  // Get distribution statistics quickly
+  async getFastDistributionStats(leaderboard) {
+    try {
+      const totalUsers = leaderboard.length;
+      const totalXP = leaderboard.reduce((sum, user) => sum + (user.xpTotal || 0), 0);
+      
+      // XP distribution ranges
+      const xpRanges = {
+        '1M+': leaderboard.filter(u => u.xpTotal >= 1000000).length,
+        '500K-1M': leaderboard.filter(u => u.xpTotal >= 500000 && u.xpTotal < 1000000).length,
+        '100K-500K': leaderboard.filter(u => u.xpTotal >= 100000 && u.xpTotal < 500000).length,
+        '50K-100K': leaderboard.filter(u => u.xpTotal >= 50000 && u.xpTotal < 100000).length,
+        '10K-50K': leaderboard.filter(u => u.xpTotal >= 10000 && u.xpTotal < 50000).length,
+        '1K-10K': leaderboard.filter(u => u.xpTotal >= 1000 && u.xpTotal < 10000).length,
+        '<1K': leaderboard.filter(u => u.xpTotal < 1000).length
+      };
+
+      const stats = {
+        totalUsers,
+        totalXP,
+        averageXP: totalUsers > 0 ? totalXP / totalUsers : 0,
+        xpRanges,
+        topUsers: leaderboard.slice(0, 10),
+        usersWithProfiles: leaderboard.filter(u => u.displayName || u.username).length,
+        lastUpdated: new Date().toISOString()
+      };
+
+      console.log('[Fast API] ✅ Fast distribution statistics calculated');
+      return stats;
+      
+    } catch (error) {
+      console.error('[Fast API] Error calculating fast distribution stats:', error);
+      throw error;
+    }
+  }
+
+  // Format numbers for display
+  formatXP(xp) {
+    if (!xp) return '0';
+    if (xp >= 1000000) return `${(xp / 1000000).toFixed(2)}M`;
+    if (xp >= 1000) return `${(xp / 1000).toFixed(1)}K`;
+    return xp.toLocaleString();
+  }
+
+  // Search in leaderboard
+  searchLeaderboard(leaderboard, searchTerm) {
+    if (!searchTerm || searchTerm.length < 2) {
+      return leaderboard;
+    }
+
+    const term = searchTerm.toLowerCase();
+    return leaderboard.filter(user =>
+      user.displayName?.toLowerCase().includes(term) ||
+      user.username?.toLowerCase().includes(term) ||
+      user.profileId?.toString().includes(term)
+    );
+  }
+
+  // Force refresh (clear cache)
+  async forceRefresh(limit = 1000, progressCallback = null) {
+    console.log('[Fast API] 🔄 Force refreshing fast data...');
+    
+    // Clear all caches
+    this.cache.clear();
+    this.profileCache.clear();
+    this.batchProfileCache.clear();
+    
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem('fast-distribution-cache');
+    }
+
+    // Rebuild leaderboard
+    return await this.getFastLeaderboard(limit, progressCallback);
+  }
+
+  // Get cache statistics
+  getCacheStats() {
+    return {
+      distributionCache: this.cache.size,
+      profileCache: this.profileCache.size,
+      batchCache: this.batchProfileCache.size
+    };
+  }
+
+  // Background enhancement (now primary method) - get addresses from Base contract
+  async enhanceWithBlockchainData(progressCallback = null) {
+    try {
+      if (!this.contractApi) {
+        console.log('[Fast API] Contract API not available');
+        return [];
+      }
+
+      const contractReady = await this.contractApi.initialize();
+      if (!contractReady) {
+        console.log('[Fast API] Contract API initialization failed');
+        return [];
+      }
+
+      console.log('[Fast API] 🔗 Getting addresses from Base Ethos contract...');
+      
+      if (progressCallback) {
+        progressCallback({
+          stage: 'Connecting to Base network...',
+          current: 0,
+          total: 100,
+          percentage: 0
+        });
+      }
+
+      // Get all addresses that interacted with the Ethos vouching contract
+      const addresses = await this.contractApi.getAllVouchingAddresses((progress) => {
+        if (progressCallback) {
+          progressCallback({
+            ...progress,
+            stage: 'Blockchain: ' + progress.stage
+          });
+        }
+      });
+
+      if (progressCallback) {
+        progressCallback({
+          stage: 'Fetching Ethos profiles for addresses...',
+          current: 0,
+          total: addresses.length,
+          percentage: 50
+        });
+      }
+
+      // Get Ethos profiles for these addresses
+      const profiles = await this.batchGetProfiles(addresses.map(addr => ({ address: addr })), (progress) => {
+        if (progressCallback) {
+          progressCallback({
+            stage: 'Fetching profiles: ' + progress.stage,
+            current: progress.current,
+            total: progress.total,
+            percentage: 50 + (progress.percentage * 0.5)
+          });
+        }
+      });
+
+      if (progressCallback) {
+        progressCallback({
+          stage: 'Processing and ranking...',
+          current: profiles.length,
+          total: profiles.length,
+          percentage: 95
+        });
+      }
+
+      // Sort by XP and add rankings
+      const sortedProfiles = profiles
+        .filter(p => p && p.xpTotal !== undefined)
+        .sort((a, b) => (b.xpTotal || 0) - (a.xpTotal || 0));
+
+      const totalXP = sortedProfiles.reduce((sum, p) => sum + (p.xpTotal || 0), 0);
+      
+      const leaderboard = sortedProfiles.map((profile, index) => ({
+        ...profile,
+        rank: index + 1,
+        xpPercentage: totalXP > 0 ? ((profile.xpTotal || 0) / totalXP) * 100 : 0,
+        isVoucher: true, // Mark as someone who vouched on Ethos
+        vouchingContract: true
+      }));
+
+      if (progressCallback) {
+        progressCallback({
+          stage: 'Complete!',
+          current: leaderboard.length,
+          total: leaderboard.length,
+          percentage: 100
+        });
+      }
+
+      console.log(`[Fast API] ✅ Blockchain enhancement completed: ${leaderboard.length} Ethos vouchers found`);
+      return leaderboard;
+      
+    } catch (error) {
+      console.warn('[Fast API] Blockchain enhancement failed:', error);
+      return []; // Return empty array if enhancement fails
+    }
+  }
+}
+
+export default FastDistributionApi;
