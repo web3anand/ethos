@@ -238,12 +238,15 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
               style={{ '--pfp-ring': scoreLevel.color }}
             >
               {avatarUrl ? (
-                <Image
+                <img
                   src={avatarUrl}
                   alt={profile.displayName || 'Avatar'}
                   width={80}
                   height={80}
                   className={styles.profileCardAvatar}
+                  onError={(e) => {
+                    e.target.src = '/ethos.png';
+                  }}
                 />
               ) : (
                 <div className={styles.profileCardAvatarFallback}>
@@ -368,12 +371,15 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
                       overflow: 'hidden',
                       border: '1px solid #ddd'
                     }}>
-                      <Image
+                      <img
                         src={validatorNft.imageUrl}
                         alt={validatorNft.name || 'Validator NFT'}
                         width={32}
                         height={32}
                         style={{objectFit: 'cover'}}
+                        onError={(e) => {
+                          e.target.src = '/ethos.png';
+                        }}
                       />
                     </div>
                   )}
@@ -399,12 +405,15 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
             style={{ '--pfp-ring': scoreLevel.color }}
           >
             {avatarUrl ? (
-              <Image
+              <img
                 src={avatarUrl}
                 alt={profile.displayName || 'Avatar'}
                 width={80}
                 height={80}
                 className={styles.profileCardAvatar}
+                onError={(e) => {
+                  e.target.src = '/ethos.png';
+                }}
               />
             ) : (
               <div className={styles.profileCardAvatarFallback}>

@@ -624,11 +624,18 @@ export default function Distribution() {
                               <img
                                 className="h-10 w-10 rounded-full mr-3"
                                 src={user.avatarUrl}
-                                alt={user.displayName}
+                                alt={user.displayName || 'User avatar'}
                                 onError={(e) => {
                                   e.target.src = '/ethos.png';
                                 }}
                               />
+                            )}
+                            {!user.avatarUrl && (
+                              <div className="h-10 w-10 rounded-full mr-3 bg-gray-600 flex items-center justify-center">
+                                <span className="text-white text-sm font-medium">
+                                  {(user.displayName || user.username || 'U')[0].toUpperCase()}
+                                </span>
+                              </div>
                             )}
                             <div>
                               <div className="text-sm font-medium text-white">
