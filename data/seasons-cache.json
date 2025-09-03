@@ -1,0 +1,106 @@
+{
+  "timestamp": 1756888099317,
+  "data": {
+    "totalSeasons": 2,
+    "currentSeason": {
+      "id": 1,
+      "name": "Season 1",
+      "startDate": "2025-05-14T00:00:00.000Z",
+      "week": 11
+    },
+    "seasonStats": [
+      {
+        "seasonId": 1,
+        "seasonName": "Season 1",
+        "totalWeeks": 12,
+        "startDate": "2025-05-14T00:00:00.000Z",
+        "weeks": [
+          {
+            "startDate": "2025-09-03T08:27:34.617Z",
+            "xpDistributed": 64199239,
+            "participants": 5425
+          },
+          {
+            "week": 1,
+            "startDate": "2025-09-03T08:27:34.617Z",
+            "xpDistributed": 14402827,
+            "participants": 4565
+          },
+          {
+            "week": 2,
+            "startDate": "2025-09-03T08:27:34.617Z",
+            "xpDistributed": 19189872,
+            "participants": 6093
+          },
+          {
+            "week": 3,
+            "startDate": "2025-09-03T08:27:34.617Z",
+            "xpDistributed": 17663896,
+            "participants": 6990
+          },
+          {
+            "week": 4,
+            "startDate": "2025-09-03T08:27:34.617Z",
+            "xpDistributed": 16590928,
+            "participants": 6511
+          },
+          {
+            "week": 5,
+            "startDate": "2025-09-03T08:27:34.617Z",
+            "xpDistributed": 16699783,
+            "participants": 8255
+          },
+          {
+            "week": 6,
+            "startDate": "2025-09-03T08:27:34.617Z",
+            "xpDistributed": 16285924,
+            "participants": 7943
+          },
+          {
+            "week": 7,
+            "startDate": "2025-09-03T08:27:34.617Z",
+            "xpDistributed": 15754650,
+            "participants": 7472
+          },
+          {
+            "week": 8,
+            "startDate": "2025-09-03T08:27:34.617Z",
+            "xpDistributed": 14868568,
+            "participants": 6975
+          },
+          {
+            "week": 9,
+            "startDate": "2025-09-03T08:27:34.617Z",
+            "xpDistributed": 19712612,
+            "participants": 5358
+          },
+          {
+            "week": 10,
+            "startDate": "2025-09-03T08:27:34.617Z",
+            "xpDistributed": 16729772,
+            "participants": 3996
+          },
+          {
+            "week": 11,
+            "startDate": "2025-09-03T08:27:34.617Z",
+            "xpDistributed": 13703003,
+            "participants": 2498
+          }
+        ]
+      },
+      {
+        "seasonId": 0,
+        "seasonName": "Season 0",
+        "totalWeeks": 1,
+        "startDate": "2025-01-01T00:00:00.000Z",
+        "weeks": [
+          {
+            "startDate": "2025-09-03T08:28:19.316Z",
+            "xpDistributed": 341615590,
+            "participants": 6850
+          }
+        ]
+      }
+    ]
+  }
+}

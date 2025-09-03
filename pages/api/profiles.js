@@ -34,6 +34,8 @@ export default async function handler(req, res) {
           given: profile.stats?.vouch?.given?.count || 0
         },
         xp: profile.xpTotal || 0,
+        xpTotal: profile.xpTotal || 0,
+        xpStreakDays: profile.xpStreakDays || 0,
         profileId: profile.profileId || profile.id,
         avatarUrl: profile.avatarUrl || null,
         userkeys: profile.userkeys || [],

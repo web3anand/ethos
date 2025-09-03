@@ -3,7 +3,8 @@ import Head from 'next/head';
 import Navbar from '../components/Navbar';
 import { ethosDistributionApi } from '../utils/ethosDistributionApi';
 import FastDistributionApi from '../utils/fastDistributionApi';
-import styles from '../styles/Distribution.module.css';
+import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
+import classicStyles from '../styles/Distribution.classic.module.css';
 
 export default function Distribution() {
   const [leaderboardData, setLeaderboardData] = useState([]);
@@ -15,7 +16,36 @@ export default function Distribution() {
   const [selectedView, setSelectedView] = useState('leaderboard');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(50);
-  const [targetUsers] = useState(20000); // Increased target for full database
+  // Function to refresh season data
+  const refreshSeasonData = async () => {
+    try {
+      setLoadingProgress('Refreshing season data...');
+      setCacheStatus('🔄 Fetching fresh data...');
+      
+      const startTime = Date.now();
+      const response = await fetch('/api/seasons?refresh=true');
+      const seasonData = await response.json();
+      
+      if (seasonData) {
+        const responseTime = Date.now() - startTime;
+        setCacheStatus(`✅ Fresh data loaded (${Math.round(responseTime/1000)}s)`);
+        
+        setDistributionStats(prev => ({
+          ...prev,
+          totalSeasons: seasonData.totalSeasons,
+          currentSeason: seasonData.currentSeason,
+          seasonStats: seasonData.seasonStats
+        }));
+      }
+    } catch (error) {
+      console.error('Error refreshing season data:', error);
+      setCacheStatus('❌ Refresh failed');
+    } finally {
+      setLoadingProgress(null);
+    }
+  };
+
+  const targetUsers = 20000; // Increased target for full database
   const [cacheStatus, setCacheStatus] = useState(null);
   const [fastApi, setFastApi] = useState(null);
   const [backgroundEnhancing, setBackgroundEnhancing] = useState(false);
@@ -71,6 +101,8 @@ export default function Distribution() {
           }));
           
           console.log(`[Distribution] Debug: Total XP = ${totalXp}, First user:`, processedData[0]);
+          console.log(`[Distribution] Debug: First user streak:`, processedData[0]?.xpStreakDays);
+          console.log(`[Distribution] Debug: Stats loaded, checking for season data...`);
           
           setLeaderboardData(processedData);
           setFilteredData(processedData);
@@ -78,6 +110,36 @@ export default function Distribution() {
           // Get fast distribution stats
           const stats = await fastApi.getFastDistributionStats(processedData);
           setDistributionStats(stats);
+          
+          const startTime = Date.now(); // Track API call time for cache detection
+          
+          // Fallback: if no season data, try to get it directly
+          // Always fetch season data since fast API doesn't include it
+          try {
+            console.log('[Distribution] 📅 Fetching season data from API...');
+            setLoadingProgress('Loading season statistics...');
+            
+            const seasonResponse = await fetch('/api/seasons');
+            const seasonData = await seasonResponse.json();
+            
+            if (seasonData) {
+              // Check if this came from cache based on response time
+              const responseTime = Date.now() - startTime;
+              const isCached = responseTime < 2000; // Less than 2 seconds likely means cached
+              
+              setCacheStatus(isCached ? '⚡ Using cached data' : '🔄 Fresh data loaded');
+              
+              setDistributionStats(prev => ({
+                ...prev,
+                totalSeasons: seasonData.totalSeasons,
+                currentSeason: seasonData.currentSeason,
+                seasonStats: seasonData.seasonStats
+              }));
+              console.log('[Distribution] ✅ Season data fetched:', seasonData.totalSeasons, 'seasons', isCached ? '(cached)' : '(fresh)');
+            }
+          } catch (error) {
+            console.warn('[Distribution] ⚠️ Could not fetch season data:', error);
+          }
           
           console.log(`[Distribution] ✅ Data loaded: ${processedData.length} users in ${Date.now() - startTime}ms`);
         } else {
@@ -215,12 +277,14 @@ export default function Distribution() {
   };
 
   const getSortIcon = (columnKey) => {
+    const iconProps = { className: classicStyles.sortIcon, size: 16 };
     if (sortConfig.key !== columnKey) {
-      return <span className="text-gray-500 ml-1">↕️</span>;
+      return <ArrowUpDown {...iconProps} />;
     }
-    return sortConfig.direction === 'asc' 
-      ? <span className="text-blue-400 ml-1">↑</span>
-      : <span className="text-blue-400 ml-1">↓</span>;
+    if (sortConfig.direction === 'asc') {
+      return <ArrowUp {...iconProps} />;
+    }
+    return <ArrowDown {...iconProps} />;
   };
   
   // Pagination
@@ -329,397 +393,158 @@ export default function Distribution() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
+    <div className={classicStyles.container}>
       <Head>
-        <title>Ethos XP Distribution | Leaderboard & Statistics</title>
+        <title>Ethos XP Distribution | Leaderboard & Analytics</title>
         <meta name="description" content="Comprehensive XP distribution analysis with user rankings, statistics, and search functionality" />
         <link rel="icon" href="/ethos.png" />
       </Head>
 
       <Navbar />
 
-      <div className="container mx-auto px-4 py-8">
+      <main>
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-            XP Distribution Center
-          </h1>
-          <p className="text-gray-300 text-lg">
-            Comprehensive analysis of Ethos XP distribution across all users and seasons
+        <header className={classicStyles.header}>
+          <h1 className={classicStyles.title}>XP Distribution Center</h1>
+          <p className={classicStyles.subtitle}>
+            Comprehensive analysis of Ethos XP distribution across all users and seasons.
           </p>
-        </div>
+        </header>
 
         {/* Statistics Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className={`${styles.statCard} glass-container`}>
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Total XP</h3>
-            <p className="text-2xl font-bold text-white">
-              {ethosDistributionApi.formatXpToMillions(totalXp)}
-            </p>
-            <p className="text-xs text-gray-500">{totalXp.toLocaleString()} XP</p>
+        <section className={classicStyles.statsGrid}>
+          <div className={classicStyles.statCard}>
+            <p className={classicStyles.statLabel}>Total XP Distributed</p>
+            <p className={classicStyles.statValue}>{ethosDistributionApi.formatXpToMillions(totalXp)}</p>
+            <p className={classicStyles.statSubValue}>{totalXp.toLocaleString()} XP</p>
           </div>
-          
-          <div className={`${styles.statCard} glass-container`}>
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Active Users</h3>
-            <p className="text-2xl font-bold text-white">
-              {leaderboardData.length.toLocaleString()}
-              {loading && (
-                <span className="text-sm text-blue-400 ml-2">
-                  (Loading more...)
-                </span>
-              )}
-            </p>
-            <p className="text-xs text-gray-500">
-              {loading ? 'Expanding leaderboard...' : 'With XP data'}
-            </p>
+          <div className={classicStyles.statCard}>
+            <p className={classicStyles.statLabel}>Active Users</p>
+            <p className={classicStyles.statValue}>{leaderboardData.length.toLocaleString()}</p>
+            <p className={classicStyles.statSubValue}>With XP data</p>
           </div>
-          
-          <div className={`${styles.statCard} glass-container`}>
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Total Seasons</h3>
-            <p className="text-2xl font-bold text-white">
-              {distributionStats?.totalSeasons || 0}
-            </p>
-            <p className="text-xs text-gray-500">Current: {distributionStats?.currentSeason?.name}</p>
+          <div className={classicStyles.statCard}>
+            <p className={classicStyles.statLabel}>Total Seasons</p>
+            <p className={classicStyles.statValue}>{distributionStats?.totalSeasons || '...'}</p>
+            <p className={classicStyles.statSubValue}>Current: {distributionStats?.currentSeason?.name || '...'}</p>
           </div>
-          
-          <div className={`${styles.statCard} glass-container`}>
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Current Week</h3>
-            <p className="text-2xl font-bold text-white">
-              {distributionStats?.currentSeason?.week || 0}
-            </p>
-            <p className="text-xs text-gray-500">Season {distributionStats?.currentSeason?.id}</p>
+          <div className={classicStyles.statCard}>
+            <p className={classicStyles.statLabel}>Current Week</p>
+            <p className={classicStyles.statValue}>{distributionStats?.currentSeason?.week || '...'}</p>
+            <p className={classicStyles.statSubValue}>Season {distributionStats?.currentSeason?.id || '...'}</p>
           </div>
-        </div>
-
-        {/* Loading Progress Bar (when loading more data) */}
-        {loading && loadingProgress && leaderboardData.length > 0 && (
-          <div className="glass-container p-4 mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-white font-medium">
-                {fastApi ? '⚡ Fast Loading' : 'Loading Data'}
-              </span>
-              <span className="text-gray-300 text-sm">
-                {loadingProgress.current?.toLocaleString() || loadingProgress.processed?.toLocaleString() || 0} / {loadingProgress.total?.toLocaleString() || loadingProgress.target?.toLocaleString() || 0} users
-              </span>
-            </div>
-            <div className="w-full bg-gray-700 rounded-full h-2">
-              <div 
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  fastApi 
-                    ? 'bg-gradient-to-r from-green-500 to-blue-500' 
-                    : 'bg-gradient-to-r from-blue-600 to-purple-600'
-                }`}
-                style={{ width: `${Math.min(loadingProgress.percentage, 100)}%` }}
-              ></div>
-            </div>
-            <div className="text-xs text-gray-400 mt-1">
-              {loadingProgress.percentage.toFixed(1)}% complete - {loadingProgress.stage || (loadingProgress.query ? `Currently searching: "${loadingProgress.query}"` : 'Processing...')}
-            </div>
-          </div>
-        )}
+        </section>
 
         {/* Navigation Tabs */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 mb-6">
-          <div className="flex space-x-4">
-            <button
-              onClick={() => setSelectedView('leaderboard')}
-              className={`px-6 py-3 rounded-lg font-medium transition-all ${
-                selectedView === 'leaderboard'
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              XP Leaderboard
-            </button>
-            <button
-              onClick={() => setSelectedView('distribution')}
-              className={`px-6 py-3 rounded-lg font-medium transition-all ${
-                selectedView === 'distribution'
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              Distribution Analysis
-            </button>
-            <button
-              onClick={() => setSelectedView('seasons')}
-              className={`px-6 py-3 rounded-lg font-medium transition-all ${
-                selectedView === 'seasons'
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              Season Breakdown
-            </button>
-          </div>
-          
-          {/* Cache Status & Controls */}
-          <div className="flex items-center space-x-4">
-            {/* Background Enhancement Status */}
-            {backgroundEnhancing && (
-              <div className="flex items-center space-x-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-500"></div>
-                <span className="text-xs text-purple-400">Enhancing with blockchain data...</span>
-              </div>
-            )}
-            
-            {/* Fast Mode Indicator */}
-            <div className="flex items-center space-x-2">
-              <div className={`px-3 py-2 rounded-lg text-sm font-medium ${
-                fastApi 
-                  ? 'bg-green-600 text-white border border-green-500'
-                  : 'bg-gray-700 text-gray-300 border border-gray-600'
-              }`}>
-                {fastApi ? '⚡ Fast Mode' : '� Fallback Mode'}
-              </div>
-            </div>
-            
-            {/* Cache Status */}
-            {cacheStatus && (
-              <div className="text-sm text-gray-400">
-                Cache: {(cacheStatus.standard?.totalItems || 0) + (cacheStatus.fast?.distributionCache || 0)} items
-                {cacheStatus.fast && (
-                  <span className="text-green-400 ml-1">
-                    | Fast: {cacheStatus.fast.distributionCache + cacheStatus.fast.profileCache} items
-                  </span>
-                )}
-                <span className="text-green-400 ml-1">✓ Optimized</span>
-              </div>
-            )}
-            
-            {/* Force Refresh Button */}
-            <button
-              onClick={handleForceRefresh}
-              disabled={loading}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                loading
-                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600'
-              }`}
-            >
-              {loading ? 'Refreshing...' : 'Force Refresh'}
-            </button>
-          </div>
-        </div>
+        <nav className={classicStyles.tabs}>
+          <button
+            onClick={() => setSelectedView('leaderboard')}
+            className={selectedView === 'leaderboard' ? classicStyles.tabButtonActive : classicStyles.tabButton}
+          >
+            Leaderboard
+          </button>
+          <button
+            onClick={() => setSelectedView('distribution')}
+            className={selectedView === 'distribution' ? classicStyles.tabButtonActive : classicStyles.tabButton}
+          >
+            Analysis
+          </button>
+          <button
+            onClick={() => setSelectedView('seasons')}
+            className={selectedView === 'seasons' ? classicStyles.tabButtonActive : classicStyles.tabButton}
+          >
+            Seasons
+          </button>
+        </nav>
 
         {/* Leaderboard View */}
         {selectedView === 'leaderboard' && (
-          <div className="space-y-6">
-            {/* Search Bar */}
-            <div className="glass-container p-6">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    placeholder="Search users by name, username, or profile ID..."
-                    value={searchTerm}
-                    onChange={handleSearch}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="text-gray-400 flex items-center">
-                  {filteredData.length} of {leaderboardData.length} users
-                </div>
+          <section>
+            <div className={classicStyles.controlsContainer}>
+              <div className={classicStyles.searchBox}>
+                <input
+                  type="text"
+                  placeholder="Search by name, username, or ID..."
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  className={classicStyles.searchInput}
+                />
               </div>
-              <div className="mt-3 text-xs text-gray-500">
-                💡 Click column headers to sort ascending/descending
-              </div>
+              <button
+                onClick={handleForceRefresh}
+                disabled={loading}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-all bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700"
+              >
+                {loading ? 'Refreshing...' : 'Force Refresh'}
+              </button>
             </div>
 
-            {/* Leaderboard Table */}
-            <div className="glass-container overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-800 border-b border-gray-600">
+            <div className={classicStyles.tableContainer}>
+              <div className={classicStyles.tableWrapper}>
+                <table className={classicStyles.table}>
+                  <thead>
                     <tr>
-                      <th 
-                        className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
-                        onClick={() => handleSort('rank')}
-                      >
-                        <div className="flex items-center">
-                          Rank
-                          {getSortIcon('rank')}
-                        </div>
-                      </th>
-                      <th 
-                        className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
-                        onClick={() => handleSort('user')}
-                      >
-                        <div className="flex items-center">
-                          User
-                          {getSortIcon('user')}
-                        </div>
-                      </th>
-                      <th 
-                        className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
-                        onClick={() => handleSort('totalXp')}
-                      >
-                        <div className="flex items-center">
-                          Total XP
-                          {getSortIcon('totalXp')}
-                        </div>
-                      </th>
-                      <th 
-                        className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
-                        onClick={() => handleSort('xpFormatted')}
-                      >
-                        <div className="flex items-center">
-                          XP (Millions)
-                          {getSortIcon('xpFormatted')}
-                        </div>
-                      </th>
-                      <th 
-                        className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
-                        onClick={() => handleSort('percentage')}
-                      >
-                        <div className="flex items-center">
-                          Percentage
-                          {getSortIcon('percentage')}
-                        </div>
-                      </th>
-                      <th 
-                        className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
-                        onClick={() => handleSort('score')}
-                      >
-                        <div className="flex items-center">
-                          Score
-                          {getSortIcon('score')}
-                        </div>
-                      </th>
-                      <th 
-                        className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
-                        onClick={() => handleSort('streak')}
-                      >
-                        <div className="flex items-center">
-                          Streak
-                          {getSortIcon('streak')}
-                        </div>
-                      </th>
+                      <th onClick={() => handleSort('rank')}>Rank {getSortIcon('rank')}</th>
+                      <th onClick={() => handleSort('user')}>User {getSortIcon('user')}</th>
+                      <th onClick={() => handleSort('totalXp')}>Total XP {getSortIcon('totalXp')}</th>
+                      <th onClick={() => handleSort('percentage')}>Percentage {getSortIcon('percentage')}</th>
+                      <th onClick={() => handleSort('score')}>Score {getSortIcon('score')}</th>
+                      <th onClick={() => handleSort('streak')}>Streak {getSortIcon('streak')}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-700">
+                  <tbody>
                     {currentData.map((user) => (
-                      <tr
-                        key={user.profileId}
-                        onClick={() => handleUserClick(user)}
-                        className="hover:bg-gray-800 cursor-pointer transition-colors"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <span className={`text-lg font-bold ${
-                              user.rank <= 3 ? 'text-yellow-400' :
-                              user.rank <= 10 ? 'text-blue-400' :
-                              'text-gray-300'
-                            }`}>
-                              #{user.rank}
-                            </span>
-                            {user.rank === 1 && <span className="ml-2 text-xl">🏆</span>}
-                            {user.rank === 2 && <span className="ml-2 text-xl">🥈</span>}
-                            {user.rank === 3 && <span className="ml-2 text-xl">🥉</span>}
-                          </div>
+                      <tr key={user.profileId} onClick={() => handleUserClick(user)}>
+                        <td>
+                          <span className={classicStyles.rank}>#{user.rank}</span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            {user.avatarUrl && (
-                              <img
-                                className="h-10 w-10 rounded-full mr-3"
-                                src={user.avatarUrl}
-                                alt={user.displayName || 'User avatar'}
-                                onError={(e) => {
-                                  e.target.src = '/ethos.png';
-                                }}
-                              />
-                            )}
-                            {!user.avatarUrl && (
-                              <div className="h-10 w-10 rounded-full mr-3 bg-gray-600 flex items-center justify-center">
-                                <span className="text-white text-sm font-medium">
-                                  {(user.displayName || user.username || 'U')[0].toUpperCase()}
-                                </span>
-                              </div>
-                            )}
+                        <td>
+                          <div className={classicStyles.userCell}>
+                            <img
+                              className={classicStyles.avatar}
+                              src={user.avatarUrl || '/ethos.png'}
+                              alt={user.displayName || 'User avatar'}
+                              onError={(e) => { e.target.src = '/ethos.png'; }}
+                            />
                             <div>
-                              <div className="text-sm font-medium text-white">
-                                {user.displayName || user.username || 'Unknown User'}
-                              </div>
-                              <div className="text-sm text-gray-400">
-                                @{user.username || 'unknown'}
-                              </div>
+                              <div className={classicStyles.userName}>{user.displayName || user.username || 'Unknown'}</div>
+                              <div className={classicStyles.userHandle}>@{user.username || '...'}</div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                          {(user.xpTotal || user.xp || 0).toLocaleString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-400 font-semibold">
-                          {ethosDistributionApi.formatXpToMillions(user.xpTotal || user.xp || 0)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="w-16 bg-gray-700 rounded-full h-2 mr-2">
-                              <div
-                                className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
-                                style={{ width: `${Math.min((user.xpPercentage || 0) * 10, 100)}%` }}
-                              ></div>
-                            </div>
-                            <span className="text-sm text-gray-300">
-                              {(user.xpPercentage || 0).toFixed(3)}%
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {(user.score || 0).toLocaleString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {user.xpStreakDays || 0} days
-                        </td>
+                        <td>{(user.xpTotal || user.xp || 0).toLocaleString()}</td>
+                        <td>{(user.xpPercentage || 0).toFixed(4)}%</td>
+                        <td>{(user.score || 0).toLocaleString()}</td>
+                        <td>{user.xpStreakDays || 0} days</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-
-              {/* Pagination */}
               {totalPages > 1 && (
-                <div className="px-6 py-4 bg-gray-800 border-t border-gray-600">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-400">
-                      Showing {startIndex + 1} to {Math.min(endIndex, filteredData.length)} of {filteredData.length} users
-                      {sortConfig.key && (
-                        <span className="ml-2 text-xs text-blue-400">
-                          (sorted by {sortConfig.key} {sortConfig.direction === 'asc' ? '↑' : '↓'})
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                        className="px-3 py-1 bg-gray-700 text-gray-300 rounded disabled:opacity-50 hover:bg-gray-600"
-                      >
-                        Previous
-                      </button>
-                      <span className="px-3 py-1 text-gray-300">
-                        Page {currentPage} of {totalPages}
-                      </span>
-                      <button
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        className="px-3 py-1 bg-gray-700 text-gray-300 rounded disabled:opacity-50 hover:bg-gray-600"
-                      >
-                        Next
-                      </button>
-                    </div>
+                <div className={classicStyles.pagination}>
+                  <div className={classicStyles.paginationInfo}>
+                    Page {currentPage} of {totalPages} ({filteredData.length} results)
+                  </div>
+                  <div className={classicStyles.paginationControls}>
+                    <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1}>
+                      Prev
+                    </button>
+                    <span>Page {currentPage}</span>
+                    <button onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages}>
+                      Next
+                    </button>
                   </div>
                 </div>
               )}
             </div>
-          </div>
+          </section>
         )}
 
-        {/* Distribution Analysis View */}
-        {selectedView === 'distribution' && (
+        {/* Other Views (Distribution/Seasons) would go here, simplified for now */}
+         {selectedView === 'distribution' && (
           <div className="space-y-6">
-            <div className="glass-container p-6">
+            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
               <h2 className="text-2xl font-bold text-white mb-6">XP Distribution Analysis</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -771,74 +596,140 @@ export default function Distribution() {
           </div>
         )}
 
-        {/* Season Breakdown View */}
-        {selectedView === 'seasons' && distributionStats && (
+        {selectedView === 'seasons' && (
           <div className="space-y-6">
-            <div className="glass-container p-6">
-              <h2 className="text-2xl font-bold text-white mb-6">Season & Week Breakdown</h2>
+            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-white">Season & Week Breakdown</h2>
+                <div className="flex items-center space-x-4">
+                  {cacheStatus && (
+                    <span className="text-sm text-gray-400">{cacheStatus}</span>
+                  )}
+                  <button
+                    onClick={refreshSeasonData}
+                    className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                    disabled={loadingProgress !== null}
+                  >
+                    🔄 Refresh Data
+                  </button>
+                </div>
+              </div>
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {distributionStats?.seasonStats?.length > 0 ? (
-                  distributionStats.seasonStats.map((season) => (
-                    <div key={season.seasonId} className="bg-gray-800 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-white">
-                          {season.seasonName}
-                        </h3>
-                        {season.seasonId === distributionStats.currentSeason?.id && (
-                          <span className="px-2 py-1 bg-green-600 text-white text-xs rounded-full">
-                            Current
-                          </span>
-                        )}
-                      </div>
-                    
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Total Weeks:</span>
-                        <span className="text-white font-medium">{season.totalWeeks}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Start Date:</span>
-                        <span className="text-white">
-                          {new Date(season.startDate).toLocaleDateString()}
-                        </span>
-                      </div>
-                      {season.weeks.length > 0 && (
-                        <div className="mt-3">
-                          <h4 className="text-gray-300 font-medium mb-2">Week Distribution:</h4>
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            {season.weeks.slice(0, 6).map((week) => (
-                              <div key={week.week} className="flex justify-between text-gray-400">
-                                <span>Week {week.week}:</span>
-                                <span>
-                                  {new Date(week.startDate).toLocaleDateString('en-US', { 
-                                    month: 'short', 
-                                    day: 'numeric' 
-                                  })}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                          {season.weeks.length > 6 && (
-                            <div className="text-xs text-gray-500 mt-2">
-                              ...and {season.weeks.length - 6} more weeks
-                            </div>
-                          )}
+              {distributionStats?.seasonStats?.length > 0 ? (
+                <div className="space-y-8">
+                  {/* Season Summary Table */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-4">Season Overview</h3>
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr className="border-b border-[#30363d]">
+                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Season</th>
+                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Status</th>
+                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Total Weeks</th>
+                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Start Date</th>
+                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Total XP Distributed</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {distributionStats.seasonStats.map((season) => {
+                            const seasonXp = season.weeks?.reduce((sum, week) => sum + (week.xpDistributed || 0), 0) || 0;
+                            
+                            return (
+                              <tr key={season.seasonId} className="border-b border-[#21262d] hover:bg-[#21262d]">
+                                <td className="py-4 px-4">
+                                  <div className="font-medium text-white">{season.seasonName}</div>
+                                  <div className="text-sm text-gray-400">Season {season.seasonId}</div>
+                                </td>
+                                <td className="py-4 px-4">
+                                  {season.seasonId === distributionStats.currentSeason?.id ? (
+                                    <span className="px-2 py-1 bg-green-600 text-white text-xs rounded-full">
+                                      Current
+                                    </span>
+                                  ) : (
+                                    <span className="px-2 py-1 bg-gray-600 text-gray-300 text-xs rounded-full">
+                                      Completed
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="py-4 px-4 text-white">{season.totalWeeks}</td>
+                                <td className="py-4 px-4 text-gray-300">
+                                  {new Date(season.startDate).toLocaleDateString()}
+                                </td>
+                                <td className="py-4 px-4 text-blue-400 font-semibold">
+                                  {ethosDistributionApi.formatXpToMillions(seasonXp)}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Weekly Breakdown for Each Season */}
+                  {distributionStats.seasonStats.map((season) => (
+                    <div key={`details-${season.seasonId}`} className="bg-[#0d1117] border border-[#21262d] rounded-lg p-6">
+                      <h4 className="text-xl font-semibold text-white mb-4">
+                        {season.seasonName} - Weekly XP Distribution
+                      </h4>
+                      
+                      {season.weeks && season.weeks.length > 0 ? (
+                        <div className="overflow-x-auto">
+                          <table className="w-full border-collapse">
+                            <thead>
+                              <tr className="border-b border-[#30363d]">
+                                <th className="text-left py-2 px-3 text-xs font-medium text-gray-400 uppercase">Week</th>
+                                <th className="text-left py-2 px-3 text-xs font-medium text-gray-400 uppercase">Start Date</th>
+                                <th className="text-left py-2 px-3 text-xs font-medium text-gray-400 uppercase">Active Users</th>
+                                <th className="text-left py-2 px-3 text-xs font-medium text-gray-400 uppercase">XP Distributed</th>
+                                <th className="text-left py-2 px-3 text-xs font-medium text-gray-400 uppercase">Avg XP/User</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {season.weeks.map((week) => {
+                                return (
+                                  <tr key={`${season.seasonId}-week-${week.week}`} className="border-b border-[#21262d] hover:bg-[#161b22]">
+                                    <td className="py-3 px-3">
+                                      <span className="font-medium text-white">Week {week.week}</span>
+                                    </td>
+                                    <td className="py-3 px-3 text-gray-300 text-sm">
+                                      {new Date(week.startDate).toLocaleDateString('en-US', { 
+                                        month: 'short', 
+                                        day: 'numeric',
+                                        year: 'numeric'
+                                      })}
+                                    </td>
+                                    <td className="py-3 px-3 text-white">{week.participants.toLocaleString()}</td>
+                                    <td className="py-3 px-3 text-blue-400 font-medium">
+                                      {ethosDistributionApi.formatXpToMillions(week.xpDistributed)}
+                                    </td>
+                                    <td className="py-3 px-3 text-gray-300">
+                                      {Math.round(week.xpDistributed / week.participants).toLocaleString()} XP
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-gray-400">No weekly data available for this season</p>
                         </div>
                       )}
                     </div>
-                  </div>
-                  ))
-                ) : (
-                  <div className="col-span-2 text-center py-8">
-                    <p className="text-gray-400">Season data is loading...</p>
-                  </div>
-                )}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-400">Season data is loading...</p>
+                </div>
+              )}
             </div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

@@ -181,6 +181,20 @@ class FastDistributionApi {
         source: 'file-database'
       };
 
+      // Add season information from ethosApi if available
+      try {
+        console.log(`[Fast API] 📅 Getting season information...`);
+        const seasonStats = await this.ethosApi.getXpDistributionStats();
+        if (seasonStats) {
+          stats.totalSeasons = seasonStats.totalSeasons;
+          stats.currentSeason = seasonStats.currentSeason;
+          stats.seasonStats = seasonStats.seasonStats;
+          console.log(`[Fast API] ✅ Season data added: ${stats.totalSeasons} seasons`);
+        }
+      } catch (error) {
+        console.warn(`[Fast API] ⚠️ Could not get season info:`, error.message);
+      }
+
       console.log(`[Fast API] 📊 Stats calculated from ${totalUsers} profiles`);
       return stats;
 
