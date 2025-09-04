@@ -3,7 +3,9 @@ import Head from 'next/head';
 import Navbar from '../components/Navbar';
 import { ethosDistributionApi } from '../utils/ethosDistributionApi';
 import FastDistributionApi from '../utils/fastDistributionApi';
-import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
+import { checkValidatorNftsForProfiles, addValidatorSymbolToUsername, hasValidatorNft } from '../utils/validatorNftApi';
+import { checkValidatorNftsWithCache, isKnownValidatorNftHolder } from '../utils/validatorNftCache';
+import { ArrowUp, ArrowDown, ArrowUpDown, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import classicStyles from '../styles/Distribution.classic.module.css';
 
 export default function Distribution() {
@@ -19,7 +21,7 @@ export default function Distribution() {
   // Function to refresh season data
   const refreshSeasonData = async () => {
     try {
-      setLoadingProgress('Refreshing season data...');
+      setIsRefreshing(true);
       setCacheStatus('🔄 Fetching fresh data...');
       
       const startTime = Date.now();
@@ -41,7 +43,7 @@ export default function Distribution() {
       console.error('Error refreshing season data:', error);
       setCacheStatus('❌ Refresh failed');
     } finally {
-      setLoadingProgress(null);
+      setIsRefreshing(false);
     }
   };
 
@@ -50,6 +52,76 @@ export default function Distribution() {
   const [fastApi, setFastApi] = useState(null);
   const [backgroundEnhancing, setBackgroundEnhancing] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: 'xpTotal', direction: 'desc' }); // Default to XP descending
+  const [validatorNfts, setValidatorNfts] = useState(new Map()); // profileId -> boolean
+  const [loadingValidators, setLoadingValidators] = useState(false);
+  const [expandedSeason, setExpandedSeason] = useState(null); // Track expanded season
+  const [isRefreshing, setIsRefreshing] = useState(false); // Track refresh state
+
+  // Toggle season expansion
+  const toggleSeason = (seasonId) => {
+    setExpandedSeason(expandedSeason === seasonId ? null : seasonId);
+  };
+
+  // Function to enhance leaderboard with validator NFT data
+  const enhanceWithValidatorNfts = async (leaderboardData) => {
+    if (!leaderboardData || leaderboardData.length === 0) return;
+    
+    try {
+      setLoadingValidators(true);
+      console.log(`[Distribution] 🔍 Starting fast validator NFT checks...`);
+      
+      // Check top 50 users with cache optimization
+      const topUsers = leaderboardData.slice(0, 50);
+      
+      // First, immediately show known validator NFT holders
+      const immediateResults = new Map();
+      topUsers.forEach(user => {
+        if (isKnownValidatorNftHolder(user.profileId)) {
+          immediateResults.set(user.profileId, true);
+        }
+      });
+      
+      if (immediateResults.size > 0) {
+        console.log(`[Distribution] ⚡ Immediately showing ${immediateResults.size} known validator NFT holders`);
+        setValidatorNfts(new Map(immediateResults));
+        
+        // Force immediate re-render
+        const immediateData = leaderboardData.map(user => ({
+          ...user,
+          _immediateUpdate: Date.now()
+        }));
+        setLeaderboardData(immediateData);
+        setFilteredData(immediateData);
+      }
+      
+      // Then check remaining users via API
+      console.log(`[Distribution] 🔍 Checking validator NFTs for ${topUsers.length} users...`);
+      const validatorResults = await checkValidatorNftsWithCache(topUsers, 8); // Smaller batches
+      
+      // Update with complete results
+      setValidatorNfts(new Map(validatorResults));
+      
+      // Log results for debugging
+      const validatorCount = Array.from(validatorResults.values()).filter(Boolean).length;
+      console.log(`[Distribution] ✅ Found ${validatorCount} validator NFT holders - updating display`);
+      
+      // Force component re-render by updating leaderboard timestamp
+      const enhancedData = leaderboardData.map(user => ({
+        ...user,
+        _validatorCheck: Date.now() // Add timestamp to force re-render
+      }));
+      
+      setLeaderboardData(enhancedData);
+      setFilteredData(enhancedData);
+      
+      console.log('[Distribution] ✅ Validator NFT enhancement complete');
+    } catch (error) {
+      console.error('[Distribution] Error enhancing with validator NFTs:', error);
+    } finally {
+      setLoadingValidators(false);
+      setLoadingProgress(null);
+    }
+  };
 
   // Initialize Fast API
   useEffect(() => {
@@ -110,6 +182,9 @@ export default function Distribution() {
           // Get fast distribution stats
           const stats = await fastApi.getFastDistributionStats(processedData);
           setDistributionStats(stats);
+          
+          // Enhance with validator NFTs immediately (non-blocking)
+          enhanceWithValidatorNfts(processedData);
           
           const startTime = Date.now(); // Track API call time for cache detection
           
@@ -494,7 +569,7 @@ export default function Distribution() {
                   <thead>
                     <tr>
                       <th onClick={() => handleSort('rank')}>Rank {getSortIcon('rank')}</th>
-                      <th onClick={() => handleSort('user')}>User {getSortIcon('user')}</th>
+                      <th>User</th>
                       <th onClick={() => handleSort('totalXp')}>Total XP {getSortIcon('totalXp')}</th>
                       <th onClick={() => handleSort('percentage')}>Percentage {getSortIcon('percentage')}</th>
                       <th onClick={() => handleSort('score')}>Score {getSortIcon('score')}</th>
@@ -516,7 +591,12 @@ export default function Distribution() {
                               onError={(e) => { e.target.src = '/ethos.png'; }}
                             />
                             <div>
-                              <div className={classicStyles.userName}>{user.displayName || user.username || 'Unknown'}</div>
+                              <div className={classicStyles.userName}>
+                                {user.displayName || user.username || 'Unknown'}
+                                {hasValidatorNft(user.profileId, validatorNfts) && (
+                                  <span className={classicStyles.validatorSymbol}>𝑽</span>
+                                )}
+                              </div>
                               <div className={classicStyles.userHandle}>@{user.username || '...'}</div>
                             </div>
                           </div>
@@ -612,123 +692,107 @@ export default function Distribution() {
                 <h2 className="text-2xl font-bold text-white">Season & Week Breakdown</h2>
                 <div className="flex items-center space-x-4">
                   {cacheStatus && (
-                    <span className="text-sm text-gray-400">{cacheStatus}</span>
+                    <span className="text-sm text-gray-400">
+                      {typeof cacheStatus === 'string' ? cacheStatus : '⚡ Data loaded from cache'}
+                    </span>
                   )}
                   <button
                     onClick={refreshSeasonData}
-                    className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
-                    disabled={loadingProgress !== null}
+                    className="flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed"
+                    disabled={isRefreshing}
                   >
-                    🔄 Refresh Data
+                    {isRefreshing ? (
+                      <Loader2 className="animate-spin mr-2" size={16} />
+                    ) : (
+                      '🔄'
+                    )}
+                    {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
                   </button>
                 </div>
               </div>
               
               {distributionStats?.seasonStats?.length > 0 ? (
-                <div className="space-y-8">
-                  {/* Season Summary Table */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-4">Season Overview</h3>
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-collapse">
-                        <thead>
-                          <tr className="border-b border-[#30363d]">
-                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Season</th>
-                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Status</th>
-                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Total Weeks</th>
-                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Start Date</th>
-                            <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">Total XP Distributed</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {distributionStats.seasonStats.map((season) => {
-                            const seasonXp = season.weeks?.reduce((sum, week) => sum + (week.xpDistributed || 0), 0) || 0;
-                            
-                            return (
-                              <tr key={season.seasonId} className="border-b border-[#21262d] hover:bg-[#21262d]">
-                                <td className="py-4 px-4">
-                                  <div className="font-medium text-white">{season.seasonName}</div>
-                                  <div className="text-sm text-gray-400">Season {season.seasonId}</div>
-                                </td>
-                                <td className="py-4 px-4">
-                                  {season.seasonId === distributionStats.currentSeason?.id ? (
-                                    <span className="px-2 py-1 bg-green-600 text-white text-xs rounded-full">
-                                      Current
-                                    </span>
-                                  ) : (
-                                    <span className="px-2 py-1 bg-gray-600 text-gray-300 text-xs rounded-full">
-                                      Completed
-                                    </span>
-                                  )}
-                                </td>
-                                <td className="py-4 px-4 text-white">{season.totalWeeks}</td>
-                                <td className="py-4 px-4 text-gray-300">
-                                  {new Date(season.startDate).toLocaleDateString()}
-                                </td>
-                                <td className="py-4 px-4 text-blue-400 font-semibold">
-                                  {ethosDistributionApi.formatXpToMillions(seasonXp)}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                <div className="space-y-4">
+                  {distributionStats.seasonStats.map((season) => {
+                    const seasonXp = season.weeks?.reduce((sum, week) => sum + (week.xpDistributed || 0), 0) || 0;
+                    const isExpanded = expandedSeason === season.seasonId;
 
-                  {/* Weekly Breakdown for Each Season */}
-                  {distributionStats.seasonStats.map((season) => (
-                    <div key={`details-${season.seasonId}`} className="bg-[#0d1117] border border-[#21262d] rounded-lg p-6">
-                      <h4 className="text-xl font-semibold text-white mb-4">
-                        {season.seasonName} - Weekly XP Distribution
-                      </h4>
-                      
-                      {season.weeks && season.weeks.length > 0 ? (
-                        <div className="overflow-x-auto">
-                          <table className="w-full border-collapse">
-                            <thead>
-                              <tr className="border-b border-[#30363d]">
-                                <th className="text-left py-2 px-3 text-xs font-medium text-gray-400 uppercase">Week</th>
-                                <th className="text-left py-2 px-3 text-xs font-medium text-gray-400 uppercase">Start Date</th>
-                                <th className="text-left py-2 px-3 text-xs font-medium text-gray-400 uppercase">Active Users</th>
-                                <th className="text-left py-2 px-3 text-xs font-medium text-gray-400 uppercase">XP Distributed</th>
-                                <th className="text-left py-2 px-3 text-xs font-medium text-gray-400 uppercase">Avg XP/User</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {season.weeks.map((week) => {
-                                return (
-                                  <tr key={`${season.seasonId}-week-${week.week}`} className="border-b border-[#21262d] hover:bg-[#161b22]">
-                                    <td className="py-3 px-3">
-                                      <span className="font-medium text-white">Week {week.week}</span>
-                                    </td>
-                                    <td className="py-3 px-3 text-gray-300 text-sm">
-                                      {new Date(week.startDate).toLocaleDateString('en-US', { 
-                                        month: 'short', 
-                                        day: 'numeric',
-                                        year: 'numeric'
-                                      })}
-                                    </td>
-                                    <td className="py-3 px-3 text-white">{week.participants.toLocaleString()}</td>
-                                    <td className="py-3 px-3 text-blue-400 font-medium">
-                                      {ethosDistributionApi.formatXpToMillions(week.xpDistributed)}
-                                    </td>
-                                    <td className="py-3 px-3 text-gray-300">
-                                      {Math.round(week.xpDistributed / week.participants).toLocaleString()} XP
-                                    </td>
+                    return (
+                      <div key={season.seasonId} className="bg-[#0d1117] border border-[#30363d] rounded-lg overflow-hidden">
+                        {/* Season Header */}
+                        <div 
+                          className="flex justify-between items-center p-4 cursor-pointer hover:bg-[#161b22] transition-colors"
+                          onClick={() => toggleSeason(season.seasonId)}
+                        >
+                          <div className="flex items-center space-x-4">
+                            <div className="flex-shrink-0">
+                              {season.seasonId === distributionStats.currentSeason?.id ? (
+                                <span className="px-3 py-1 bg-green-600 text-white text-sm rounded-full">
+                                  Current
+                                </span>
+                              ) : (
+                                <span className="px-3 py-1 bg-gray-600 text-gray-300 text-sm rounded-full">
+                                  Completed
+                                </span>
+                              )}
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-bold text-white">{season.seasonName}</h3>
+                              <p className="text-sm text-gray-400">
+                                {season.totalWeeks} weeks | Started on {new Date(season.startDate).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-6">
+                            <div className="text-right">
+                              <p className="text-sm text-gray-400">Total XP Distributed</p>
+                              <p className="text-xl font-bold text-blue-400">
+                                {ethosDistributionApi.formatXpToMillions(seasonXp)}
+                              </p>
+                            </div>
+                            <div className="text-gray-400">
+                              {isExpanded ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Expanded Weekly Breakdown */}
+                        {isExpanded && (
+                          <div className="p-4 bg-[#010409]">
+                            <h4 className="text-md font-semibold text-white mb-3">Weekly Breakdown</h4>
+                            <div className="overflow-x-auto">
+                              <table className="w-full border-collapse">
+                                <thead>
+                                  <tr className="border-b border-[#30363d]">
+                                    <th className="text-left py-2 px-3 text-xs font-medium text-gray-400 uppercase">Week</th>
+                                    <th className="text-left py-2 px-3 text-xs font-medium text-gray-400 uppercase">Start Date</th>
+                                    <th className="text-left py-2 px-3 text-xs font-medium text-gray-400 uppercase">Active Users</th>
+                                    <th className="text-left py-2 px-3 text-xs font-medium text-gray-400 uppercase">XP Distributed</th>
+                                    <th className="text-left py-2 px-3 text-xs font-medium text-gray-400 uppercase">Avg XP/User</th>
                                   </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </div>
-                      ) : (
-                        <div className="text-center py-8">
-                          <p className="text-gray-400">No weekly data available for this season</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                                </thead>
+                                <tbody>
+                                  {season.weeks.map((week) => {
+                                    return (
+                                      <tr key={`${season.seasonId}-week-${week.week}`} className="border-b border-[#21262d] hover:bg-[#161b22]">
+                                        <td className="py-3 px-3 text-white font-medium">{week.week}</td>
+                                        <td className="py-3 px-3 text-gray-400">{new Date(week.startDate).toLocaleDateString()}</td>
+                                        <td className="py-3 px-3 text-white">{week.participants.toLocaleString()}</td>
+                                        <td className="py-3 px-3 text-blue-400">{Math.round(week.xpDistributed).toLocaleString()}</td>
+                                        <td className="py-3 px-3 text-gray-300">
+                                          {week.participants > 0 ? Math.round(week.xpDistributed / week.participants).toLocaleString() : 0}
+                                        </td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="text-center py-8">

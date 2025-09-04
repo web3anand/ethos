@@ -51,6 +51,14 @@ function saveCache(data) {
   }
 }
 
+// Function to calculate week start date based on season start and week number
+function calculateWeekStartDate(seasonStartDate, weekNumber) {
+  const startDate = new Date(seasonStartDate);
+  // Add 7 days * week number to get the start of that week
+  const weekStart = new Date(startDate.getTime() + (weekNumber * 7 * 24 * 60 * 60 * 1000));
+  return weekStart.toISOString();
+}
+
 // Function to calculate weekly XP data from actual user profiles
 async function calculateWeeklyXpFromUsers(seasonId, userProfiles) {
   try {
@@ -169,7 +177,12 @@ async function calculateWeeklyXpFromUsers(seasonId, userProfiles) {
     const weeklyResults = Array.from(weeklyDataMap.entries())
       .map(([week, data]) => ({
         week: week,
-        startDate: data.weekData.startDate || new Date().toISOString(),
+        startDate: calculateWeekStartDate(
+          seasonId === 1 
+            ? "2024-07-21T00:00:00.000Z"  // Season 0 start date
+            : "2024-10-06T00:00:00.000Z", // Season 1 start date
+          week - 1
+        ),
         xpDistributed: data.totalXp, // Real total XP from all active users
         participants: data.activeUsers // Real count of users who earned XP
       }))

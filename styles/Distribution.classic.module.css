@@ -290,3 +290,52 @@
     padding: 0.75rem 1rem;
   }
 }
+
+/* Validator NFT Symbol Styling */
+.validatorSymbol {
+  background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700, #f4d03f, #ffc107);
+  background-size: 400% 400%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: goldShine 2s ease-in-out infinite;
+  font-weight: bold;
+  margin-left: 0.375rem;
+  display: inline-block;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+  opacity: 1;
+  visibility: visible;
+}
+
+.validatorSymbol:hover {
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.8));
+}
+
+@keyframes goldShine {
+  0% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 100% 50%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Fallback for browsers that don't support background-clip: text */
+@supports not (-webkit-background-clip: text) {
+  .validatorSymbol {
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.4);
+  }
+}

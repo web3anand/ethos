@@ -8,11 +8,8 @@ export default function Navbar() {
 
   const navItems = [
     { href: '/', label: 'Home' },
-    { href: '/leaderboard', label: 'Leaderboard' },
     { href: '/r4r-checker', label: 'R4R Checker' },
-    { href: '/data-center', label: 'Data Center' },
     { href: '/distribution', label: 'Distribution' },
-    { href: '/hot-news', label: 'Hot News' },
     { href: '/about', label: 'About' },
   ];
 
