@@ -1,0 +1,54 @@
+{
+  "reviewer_rep_5476": {
+    "data": {
+      "totalReviewerCredibility": 0,
+      "averageReviewerCredibility": "0.0",
+      "reviewerCount": 0,
+      "highReputationReviewers": 0,
+      "lowReputationReviewers": 0,
+      "highRepPercentage": "0.0",
+      "lowRepPercentage": "0.0",
+      "reviewerStats": []
+    },
+    "timestamp": 1756983885377
+  },
+  "reviewer_rep_7626": {
+    "data": {
+      "totalReviewerCredibility": 0,
+      "averageReviewerCredibility": "0.0",
+      "reviewerCount": 0,
+      "highReputationReviewers": 0,
+      "lowReputationReviewers": 0,
+      "highRepPercentage": "0.0",
+      "lowRepPercentage": "0.0",
+      "reviewerStats": []
+    },
+    "timestamp": 1756995274610
+  },
+  "reviewer_rep_8220": {
+    "data": {
+      "totalReviewerCredibility": 0,
+      "averageReviewerCredibility": "0.0",
+      "reviewerCount": 0,
+      "highReputationReviewers": 0,
+      "lowReputationReviewers": 0,
+      "highRepPercentage": "0.0",
+      "lowRepPercentage": "0.0",
+      "reviewerStats": []
+    },
+    "timestamp": 1756995318920
+  },
+  "reviewer_rep_8": {
+    "data": {
+      "totalReviewerCredibility": 0,
+      "averageReviewerCredibility": "0.0",
+      "reviewerCount": 0,
+      "highReputationReviewers": 0,
+      "lowReputationReviewers": 0,
+      "highRepPercentage": "0.0",
+      "lowRepPercentage": "0.0",
+      "reviewerStats": []
+    },
+    "timestamp": 1756996278153
+  }
+}

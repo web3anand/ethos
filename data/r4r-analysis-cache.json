@@ -1,0 +1,278 @@
+{
+  "comprehensive_5476": {
+    "data": {
+      "timestamp": 1756996043735,
+      "user": {
+        "profileId": 5476,
+        "username": "hashvalue",
+        "displayName": "daybot",
+        "credibilityScore": 1516
+      },
+      "metrics": {
+        "basic": {
+          "reviewsGiven": 0,
+          "reviewsReceived": 24,
+          "vouchesGiven": 16,
+          "vouchesReceived": 16,
+          "credibilityScore": 1516
+        },
+        "ratios": {
+          "reciprocityRatio": "0.000",
+          "vouchReciprocityRatio": "1.000",
+          "vouchToReviewRatio": "0.667",
+          "positiveRatio": "95.8",
+          "negativeRatio": "0.0",
+          "neutralRatio": "4.2"
+        },
+        "quality": {
+          "credibilityPerReview": "63.2",
+          "credibilityToXPRatio": "0.00",
+          "activityToCredibilityRatio": "0.037"
+        },
+        "balance": {
+          "reviewBalance": 24,
+          "vouchBalance": 0,
+          "mutualReviewCount": 0,
+          "totalActivity": 56
+        },
+        "breakdown": {
+          "positiveReceived": 23,
+          "negativeReceived": 0,
+          "neutralReceived": 1,
+          "positiveGiven": 0,
+          "negativeGiven": 0,
+          "neutralGiven": 0
+        }
+      },
+      "reviewerReputation": {
+        "totalReviewerCredibility": 0,
+        "averageReviewerCredibility": "0.0",
+        "reviewerCount": 0,
+        "highReputationReviewers": 0,
+        "lowReputationReviewers": 0,
+        "highRepPercentage": "0.0",
+        "lowRepPercentage": "0.0",
+        "reviewerStats": []
+      },
+      "riskAssessment": {
+        "level": "low",
+        "factors": [],
+        "score": 0
+      },
+      "recommendations": [
+        "Mutual review activity within acceptable limits",
+        "Monitor for potential positive review coordination",
+        "High-quality reviews contributing to good reputation"
+      ]
+    },
+    "timestamp": 1756996043735
+  },
+  "comprehensive_7626": {
+    "data": {
+      "timestamp": 1756995273764,
+      "user": {
+        "profileId": 7626,
+        "username": "dude_its_ritik",
+        "displayName": "hrithik ( 히리틱 ) ⚡️",
+        "credibilityScore": 2188,
+        "xpTotal": 0
+      },
+      "metrics": {
+        "basic": {
+          "reviewsGiven": 0,
+          "reviewsReceived": 212,
+          "vouchesGiven": 25,
+          "vouchesReceived": 25,
+          "credibilityScore": 2188,
+          "xpTotal": 0
+        },
+        "ratios": {
+          "reciprocityRatio": "0.000",
+          "vouchReciprocityRatio": "1.000",
+          "vouchToReviewRatio": "0.118",
+          "positiveRatio": "95.8",
+          "negativeRatio": "0.0",
+          "neutralRatio": "4.2"
+        },
+        "quality": {
+          "credibilityPerReview": "10.3",
+          "xpPerReview": "0",
+          "credibilityToXPRatio": "0.00",
+          "activityToCredibilityRatio": "0.120"
+        },
+        "balance": {
+          "reviewBalance": 212,
+          "vouchBalance": 0,
+          "mutualReviewCount": 0,
+          "totalActivity": 262
+        },
+        "breakdown": {
+          "positiveReceived": 203,
+          "negativeReceived": 0,
+          "neutralReceived": 9,
+          "positiveGiven": 0,
+          "negativeGiven": 0,
+          "neutralGiven": 0
+        }
+      },
+      "reviewerReputation": {
+        "totalReviewerCredibility": 0,
+        "averageReviewerCredibility": "0.0",
+        "reviewerCount": 0,
+        "highReputationReviewers": 0,
+        "lowReputationReviewers": 0,
+        "highRepPercentage": "0.0",
+        "lowRepPercentage": "0.0",
+        "reviewerStats": []
+      },
+      "riskAssessment": {
+        "level": "low",
+        "factors": [],
+        "score": 0
+      },
+      "recommendations": [
+        "Mutual review activity within acceptable limits",
+        "Monitor for potential positive review coordination"
+      ]
+    },
+    "timestamp": 1756995273764
+  },
+  "comprehensive_8220": {
+    "data": {
+      "timestamp": 1756995318339,
+      "user": {
+        "profileId": 8220,
+        "username": "MaransCrypto",
+        "displayName": "Maran's Crypto",
+        "credibilityScore": 1642,
+        "xpTotal": 0
+      },
+      "metrics": {
+        "basic": {
+          "reviewsGiven": 0,
+          "reviewsReceived": 32,
+          "vouchesGiven": 17,
+          "vouchesReceived": 18,
+          "credibilityScore": 1642,
+          "xpTotal": 0
+        },
+        "ratios": {
+          "reciprocityRatio": "0.000",
+          "vouchReciprocityRatio": "1.059",
+          "vouchToReviewRatio": "0.563",
+          "positiveRatio": "100.0",
+          "negativeRatio": "0.0",
+          "neutralRatio": "0.0"
+        },
+        "quality": {
+          "credibilityPerReview": "51.3",
+          "xpPerReview": "0",
+          "credibilityToXPRatio": "0.00",
+          "activityToCredibilityRatio": "0.041"
+        },
+        "balance": {
+          "reviewBalance": 32,
+          "vouchBalance": 1,
+          "mutualReviewCount": 0,
+          "totalActivity": 67
+        },
+        "breakdown": {
+          "positiveReceived": 32,
+          "negativeReceived": 0,
+          "neutralReceived": 0,
+          "positiveGiven": 0,
+          "negativeGiven": 0,
+          "neutralGiven": 0
+        }
+      },
+      "reviewerReputation": {
+        "totalReviewerCredibility": 0,
+        "averageReviewerCredibility": "0.0",
+        "reviewerCount": 0,
+        "highReputationReviewers": 0,
+        "lowReputationReviewers": 0,
+        "highRepPercentage": "0.0",
+        "lowRepPercentage": "0.0",
+        "reviewerStats": []
+      },
+      "riskAssessment": {
+        "level": "low",
+        "factors": [],
+        "score": 0
+      },
+      "recommendations": [
+        "Mutual review activity within acceptable limits",
+        "Monitor for potential positive review coordination",
+        "High-quality reviews contributing to good reputation"
+      ]
+    },
+    "timestamp": 1756995318339
+  },
+  "comprehensive_8": {
+    "data": {
+      "timestamp": 1756996276676,
+      "user": {
+        "profileId": 8,
+        "username": "serpinxbt",
+        "displayName": "Serpin Taxt",
+        "credibilityScore": 2547
+      },
+      "metrics": {
+        "basic": {
+          "reviewsGiven": 0,
+          "reviewsReceived": 1190,
+          "vouchesGiven": 59,
+          "vouchesReceived": 140,
+          "credibilityScore": 2547
+        },
+        "ratios": {
+          "reciprocityRatio": "0.000",
+          "vouchReciprocityRatio": "2.373",
+          "vouchToReviewRatio": "0.118",
+          "positiveRatio": "91.7",
+          "negativeRatio": "3.3",
+          "neutralRatio": "5.0"
+        },
+        "quality": {
+          "credibilityPerReview": "2.1",
+          "credibilityToXPRatio": "0.00",
+          "activityToCredibilityRatio": "0.545"
+        },
+        "balance": {
+          "reviewBalance": 1190,
+          "vouchBalance": 81,
+          "mutualReviewCount": 0,
+          "totalActivity": 1389
+        },
+        "breakdown": {
+          "positiveReceived": 1091,
+          "negativeReceived": 39,
+          "neutralReceived": 60,
+          "positiveGiven": 0,
+          "negativeGiven": 0,
+          "neutralGiven": 0
+        }
+      },
+      "reviewerReputation": {
+        "totalReviewerCredibility": 0,
+        "averageReviewerCredibility": "0.0",
+        "reviewerCount": 0,
+        "highReputationReviewers": 0,
+        "lowReputationReviewers": 0,
+        "highRepPercentage": "0.0",
+        "lowRepPercentage": "0.0",
+        "reviewerStats": []
+      },
+      "riskAssessment": {
+        "level": "low",
+        "factors": [],
+        "score": 0
+      },
+      "recommendations": [
+        "Mutual review activity within acceptable limits",
+        "Monitor for potential positive review coordination"
+      ]
+    },
+    "timestamp": 1756996276676
+  }
+}

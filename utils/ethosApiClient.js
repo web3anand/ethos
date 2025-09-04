@@ -683,6 +683,38 @@ class EthosApiClient {
       throw error;
     }
   }
+
+  // V1 API: Get detailed profile with reviews
+  async getDetailedProfile(profileId) {
+    const cacheKey = `v1detailed:${profileId}`;
+    const cached = this.getCachedResult(cacheKey);
+    
+    if (cached) {
+      console.log(`[Ethos API v1] Cache hit for detailed profile: ${profileId}`);
+      return cached;
+    }
+
+    try {
+      const url = `${this.baseUrlV1}/profiles/${profileId}`;
+      const data = await this.makeRequest(url);
+      
+      if (data && data.ok && data.data) {
+        this.setCachedResult(cacheKey, data.data);
+        console.log(`[Ethos API v1] Successfully fetched detailed profile for: ${profileId}`);
+        return data.data;
+      }
+      
+      return null;
+    } catch (error) {
+      // 404 is expected for users not found
+      if (error.message.includes('404')) {
+        console.log(`[Ethos API v1] Detailed profile not found for: ${profileId}`);
+        return null;
+      }
+      console.error(`[Ethos API v1] Error fetching detailed profile for ${profileId}:`, error);
+      throw error;
+    }
+  }
 }
 
 // Create singleton instance
@@ -698,5 +730,6 @@ export const getUserByUsername = (username) => ethosApiClient.getUserByUsernameV
 export const getUserByProfileId = (profileId) => ethosApiClient.getUserByProfileId(profileId);
 export const getUsersByProfileIds = (profileIds) => ethosApiClient.getUsersByProfileIds(profileIds);
 export const getUserStats = (userkey) => ethosApiClient.getUserStats(userkey);
+export const getDetailedProfile = (profileId) => ethosApiClient.getDetailedProfile(profileId);
 export const clearEthosCache = () => ethosApiClient.clearCache();
 export const getEthosCacheStats = () => ethosApiClient.getCacheStats();
