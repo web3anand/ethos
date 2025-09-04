@@ -49,7 +49,7 @@ export default function Distribution() {
   const [cacheStatus, setCacheStatus] = useState(null);
   const [fastApi, setFastApi] = useState(null);
   const [backgroundEnhancing, setBackgroundEnhancing] = useState(false);
-  const [sortConfig, setSortConfig] = useState({ key: 'rank', direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState({ key: 'xpTotal', direction: 'desc' }); // Default to XP descending
 
   // Initialize Fast API
   useEffect(() => {
@@ -207,10 +207,19 @@ export default function Distribution() {
     }
   }, [searchTerm, leaderboardData, fastApi]);
 
-  const totalXp = ethosDistributionApi.calculateTotalXp(leaderboardData.map(user => ({
+  // Calculate total XP - prioritize seasonal data if available, fallback to user profiles
+  const seasonalTotalXp = distributionStats?.seasonStats?.reduce((total, season) => {
+    const seasonTotal = season.weeks?.reduce((weekTotal, week) => weekTotal + (week.xpDistributed || 0), 0) || 0;
+    return total + seasonTotal;
+  }, 0) || 0;
+  
+  const userProfilesTotalXp = ethosDistributionApi.calculateTotalXp(leaderboardData.map(user => ({
     ...user,
     xpTotal: user.xpTotal || user.xp || 0
   })));
+  
+  // Use seasonal data if available (more accurate), otherwise fallback to user profiles
+  const totalXp = seasonalTotalXp > 0 ? seasonalTotalXp : userProfilesTotalXp;
   const xpRanges = ethosDistributionApi.getXpDistributionRanges(leaderboardData.map(user => ({
     ...user,
     xpTotal: user.xpTotal || user.xp || 0

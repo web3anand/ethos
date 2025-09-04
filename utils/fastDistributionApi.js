@@ -109,8 +109,12 @@ class FastDistributionApi {
           });
         }
         
-        // Profiles are already formatted from API, just slice to limit
-        const leaderboardData = fileProfiles.slice(0, limit);
+        // Sort profiles by XP (highest first) for leaderboard
+        const sortedProfiles = fileProfiles.sort((a, b) => (b.xpTotal || 0) - (a.xpTotal || 0));
+        console.log(`[Fast API] 🏆 Top 5 users by XP:`, sortedProfiles.slice(0, 5).map(u => `${u.username}: ${u.xpTotal?.toLocaleString()} XP`));
+        
+        // Get top profiles by XP, not score
+        const leaderboardData = sortedProfiles.slice(0, limit);
         
         if (progressCallback) {
           progressCallback({
