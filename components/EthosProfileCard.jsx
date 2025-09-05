@@ -5,6 +5,7 @@ import fetchEthPrice from '../utils/fetchEthPrice';
 import { fetchUserAddresses } from '../lib/ethos';
 import { getUserStats } from '../utils/ethosApiClient';
 import UserActivities from './UserActivities';
+import XpDistribution from './XpDistribution';
 // import EthosLogo from './EthosLogo';
 
 // Copy button with tooltip for address
@@ -237,12 +238,15 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
               style={{ '--pfp-ring': scoreLevel.color }}
             >
               {avatarUrl ? (
-                <Image
+                <img
                   src={avatarUrl}
                   alt={profile.displayName || 'Avatar'}
                   width={80}
                   height={80}
                   className={styles.profileCardAvatar}
+                  onError={(e) => {
+                    e.target.src = '/ethos.png';
+                  }}
                 />
               ) : (
                 <div className={styles.profileCardAvatarFallback}>
@@ -272,7 +276,7 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
                   alignItems: 'center', 
                   justifyContent: 'flex-start',
                   gap: '12px',
-                  minWidth: '280px',
+                  minWidth: 'auto',
                   width: '100%'
                 }}>
                   <Image
@@ -291,7 +295,8 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
                       color: scoreLevel.color === '#e2e2e2' ? '#222' : '#fff',
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
-                      textOverflow: 'ellipsis'
+                      textOverflow: 'ellipsis',
+                      fontSize: 'inherit'
                     }}
                     data-length={scoreLevel.name.length}
                   >{scoreLevel.name}</span>
@@ -366,12 +371,15 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
                       overflow: 'hidden',
                       border: '1px solid #ddd'
                     }}>
-                      <Image
+                      <img
                         src={validatorNft.imageUrl}
                         alt={validatorNft.name || 'Validator NFT'}
                         width={32}
                         height={32}
                         style={{objectFit: 'cover'}}
+                        onError={(e) => {
+                          e.target.src = '/ethos.png';
+                        }}
                       />
                     </div>
                   )}
@@ -397,12 +405,15 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
             style={{ '--pfp-ring': scoreLevel.color }}
           >
             {avatarUrl ? (
-              <Image
+              <img
                 src={avatarUrl}
                 alt={profile.displayName || 'Avatar'}
                 width={80}
                 height={80}
                 className={styles.profileCardAvatar}
+                onError={(e) => {
+                  e.target.src = '/ethos.png';
+                }}
               />
             ) : (
               <div className={styles.profileCardAvatarFallback}>
@@ -541,6 +552,9 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
 
       {/* User Activities Section */}
       <UserActivities profile={profile} />
+
+      {/* XP Distribution Section */}
+      <XpDistribution profile={profile} />
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import EthosLogo from './EthosLogo'; // Assuming you have an EthosLogo component
 
 export default function Navbar() {
   const router = useRouter();
@@ -9,11 +8,8 @@ export default function Navbar() {
 
   const navItems = [
     { href: '/', label: 'Home' },
-    { href: '/leaderboard', label: 'Leaderboard' },
     { href: '/r4r-checker', label: 'R4R Checker' },
-    { href: '/data-center', label: 'Data Center' },
     { href: '/distribution', label: 'Distribution' },
-    { href: '/hot-news', label: 'Hot News' },
     { href: '/about', label: 'About' },
   ];
 
@@ -21,9 +17,9 @@ export default function Navbar() {
 
   return (
     <div className="w-full flex justify-center p-4">
-      <nav className="w-full max-w-6xl flex items-center justify-center bg-gray-900/50 backdrop-blur-lg rounded-2xl p-3 border border-gray-700/50 shadow-2xl">
+      <nav className="w-full max-w-6xl flex items-center justify-between bg-gray-900/50 backdrop-blur-lg rounded-2xl p-3 border border-gray-700/50 shadow-2xl">
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-2 w-full justify-center">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -40,16 +36,16 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden">
+        <div className="md:hidden w-full flex justify-end">
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="text-gray-300 hover:text-white focus:outline-none p-2 rounded-lg hover:bg-gray-700/50"
+            className="text-gray-300 hover:text-white focus:outline-none p-3 rounded-lg hover:bg-gray-700/50 transition-colors duration-200"
           >
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               {isMenuOpen ? (
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m4 6h16" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               )}
             </svg>
           </button>

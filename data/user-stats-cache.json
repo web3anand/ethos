@@ -1,0 +1,186 @@
+{
+  "profile_5476": {
+    "data": {
+      "profileId": 5476,
+      "market": null,
+      "reviews": {
+        "positiveReviewPercentage": 100,
+        "received": 24,
+        "positiveReviewCount": 23,
+        "negativeReviewCount": 0,
+        "neutralReviewCount": 1
+      },
+      "slashes": {
+        "count": 0,
+        "openSlash": null
+      },
+      "vouches": {
+        "balance": {
+          "received": 0.21820799999999993,
+          "deposited": 0.21772787784184663
+        },
+        "staked": {
+          "received": 0.21820799999999993,
+          "deposited": 0.21772787784184663
+        },
+        "count": {
+          "received": 16,
+          "deposited": 16
+        }
+      },
+      "influenceFactor": 9
+    },
+    "timestamp": 1756996043735
+  },
+  "profile_7626": {
+    "data": {
+      "profileId": 7626,
+      "market": {
+        "id": 7626,
+        "creatorAddress": "0xAF55Fc9F9D38a9DF6273b60C8f8E4F27F131093D",
+        "positivePrice": "5284691745601219",
+        "negativePrice": "4715308254398781",
+        "trustVotes": 58,
+        "distrustVotes": 1,
+        "createdAt": "2025-07-12T15:24:53.542Z",
+        "updatedAt": "2025-08-30T15:38:37.582Z",
+        "basePrice": "10000000000000000",
+        "creationCost": "100000000000000000",
+        "liquidity": "500",
+        "configType": "VOLATILE",
+        "profile": {
+          "primaryAddress": "0xAF55Fc9F9D38a9DF6273b60C8f8E4F27F131093D",
+          "avatarUrl": "https://pbs.twimg.com/profile_images/1954119166816104448/u5X6A6yh.jpg",
+          "ethosScore": 2188,
+          "name": "hrithik ( 히리틱 ) ⚡️",
+          "twitterUsername": "dude_its_ritik"
+        },
+        "stats": {
+          "marketCapWei": "346140418630120314",
+          "volumeTotalWei": "3458697187761445244",
+          "volume24hWei": "0",
+          "priceChange24hPercent": 0
+        }
+      },
+      "reviews": {
+        "positiveReviewPercentage": 100,
+        "received": 212,
+        "positiveReviewCount": 203,
+        "negativeReviewCount": 0,
+        "neutralReviewCount": 9
+      },
+      "slashes": {
+        "count": 0,
+        "openSlash": null
+      },
+      "vouches": {
+        "balance": {
+          "received": 4.987896655293462,
+          "deposited": 5.697073015102889
+        },
+        "staked": {
+          "received": 4.987896655293462,
+          "deposited": 5.697073015102889
+        },
+        "count": {
+          "received": 25,
+          "deposited": 25
+        }
+      },
+      "influenceFactor": 53
+    },
+    "timestamp": 1756995273764
+  },
+  "profile_8220": {
+    "data": {
+      "profileId": 8220,
+      "market": null,
+      "reviews": {
+        "positiveReviewPercentage": 100,
+        "received": 32,
+        "positiveReviewCount": 32,
+        "negativeReviewCount": 0,
+        "neutralReviewCount": 0
+      },
+      "slashes": {
+        "count": 0,
+        "openSlash": null
+      },
+      "vouches": {
+        "balance": {
+          "received": 0.21772081787346284,
+          "deposited": 0.19700939550813087
+        },
+        "staked": {
+          "received": 0.21772081787346284,
+          "deposited": 0.19700939550813087
+        },
+        "count": {
+          "received": 18,
+          "deposited": 17
+        }
+      },
+      "influenceFactor": 51
+    },
+    "timestamp": 1756995318339
+  },
+  "profile_8": {
+    "data": {
+      "profileId": 8,
+      "market": {
+        "id": 8,
+        "creatorAddress": "0x937EC42DDfEC2059BB64D613F99547a62cda6c01",
+        "positivePrice": "7630244914539460",
+        "negativePrice": "2369755085460540",
+        "trustVotes": 2148,
+        "distrustVotes": 394,
+        "createdAt": "2025-03-24T20:53:17.152Z",
+        "updatedAt": "2025-09-04T14:31:13.572Z",
+        "basePrice": "10000000000000000",
+        "creationCost": "100000000000000000",
+        "liquidity": "1500",
+        "configType": "NORMAL",
+        "profile": {
+          "primaryAddress": "0x937EC42DDfEC2059BB64D613F99547a62cda6c01",
+          "avatarUrl": "https://pbs.twimg.com/profile_images/1931470557800701952/S2sOJq5E.jpg",
+          "ethosScore": 2547,
+          "name": "Serpin Taxt",
+          "twitterUsername": "serpinxbt"
+        },
+        "stats": {
+          "marketCapWei": "15828386977274725986",
+          "volumeTotalWei": "41965842621796686984",
+          "volume24hWei": "282209885110787524",
+          "priceChange24hPercent": 1
+        }
+      },
+      "reviews": {
+        "positiveReviewPercentage": 96.54867256637168,
+        "received": 1190,
+        "positiveReviewCount": 1091,
+        "negativeReviewCount": 39,
+        "neutralReviewCount": 60
+      },
+      "slashes": {
+        "count": 0,
+        "openSlash": null
+      },
+      "vouches": {
+        "balance": {
+          "received": 17.332455378753846,
+          "deposited": 17.973988775515352
+        },
+        "staked": {
+          "received": 17.332455378753846,
+          "deposited": 17.973988775515352
+        },
+        "count": {
+          "received": 140,
+          "deposited": 59
+        }
+      },
+      "influenceFactor": 782
+    },
+    "timestamp": 1756996276676
+  }
+}

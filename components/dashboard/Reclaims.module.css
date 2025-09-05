@@ -1,0 +1,49 @@
+.card {
+  background-color: #1f2937;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #374151;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.reclaimButton {
+  background-color: #4f46e5;
+  color: #ffffff;
+  border: none;
+  padding: 0.625rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.reclaimButton:hover {
+  background-color: #4338ca;
+}
+
+.reclaimsTable {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.reclaimsHeader {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  font-size: 0.875rem;
+  color: #9ca3af;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #374151;
+}

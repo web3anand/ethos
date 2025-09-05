@@ -1,0 +1,20 @@
+{
+  "lastProfileId": 31542,
+  "lastFullSync": "2025-09-02T12:44:15.090Z",
+  "lastIncrementalSync": "2025-09-02T12:44:15.091Z",
+  "consecutiveNotFound": 0,
+  "maxConsecutiveNotFound": 1000,
+  "totalAttempts": 33000,
+  "successfulFetches": 21080,
+  "lastUpdated": "2025-09-02T12:36:57.869Z",
+  "syncMode": "full",
+  "totalProfiles": 3263,
+  "buildMeta": {
+    "lastProfileId": 7201,
+    "consecutiveNotFound": 0,
+    "maxConsecutiveNotFound": 1000,
+    "totalAttempts": 7201,
+    "successfulFetches": 3263,
+    "lastUpdated": "2025-09-02T12:36:57.869Z"
+  }
+}

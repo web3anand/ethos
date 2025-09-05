@@ -1,16 +1,13 @@
 import EthosProfileCard from './EthosProfileCard';
 import DetailedStats from './DetailedStats';
 import UserActivities from './UserActivities';
-import XpDistribution from './XpDistribution.jsx';
+import XpDistribution from './XpDistribution';
 import styles from './DesktopDashboard.module.css';
 
 const DesktopDashboard = ({ profile }) => {
   if (!profile) {
     return null;
   }
-
-  // Extract userkey from profile for API calls
-  const userkey = profile.userkeys && profile.userkeys.length > 0 ? profile.userkeys[0] : null;
 
   return (
     <div className={styles.dashboardWrapper}>
@@ -21,7 +18,7 @@ const DesktopDashboard = ({ profile }) => {
         <DetailedStats stats={profile} />
       </div>
       <div className="xp-distribution-container-wide glass-container">
-        <XpDistribution userkey={userkey} />
+        <XpDistribution profile={profile} />
       </div>
       <div className="activities-container-wide glass-container">
         <UserActivities profile={profile} />

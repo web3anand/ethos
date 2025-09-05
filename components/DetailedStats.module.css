@@ -1,7 +1,11 @@
 .statsContainer {
-  display: grid;
-  grid-template-columns: 1fr;
+  background-color: var(--background-secondary);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
+  height: 100%;
 }
 
 .statSection {
@@ -10,12 +14,11 @@
 }
 
 .sectionTitle {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border-color);
+  text-align: center;
 }
 
 .tableContainer {
@@ -30,7 +33,7 @@
 .tableRow {
   display: flex;
   justify-content: space-between;
-  padding: 0.6rem 0;
+  padding: 0.5rem 0;
   border-bottom: 1px solid var(--border-color-light);
 }
 
@@ -39,14 +42,15 @@
 }
 
 .tableCellLabel {
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-secondary);
   white-space: nowrap;
 }
 
 .tableCellValue {
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-primary);
   font-family: 'Sora', sans-serif;
 }
-  
