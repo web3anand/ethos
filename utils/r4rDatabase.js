@@ -104,7 +104,9 @@ class R4RDatabase {
     try {
       // Fetch fresh data from Ethos API
       const userKey = `profileId:${profileId}`;
+      console.log(`=== FETCHING STATS for ${userKey} ===`);
       const stats = await getUserStats(userKey);
+      console.log(`=== STATS RESULT ===`, JSON.stringify(stats, null, 2));
       
       // Cache the data
       this.userStatsCache[cacheKey] = {
@@ -128,19 +130,48 @@ class R4RDatabase {
 
   // Enhanced R4R Analysis with detailed calculations
   async calculateEnhancedR4RMetrics(user, stats) {
+    console.log('=== R4R DATABASE CALC DEBUG ===');
+    console.log('User:', JSON.stringify(user, null, 2));
+    console.log('Stats:', JSON.stringify(stats, null, 2));
+    
     if (!stats) return null;
 
-    const reviewsReceived = stats.review?.received || {};
+    // Handle both old and new API structures
+    const reviewsReceived = stats.reviews || stats.review?.received || {};
     const reviewsGiven = stats.review?.given || {};
-    const vouchesReceived = stats.vouch?.received?.count || 0;
-    const vouchesGiven = stats.vouch?.given?.count || 0;
+    const vouchesReceived = stats.vouches?.count?.received || stats.vouch?.received?.count || 0;
+    const vouchesGiven = stats.vouches?.count?.deposited || stats.vouch?.given?.count || 0;
 
-    // Basic counts
-    const totalReceived = (reviewsReceived.positive || 0) + (reviewsReceived.neutral || 0) + (reviewsReceived.negative || 0);
+    // Basic counts - handle new API structure
+    let totalReceived = 0;
+    let positiveReceived = 0;
+    let negativeReceived = 0;
+    let neutralReceived = 0;
+
+    if (stats.reviews) {
+      // New API structure
+      totalReceived = stats.reviews.received || 0;
+      positiveReceived = stats.reviews.positiveReviewCount || 0;
+      negativeReceived = stats.reviews.negativeReviewCount || 0;
+      neutralReceived = stats.reviews.neutralReviewCount || 0;
+    } else if (stats.review?.received) {
+      // Old API structure
+      positiveReceived = reviewsReceived.positive || 0;
+      negativeReceived = reviewsReceived.negative || 0;
+      neutralReceived = reviewsReceived.neutral || 0;
+      totalReceived = positiveReceived + negativeReceived + neutralReceived;
+    }
+
     const totalGiven = (reviewsGiven.positive || 0) + (reviewsGiven.neutral || 0) + (reviewsGiven.negative || 0);
-    const positiveReceived = reviewsReceived.positive || 0;
-    const negativeReceived = reviewsReceived.negative || 0;
-    const neutralReceived = reviewsReceived.neutral || 0;
+
+    console.log('=== PARSED REVIEW DATA ===');
+    console.log('totalReceived:', totalReceived);
+    console.log('positiveReceived:', positiveReceived);
+    console.log('negativeReceived:', negativeReceived);
+    console.log('neutralReceived:', neutralReceived);
+    console.log('totalGiven:', totalGiven);
+    console.log('vouchesReceived:', vouchesReceived);
+    console.log('vouchesGiven:', vouchesGiven);
 
     // Calculate ratios
     const reciprocityRatio = totalGiven > 0 ? totalReceived / totalGiven : 0;
@@ -167,6 +198,21 @@ class R4RDatabase {
     // Efficiency ratios
     const credibilityToXPRatio = xpTotal > 0 ? credibilityScore / (xpTotal / 1000) : 0;
     const activityToCredibilityRatio = credibilityScore > 0 ? totalActivity / credibilityScore : 0;
+
+    console.log('=== DEBUG: calculateEnhancedR4RMetrics ===');
+    console.log('User:', JSON.stringify(user, null, 2));
+    console.log('Stats:', JSON.stringify(stats, null, 2));
+    console.log('Total Received:', totalReceived);
+    console.log('Total Given:', totalGiven);
+    console.log('Positive Received:', positiveReceived);
+    console.log('Negative Received:', negativeReceived);
+    console.log('Neutral Received:', neutralReceived);
+    console.log('Reciprocity Ratio:', reciprocityRatio);
+    console.log('Mutual Review Count:', mutualReviewCount);
+    console.log('Credibility Per Review:', credibilityPerReview);
+    console.log('XP Per Review:', xpPerReview);
+    console.log('Credibility to XP Ratio:', credibilityToXPRatio);
+    console.log('Activity to Credibility Ratio:', activityToCredibilityRatio);
 
     return {
       basic: {
@@ -286,13 +332,10 @@ class R4RDatabase {
     const profileId = user.profileId;
     const cacheKey = `comprehensive_${profileId}`;
     const now = Date.now();
-    const cacheExpiryTime = 2 * 60 * 60 * 1000; // 2 hours
+    const cacheExpiryTime = 30 * 1000; // 30 seconds for debugging
 
-    // Check cache first
-    if (this.r4rAnalysisCache[cacheKey] && 
-        (now - this.r4rAnalysisCache[cacheKey].timestamp) < cacheExpiryTime) {
-      return this.r4rAnalysisCache[cacheKey].data;
-    }
+    // TEMPORARILY DISABLE CACHE FOR DEBUGGING
+    console.log('🆕 Generating fresh R4R analysis for', profileId, '(cache disabled)');
 
     try {
       // Get user stats
@@ -332,6 +375,26 @@ class R4RDatabase {
     } catch (error) {
       console.error(`Failed to generate comprehensive R4R analysis for ${user.username}:`, error);
       return null;
+    }
+  }
+
+  // Upsert R4R analysis data into the cache
+  async upsertR4RAnalysis(profileId, analysisData) {
+    const cacheKey = `r4r_analysis_${profileId}`;
+    const now = Date.now();
+
+    // Update or insert the analysis data in the cache
+    this.r4rAnalysisCache[cacheKey] = {
+      data: analysisData,
+      timestamp: now
+    };
+
+    try {
+      await this.saveR4RAnalysisCache();
+      console.log(`Successfully cached R4R analysis for profile ${profileId}`);
+    } catch (error) {
+      console.error(`Failed to cache R4R analysis for profile ${profileId}:`, error);
+      throw error;
     }
   }
 
@@ -404,6 +467,61 @@ class R4RDatabase {
     }
 
     return recommendations;
+  }
+
+  // Get profiles that need refreshing (older than 5 hours)
+  async getStaleProfiles() {
+    await this.initialize();
+    const fiveHoursAgo = Date.now() - (5 * 60 * 60 * 1000);
+    
+    return this.userProfiles.filter(profile => {
+      const lastUpdated = profile.last_updated || 0;
+      return lastUpdated < fiveHoursAgo;
+    });
+  }
+
+  // Update profile with new timestamp
+  async upsertProfile(profileData) {
+    await this.initialize();
+    
+    const existingIndex = this.userProfiles.findIndex(p => p.profileId === profileData.profileId);
+    
+    if (existingIndex >= 0) {
+      // Update existing profile
+      this.userProfiles[existingIndex] = { ...this.userProfiles[existingIndex], ...profileData };
+    } else {
+      // Add new profile
+      this.userProfiles.push(profileData);
+    }
+    
+    await this.saveUserProfiles();
+  }
+
+  // Save user profiles to file
+  async saveUserProfiles() {
+    try {
+      await fs.writeFile(USER_PROFILES_FILE, JSON.stringify(this.userProfiles, null, 2));
+    } catch (error) {
+      console.error('Failed to save user profiles:', error);
+    }
+  }
+
+  // Update user stats in cache
+  async upsertUserStats(profileId, stats) {
+    await this.initialize();
+    
+    this.userStatsCache[profileId] = {
+      ...stats,
+      cached_at: Date.now()
+    };
+    
+    await this.saveUserStatsCache();
+  }
+
+  // Get all profiles for pattern analysis
+  async getAllProfiles() {
+    await this.initialize();
+    return this.userProfiles;
   }
 }
 

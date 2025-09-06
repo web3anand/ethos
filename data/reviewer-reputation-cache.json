@@ -10,7 +10,7 @@
       "lowRepPercentage": "0.0",
       "reviewerStats": []
     },
-    "timestamp": 1756983885377
+    "timestamp": 1757048804820
   },
   "reviewer_rep_7626": {
     "data": {
@@ -23,7 +23,7 @@
       "lowRepPercentage": "0.0",
       "reviewerStats": []
     },
-    "timestamp": 1756995274610
+    "timestamp": 1757050642284
   },
   "reviewer_rep_8220": {
     "data": {
@@ -50,5 +50,31 @@
       "reviewerStats": []
     },
     "timestamp": 1756996278153
+  },
+  "reviewer_rep_15": {
+    "data": {
+      "totalReviewerCredibility": 0,
+      "averageReviewerCredibility": "0.0",
+      "reviewerCount": 0,
+      "highReputationReviewers": 0,
+      "lowReputationReviewers": 0,
+      "highRepPercentage": "0.0",
+      "lowRepPercentage": "0.0",
+      "reviewerStats": []
+    },
+    "timestamp": 1757051695010
+  },
+  "reviewer_rep_15793": {
+    "data": {
+      "totalReviewerCredibility": 0,
+      "averageReviewerCredibility": "0.0",
+      "reviewerCount": 0,
+      "highReputationReviewers": 0,
+      "lowReputationReviewers": 0,
+      "highRepPercentage": "0.0",
+      "lowRepPercentage": "0.0",
+      "reviewerStats": []
+    },
+    "timestamp": 1757053177851
   }
 }

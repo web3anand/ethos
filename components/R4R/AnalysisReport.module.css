@@ -1,0 +1,87 @@
+/* AnalysisReport.module.css */
+
+.reportContainer {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 100%;
+}
+
+.riskBanner {
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.lowRisk { background-color: rgba(46, 160, 67, 0.2); color: #3fb950; }
+.mediumRisk { background-color: rgba(212, 167, 4, 0.2); color: #d4a704; }
+.highRisk { background-color: rgba(248, 81, 73, 0.2); color: #f85149; }
+.unknownRisk { background-color: rgba(139, 148, 158, 0.2); color: #8b949e; }
+
+.riskScore {
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin-left: 0.5rem;
+  opacity: 0.8;
+}
+
+.section {
+  margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #30363d;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.metricLabel {
+  color: #8b949e;
+}
+
+.metricValue {
+  font-weight: 600;
+  color: #c9d1d9;
+}
+
+.metricSubValue {
+  font-size: 0.9rem;
+  color: #8b949e;
+  margin-left: 0.25rem;
+}
+
+.factorList, .recommendationList {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.factorList li, .recommendationList li {
+  background-color: #0d1117;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  border-left: 3px solid #58a6ff;
+}
+
+.footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #30363d;
+  font-size: 0.8rem;
+  color: #8b949e;
+  text-align: center;
+}

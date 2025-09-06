@@ -11,6 +11,7 @@ export default function Navbar() {
     { href: '/r4r-checker', label: 'R4R Checker' },
     { href: '/distribution', label: 'Distribution' },
     { href: '/about', label: 'About' },
+    { href: '/admin', label: 'Admin' },
   ];
 
   const isActive = (href) => router.pathname === href || router.pathname.startsWith(`${href}-new`);

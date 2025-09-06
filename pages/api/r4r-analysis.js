@@ -199,6 +199,21 @@ class R4RServerDatabase {
     const credibilityToXPRatio = xpTotal > 0 ? credibilityScore / (xpTotal / 1000) : 0;
     const activityToCredibilityRatio = credibilityScore > 0 ? totalActivity / credibilityScore : 0;
 
+    console.log('=== DEBUG: calculateEnhancedR4RMetrics ===');
+    console.log('User:', JSON.stringify(user, null, 2));
+    console.log('Stats:', JSON.stringify(stats, null, 2));
+    console.log('Total Received:', totalReceived);
+    console.log('Total Given:', totalGiven);
+    console.log('Positive Received:', positiveReceived);
+    console.log('Negative Received:', negativeReceived);
+    console.log('Neutral Received:', neutralReceived);
+    console.log('Reciprocity Ratio:', reciprocityRatio);
+    console.log('Mutual Review Count:', mutualReviewCount);
+    console.log('Credibility Per Review:', credibilityPerReview);
+    console.log('XP Per Review:', xpPerReview);
+    console.log('Credibility to XP Ratio:', credibilityToXPRatio);
+    console.log('Activity to Credibility Ratio:', activityToCredibilityRatio);
+
     return {
       basic: {
         reviewsGiven: totalGiven,

@@ -55,140 +55,138 @@ function saveCache(data) {
 function calculateWeekStartDate(seasonStartDate, weekNumber) {
   const startDate = new Date(seasonStartDate);
   // Add 7 days * week number to get the start of that week
-  const weekStart = new Date(startDate.getTime() + (weekNumber * 7 * 24 * 60 * 60 * 1000));
-  return weekStart.toISOString();
-}
-
-// Function to calculate weekly XP data from actual user profiles
-async function calculateWeeklyXpFromUsers(seasonId, userProfiles) {
-  try {
-    console.log(`[Seasons API] 🔍 Processing ALL ${userProfiles.length} users for season ${seasonId} weekly XP patterns...`);
-    
-    const weeklyDataMap = new Map(); // week -> {totalXp, activeUsers, userXpList}
-    let processedUsers = 0;
-    let successfulFetches = 0;
-    
-    // Process users concurrently with high parallelism for speed
-    const concurrencyLimit = 500; // Process up to 500 profiles concurrently
-    const totalBatches = Math.ceil(userProfiles.length / concurrencyLimit);
-    
-    console.log(`[Seasons API] ⚡ Using HIGH-SPEED concurrent processing: ${concurrencyLimit} users per batch, ${totalBatches} total batches`);
-    
-    for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
-      const startIndex = batchIndex * concurrencyLimit;
-      const endIndex = Math.min(startIndex + concurrencyLimit, userProfiles.length);
-      const batch = userProfiles.slice(startIndex, endIndex);
+        const weekStart = new Date(startDate.getTime() + (weekNumber * 7 * 24 * 60 * 60 * 1000));
+        return weekStart.toISOString();
+      }
       
-      console.log(`[Seasons API] 🚀 Processing CONCURRENT batch ${batchIndex + 1}/${totalBatches} (${batch.length} users: ${startIndex}-${endIndex-1})...`);
-      
-      // Process entire batch concurrently (no sequential processing)
-      const batchPromises = batch.map(async (profile) => {
-        if (!profile.profileId) return null;
-        
+      // Function to calculate weekly XP data from actual user profiles
+      async function calculateWeeklyXpFromUsers(seasonId, userProfiles) {
         try {
-          const apiUrl = `https://api.ethos.network/api/v2/xp/user/profileId%3A${profile.profileId}/season/${seasonId}/weekly`;
+          console.log(`[Seasons API] 🔍 Processing ALL ${userProfiles.length} users for season ${seasonId} weekly XP patterns...`);
           
-          const response = await fetch(apiUrl, {
-            headers: {
-              'Accept': 'application/json',
-              'X-Ethos-Client': 'ethos-distribution-analyzer'
-            }
-          });
+          const weeklyDataMap = new Map(); // week -> {totalXp, activeUsers, userXpList}
+          let processedUsers = 0;
+          let successfulFetches = 0;
           
-          if (response.ok) {
-            const weeklyXpData = await response.json();
-            successfulFetches++;
+          // Process users concurrently with high parallelism for speed
+          const concurrencyLimit = 500; // Process up to 500 profiles concurrently
+          const totalBatches = Math.ceil(userProfiles.length / concurrencyLimit);
+          
+          console.log(`[Seasons API] ⚡ Using HIGH-SPEED concurrent processing: ${concurrencyLimit} users per batch, ${totalBatches} total batches`);
+          
+          for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+            const startIndex = batchIndex * concurrencyLimit;
+            const endIndex = Math.min(startIndex + concurrencyLimit, userProfiles.length);
+            const batch = userProfiles.slice(startIndex, endIndex);
             
-            // Process weekly data - count only users who actually earned XP
-            if (weeklyXpData && Array.isArray(weeklyXpData)) {
-              return {
-                profileId: profile.profileId,
-                weeklyData: weeklyXpData.filter(weekData => weekData.weeklyXp > 0) // Only weeks with XP > 0
-              };
-            }
-          } else if (response.status !== 404) {
-            console.log(`[Seasons API] API error for profile ${profile.profileId}:`, response.status);
-          }
-          
-          return null;
-        } catch (error) {
-          console.log(`[Seasons API] Error fetching weekly XP for profile ${profile.profileId}:`, error.message);
-          return null;
-        }
-      });
-      
-      // Wait for batch to complete
-      const batchResults = await Promise.all(batchPromises);
-      
-      // Process results and update weekly data map
-      batchResults.forEach(result => {
-        if (result && result.weeklyData) {
-          result.weeklyData.forEach(weekData => {
-            const week = weekData.week;
-            const weeklyXp = weekData.weeklyXp || 0;
+            console.log(`[Seasons API] 🚀 Processing CONCURRENT batch ${batchIndex + 1}/${totalBatches} (${batch.length} users: ${startIndex}-${endIndex-1})...`);
             
-            if (weeklyXp > 0) { // Only count weeks where user actually earned XP
-              if (!weeklyDataMap.has(week)) {
-                weeklyDataMap.set(week, { 
-                  totalXp: 0, 
-                  activeUsers: 0, 
-                  userXpList: [],
-                  weekData: weekData 
+            // Process entire batch concurrently (no sequential processing)
+            const batchPromises = batch.map(async (profile) => {
+              if (!profile.profileId) return null;
+              
+              try {
+                const apiUrl = `https://api.ethos.network/api/v2/xp/user/profileId%3A${profile.profileId}/season/${seasonId}/weekly`;
+                
+                const response = await fetch(apiUrl, {
+                  headers: {
+                    'Accept': 'application/json',
+                    'X-Ethos-Client': 'ethos-distribution-analyzer'
+                  }
+                });
+                
+                if (response.ok) {
+                  const weeklyXpData = await response.json();
+                  successfulFetches++;
+                  
+                  // Process weekly data - count only users who actually earned XP
+                  if (weeklyXpData && Array.isArray(weeklyXpData)) {
+                    return {
+                      profileId: profile.profileId,
+                      weeklyData: weeklyXpData.filter(weekData => weekData.weeklyXp > 0) // Only weeks with XP > 0
+                    };
+                  }
+                } else if (response.status !== 404) {
+                  console.log(`[Seasons API] API error for profile ${profile.profileId}:`, response.status);
+                }
+                
+                return null;
+              } catch (error) {
+                console.log(`[Seasons API] Error fetching weekly XP for profile ${profile.profileId}:`, error.message);
+                return null;
+              }
+            });
+            
+            // Wait for batch to complete
+            const batchResults = await Promise.all(batchPromises);
+            
+            // Process results and update weekly data map
+            batchResults.forEach(result => {
+              if (result && result.weeklyData) {
+                result.weeklyData.forEach(weekData => {
+                  const week = weekData.week;
+                  const weeklyXp = weekData.weeklyXp || 0;
+                  
+                  if (weeklyXp > 0) { // Only count weeks where user actually earned XP
+                    if (!weeklyDataMap.has(week)) {
+                      weeklyDataMap.set(week, { 
+                        totalXp: 0, 
+                        activeUsers: 0, 
+                        userXpList: [],
+                        weekData: weekData 
+                      });
+                    }
+                    const current = weeklyDataMap.get(week);
+                    current.totalXp += weeklyXp;
+                    current.activeUsers += 1;
+                    current.userXpList.push({ profileId: result.profileId, xp: weeklyXp });
+                  }
                 });
               }
-              const current = weeklyDataMap.get(week);
-              current.totalXp += weeklyXp;
-              current.activeUsers += 1;
-              current.userXpList.push({ profileId: result.profileId, xp: weeklyXp });
+            });
+            
+            processedUsers += batch.length;
+            
+            // Log progress every 10 batches or at completion for faster processing
+            if (batchIndex % 10 === 0 || batchIndex === totalBatches - 1) {
+              console.log(`[Seasons API] ⚡ FAST Progress: ${processedUsers}/${userProfiles.length} users processed, ${successfulFetches} successful fetches`);
+              
+              // Log current weekly stats (top 3 weeks only for speed)
+              if (weeklyDataMap.size > 0) {
+                const weekStats = Array.from(weeklyDataMap.entries())
+                  .map(([week, data]) => `Week ${week}: ${data.activeUsers} users, ${data.totalXp.toLocaleString()} XP`)
+                  .slice(0, 3);
+                console.log(`[Seasons API] Current stats sample: ${weekStats.join(', ')}`);
+              }
             }
-          });
-        }
-      });
-      
-      processedUsers += batch.length;
-      
-      // Log progress every 10 batches or at completion for faster processing
-      if (batchIndex % 10 === 0 || batchIndex === totalBatches - 1) {
-        console.log(`[Seasons API] ⚡ FAST Progress: ${processedUsers}/${userProfiles.length} users processed, ${successfulFetches} successful fetches`);
-        
-        // Log current weekly stats (top 3 weeks only for speed)
-        if (weeklyDataMap.size > 0) {
-          const weekStats = Array.from(weeklyDataMap.entries())
-            .map(([week, data]) => `Week ${week}: ${data.activeUsers} users, ${data.totalXp.toLocaleString()} XP`)
-            .slice(0, 3);
-          console.log(`[Seasons API] Current stats sample: ${weekStats.join(', ')}`);
-        }
-      }
-      
-      // Minimal delay for high throughput (100ms between 500-user batches)
-      if (batchIndex < totalBatches - 1) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-    }
-    
-    console.log(`[Seasons API] ✅ Completed processing: ${processedUsers} users, ${successfulFetches} successful API calls`);
-    
-    if (weeklyDataMap.size === 0) {
-      console.log(`[Seasons API] ⚠️ No weekly XP data found for season ${seasonId}`);
-      return null;
-    }
-    
-    // Convert map to array with real data (no extrapolation needed)
-    const weeklyResults = Array.from(weeklyDataMap.entries())
-      .map(([week, data]) => ({
-        week: week,
-        startDate: calculateWeekStartDate(
-          seasonId === 1 
-            ? "2024-07-21T00:00:00.000Z"  // Season 0 start date
-            : "2024-10-06T00:00:00.000Z", // Season 1 start date
-          week - 1
-        ),
-        xpDistributed: data.totalXp, // Real total XP from all active users
-        participants: data.activeUsers // Real count of users who earned XP
-      }))
-      .sort((a, b) => a.week - b.week);
-    
-    // Log final results
+            
+            // Minimal delay for high throughput (100ms between 500-user batches)
+            if (batchIndex < totalBatches - 1) {
+              await new Promise(resolve => setTimeout(resolve, 100));
+            }
+          }
+          
+          console.log(`[Seasons API] ✅ Completed processing: ${processedUsers} users, ${successfulFetches} successful API calls`);
+          
+          if (weeklyDataMap.size === 0) {
+            console.log(`[Seasons API] ⚠️ No weekly XP data found for season ${seasonId}`);
+            return null;
+          }
+          
+          // Convert map to array with real data (no extrapolation needed)
+          const weeklyResults = Array.from(weeklyDataMap.entries())
+            .map(([week, data]) => ({
+              week: week,
+              startDate: calculateWeekStartDate(
+                seasonId === 1 
+                  ? "2025-05-14T00:00:00.000Z"  // Season 1 start date (updated to 2025)
+                  : "2025-02-01T00:00:00.000Z", // Season 0 start date (updated to 2025)
+                week - 1
+              ),
+              xpDistributed: data.totalXp, // Real total XP from all active users
+              participants: data.activeUsers // Real count of users who earned XP
+            }))
+            .sort((a, b) => a.week - b.week);    // Log final results
     console.log(`[Seasons API] 📊 REAL weekly data for season ${seasonId}:`);
     weeklyResults.forEach(week => {
       console.log(`  Week ${week.week}: ${week.participants} active users earned ${week.xpDistributed.toLocaleString()} XP total`);
@@ -363,28 +361,30 @@ export default async function handler(req, res) {
           seasonId: 0,
           seasonName: 'Season 0',
           totalWeeks: 1,
-          startDate: '2023-10-01T00:00:00Z',
+          startDate: '2025-02-01T00:00:00Z',
           weeks: [
-            { week: 0, startDate: '2023-10-01T00:00:00Z', xpDistributed: 2500000, participants: 8500 }
+            { week: 0, startDate: '2025-02-01T00:00:00Z', xpDistributed: 2500000, participants: 8500 }
           ]
         },
         {
           seasonId: 1,
           seasonName: 'Season 1',
-          totalWeeks: 11,
-          startDate: '2024-02-01T00:00:00Z',
+          totalWeeks: 13,
+          startDate: '2025-05-14T00:00:00Z',
           weeks: [
-            { week: 1, startDate: '2024-02-01T00:00:00Z', xpDistributed: 1850000, participants: 12500 },
-            { week: 2, startDate: '2024-02-08T00:00:00Z', xpDistributed: 2120000, participants: 13800 },
-            { week: 3, startDate: '2024-02-15T00:00:00Z', xpDistributed: 2350000, participants: 15200 },
-            { week: 4, startDate: '2024-02-22T00:00:00Z', xpDistributed: 2680000, participants: 16500 },
-            { week: 5, startDate: '2024-03-01T00:00:00Z', xpDistributed: 2480000, participants: 15100 },
-            { week: 6, startDate: '2024-03-08T00:00:00Z', xpDistributed: 2900000, participants: 17800 },
-            { week: 7, startDate: '2024-03-15T00:00:00Z', xpDistributed: 3150000, participants: 19100 },
-            { week: 8, startDate: '2024-03-22T00:00:00Z', xpDistributed: 2800000, participants: 17600 },
-            { week: 9, startDate: '2024-03-29T00:00:00Z', xpDistributed: 3250000, participants: 19900 },
-            { week: 10, startDate: '2024-04-05T00:00:00Z', xpDistributed: 3400000, participants: 20300 },
-            { week: 11, startDate: '2024-04-12T00:00:00Z', xpDistributed: 3180000, participants: 19700 }
+            { week: 1, startDate: '2025-05-14T00:00:00Z', xpDistributed: 64199239, participants: 5425 },
+            { week: 2, startDate: '2025-05-21T00:00:00Z', xpDistributed: 14402827, participants: 4565 },
+            { week: 3, startDate: '2025-05-28T00:00:00Z', xpDistributed: 19189872, participants: 6093 },
+            { week: 4, startDate: '2025-06-04T00:00:00Z', xpDistributed: 17663896, participants: 6990 },
+            { week: 5, startDate: '2025-06-11T00:00:00Z', xpDistributed: 16590928, participants: 6511 },
+            { week: 6, startDate: '2025-06-18T00:00:00Z', xpDistributed: 16699783, participants: 8255 },
+            { week: 7, startDate: '2025-06-25T00:00:00Z', xpDistributed: 16285924, participants: 7943 },
+            { week: 8, startDate: '2025-07-02T00:00:00Z', xpDistributed: 15754650, participants: 7472 },
+            { week: 9, startDate: '2025-07-09T00:00:00Z', xpDistributed: 14868568, participants: 6975 },
+            { week: 10, startDate: '2025-07-16T00:00:00Z', xpDistributed: 19712612, participants: 5358 },
+            { week: 11, startDate: '2025-07-23T00:00:00Z', xpDistributed: 16729772, participants: 3996 },
+            { week: 12, startDate: '2025-07-30T00:00:00Z', xpDistributed: 13703003, participants: 2498 },
+            { week: 13, startDate: '2025-08-06T00:00:00Z', xpDistributed: 27593910, participants: 1991 }
           ]
         }
       ]

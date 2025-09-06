@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
 import { searchUsers, getUserStats } from '../utils/ethosApiClient';
@@ -11,24 +11,43 @@ export default function R4RChecker() {
   const [userStats, setUserStats] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [analysis, setAnalysis] = useState(null);
+  const [searchTimeout, setSearchTimeout] = useState(null);
+
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    (query) => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+
+      if (!query.trim()) {
+        setSearchResults([]);
+        return;
+      }
+
+      setIsLoading(true);
+      const timeout = setTimeout(async () => {
+        try {
+          console.log('Searching for:', query);
+          const results = await searchUsers(query, 8);
+          console.log('Search results:', results);
+          setSearchResults(results || []);
+        } catch (error) {
+          console.error('Search error:', error);
+          setSearchResults([]);
+        } finally {
+          setIsLoading(false);
+        }
+      }, 300); // 300ms debounce
+
+      setSearchTimeout(timeout);
+    },
+    [searchTimeout]
+  );
 
   // Search for users
   const handleSearch = async (query) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const results = await searchUsers(query, 8);
-      setSearchResults(results || []);
-    } catch (error) {
-      console.error('Search error:', error);
-      setSearchResults([]);
-    } finally {
-      setIsLoading(false);
-    }
+    debouncedSearch(query);
   };
 
   // Select user for enhanced analysis via API
@@ -37,42 +56,71 @@ export default function R4RChecker() {
     setIsLoading(true);
     
     try {
-      // Call the R4R analysis API
-      const response = await fetch('/api/r4r-analysis', {
+      // Call the enhanced R4R analysis API with caching enabled
+      const response = await fetch('/api/enhanced-r4r-analysis', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ user }),
+        body: JSON.stringify({ user, useCache: true }),
       });
 
       if (response.ok) {
-        const { analysis: comprehensiveAnalysis } = await response.json();
+        const { analysis: comprehensiveAnalysis, cached, timestamp } = await response.json();
         
         if (comprehensiveAnalysis) {
           // Transform comprehensive analysis to match existing UI structure
           const transformedAnalysis = transformAnalysisForUI(comprehensiveAnalysis);
+          transformedAnalysis._meta = { cached, timestamp, fromCache: cached };
           setAnalysis(transformedAnalysis);
           setUserStats(comprehensiveAnalysis.metrics);
+          
+          // Log cache status
+          console.log(`📋 Analysis ${cached ? 'loaded from cache' : 'freshly generated'} at ${timestamp}`);
         } else {
           throw new Error('No analysis data received');
         }
       } else {
-        throw new Error(`API call failed: ${response.status}`);
+        throw new Error(`Enhanced API call failed: ${response.status}`);
       }
     } catch (error) {
-      console.error('Enhanced analysis failed, falling back to basic analysis:', error);
+      console.error('Enhanced analysis failed, trying standard API:', error);
       try {
-        // Fallback to original method
-        const userKey = `profileId:${user.profileId}`;
-        const stats = await getUserStats(userKey);
-        setUserStats(stats);
-        const analysisResult = analyzeR4REligibility(user, stats);
-        setAnalysis(analysisResult);
+        // Fallback to standard r4r-analysis API
+        const fallbackResponse = await fetch('/api/r4r-analysis', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ user }),
+        });
+
+        if (fallbackResponse.ok) {
+          const { analysis: standardAnalysis } = await fallbackResponse.json();
+          if (standardAnalysis) {
+            const transformedAnalysis = transformAnalysisForUI(standardAnalysis);
+            setAnalysis(transformedAnalysis);
+            setUserStats(standardAnalysis.metrics);
+          } else {
+            throw new Error('No standard analysis data received');
+          }
+        } else {
+          throw new Error('Both enhanced and standard APIs failed');
+        }
       } catch (fallbackError) {
-        console.error('Basic analysis also failed:', fallbackError);
-        setUserStats(null);
-        setAnalysis(null);
+        console.error('All API methods failed, using basic analysis:', fallbackError);
+        try {
+          // Final fallback to direct API call
+          const userKey = `profileId:${user.profileId}`;
+          const stats = await getUserStats(userKey);
+          setUserStats(stats);
+          const analysisResult = analyzeR4REligibility(user, stats);
+          setAnalysis(analysisResult);
+        } catch (basicError) {
+          console.error('All analysis methods failed:', basicError);
+          setUserStats(null);
+          setAnalysis(null);
+        }
       }
     } finally {
       setIsLoading(false);
@@ -106,11 +154,51 @@ export default function R4RChecker() {
         neutralReviews: metrics.breakdown.neutralReceived,
         positiveRatio: metrics.ratios.positiveRatio,
         negativeRatio: metrics.ratios.negativeRatio,
+        neutralRatio: metrics.ratios.neutralRatio,
         credibilityPerXP: metrics.quality.credibilityToXPRatio,
         totalActivity: metrics.balance.totalActivity,
+        
         // Enhanced metrics
         vouchReciprocityRatio: metrics.ratios.vouchReciprocityRatio,
+        vouchToReviewRatio: metrics.ratios.vouchToReviewRatio,
         credibilityPerReview: metrics.quality.credibilityPerReview,
+        xpPerReview: metrics.quality.xpPerReview,
+        credibilityToXPRatio: metrics.quality.credibilityToXPRatio,
+        activityToCredibilityRatio: metrics.quality.activityToCredibilityRatio,
+        
+        // Balance metrics
+        reviewBalance: metrics.balance.reviewBalance,
+        vouchBalance: metrics.balance.vouchBalance,
+        mutualReviewCount: metrics.balance.mutualReviewCount,
+        
+        // Advanced ratios
+        giveReceiveBalance: metrics.ratios?.giveReceiveBalance,
+        mutualEngagementRatio: metrics.ratios?.mutualEngagementRatio,
+        activityConcentrationRatio: metrics.ratios?.activityConcentrationRatio,
+        
+        // Quality metrics
+        reviewEfficiencyScore: metrics.quality?.reviewEfficiencyScore,
+        engagementQualityIndex: metrics.quality?.engagementQualityIndex,
+        reputationVelocity: metrics.quality?.reputationVelocity,
+        networkValueContribution: metrics.quality?.networkValueContribution,
+        
+        // Balance metrics
+        symmetryIndex: metrics.balance?.symmetryIndex,
+        diversityScore: metrics.balance?.diversityScore,
+        engagementDepth: metrics.balance?.engagementDepth,
+        
+        // Advanced risk metrics
+        r4rRiskScore: metrics.advanced?.r4rRiskScore,
+        artificialityIndex: metrics.advanced?.artificialityIndex,
+        coordinationScore: metrics.advanced?.coordinationScore,
+        centralityRisk: metrics.advanced?.centralityRisk,
+        inflationDetector: metrics.advanced?.inflationDetector,
+        consistencyScore: metrics.advanced?.consistencyScore,
+        organicGrowthIndicator: metrics.advanced?.organicGrowthIndicator,
+        authenticityScore: metrics.advanced?.authenticityScore,
+        sustainabilityIndex: metrics.advanced?.sustainabilityIndex,
+        
+        // Reviewer reputation
         reviewerReputation: reviewerReputation ? {
           averageCredibility: reviewerReputation.averageReviewerCredibility,
           totalCredibility: reviewerReputation.totalReviewerCredibility,
@@ -603,42 +691,83 @@ export default function R4RChecker() {
       <div className={styles.content}>
         {/* Search Section */}
         <div className={styles.searchSection}>
-          <input
-            type="text"
-            placeholder="Search for Ethos users (username, Twitter handle, display name...)"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              handleSearch(e.target.value);
-            }}
-            className={styles.searchInput}
-          />
-          
-          {isLoading && <div className={styles.loading}>Searching...</div>}
-          
-          {/* Search Results */}
-          {searchResults.length > 0 && (
-            <div className={styles.searchResults}>
-              {searchResults.map((user, index) => (
-                <div
-                  key={user.profileId || index}
-                  className={styles.userCard}
-                  onClick={() => selectUser(user)}
-                >
-                  <img
-                    src={user.avatarUrl || '/ethos.png'}
-                    alt={user.displayName}
-                    className={styles.avatar}
-                  />
-                  <div className={styles.userInfo}>
-                    <div className={styles.userName}>{user.displayName}</div>
-                    <div className={styles.userHandle}>@{user.username}</div>
-                    <div className={styles.userScore}>Score: {user.score || 0}</div>
-                  </div>
+          <div className={styles.searchContainer}>
+            <div className={styles.searchInputWrapper}>
+              <input
+                type="text"
+                placeholder="Search for Ethos users (username, Twitter handle, display name...)"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  handleSearch(e.target.value);
+                }}
+                className={styles.searchInput}
+                autoComplete="off"
+              />
+              {isLoading && (
+                <div className={styles.searchSpinner}>
+                  <div className={styles.spinner}></div>
                 </div>
-              ))}
+              )}
+              {searchQuery && !isLoading && (
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSearchResults([]);
+                  }}
+                  className={styles.clearButton}
+                >
+                  ✕
+                </button>
+              )}
             </div>
-          )}
+            
+            {/* Search Results Dropdown */}
+            {searchResults.length > 0 && (
+              <div className={styles.searchDropdown}>
+                <div className={styles.searchResultsHeader}>
+                  Found {searchResults.length} user{searchResults.length !== 1 ? 's' : ''}
+                </div>
+                {searchResults.map((user, index) => (
+                  <div
+                    key={user.profileId || index}
+                    className={styles.userCard}
+                    onClick={() => {
+                      selectUser(user);
+                      setSearchResults([]);
+                      setSearchQuery('');
+                    }}
+                  >
+                    <img
+                      src={user.avatarUrl || '/ethos.png'}
+                      alt={user.displayName}
+                      className={styles.avatar}
+                      onError={(e) => {
+                        e.target.src = '/ethos.png';
+                      }}
+                    />
+                    <div className={styles.userInfo}>
+                      <div className={styles.userName}>{user.displayName || user.username}</div>
+                      <div className={styles.userHandle}>
+                        {user.username && `@${user.username}`}
+                        {user.twitterUsername && ` • X: @${user.twitterUsername}`}
+                      </div>
+                      <div className={styles.userScore}>
+                        Score: {user.score || 0} • ID: {user.profileId}
+                      </div>
+                    </div>
+                    <div className={styles.selectArrow}>→</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {searchQuery && !isLoading && searchResults.length === 0 && (
+              <div className={styles.noResults}>
+                No users found for "{searchQuery}"
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Analysis Section */}
@@ -697,74 +826,282 @@ export default function R4RChecker() {
                   </div>
                 )}
 
-                {/* Enhanced Statistics Grid */}
-                <div className={styles.statsGrid}>
-                  <div className={styles.statCard}>
-                    <h4>Credibility Score</h4>
-                    <div className={styles.statValue}>{analysis.credibilityScore}</div>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h4>Reviews Given</h4>
-                    <div className={styles.statValue}>{analysis.stats.reviewsGiven}</div>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h4>Reviews Received</h4>
-                    <div className={styles.statValue}>{analysis.stats.reviewsReceived}</div>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h4>Reciprocity Ratio</h4>
-                    <div className={styles.statValue} style={{ 
-                      color: analysis.farmingRisk === 'high' || analysis.farmingRisk === 'critical' ? '#dc3545' : '#58a6ff' 
-                    }}>
-                      {analysis.stats.reciprocityRatio}
+                {/* Professional Dashboard Layout */}
+                <div className={styles.dashboardContainer}>
+                  {/* Core Metrics Section */}
+                  <div className={styles.metricsSection}>
+                    <h4 className={styles.sectionTitle}>Core Metrics</h4>
+                    <div className={styles.statsGrid}>
+                      <div className={styles.statCard}>
+                        <h4>Credibility Score</h4>
+                        <div className={styles.statValue}>{analysis.credibilityScore || 0}</div>
+                      </div>
+                      <div className={styles.statCard}>
+                        <h4>Reviews Given</h4>
+                        <div className={styles.statValue}>{analysis.stats.reviewsGiven || 0}</div>
+                      </div>
+                      <div className={styles.statCard}>
+                        <h4>Reviews Received</h4>
+                        <div className={styles.statValue}>{analysis.stats.reviewsReceived || 0}</div>
+                      </div>
+                      <div className={styles.statCard}>
+                        <h4>Reciprocity Ratio</h4>
+                        <div className={styles.statValue} style={{ 
+                          color: analysis.farmingRisk === 'high' || analysis.farmingRisk === 'critical' ? '#dc3545' : '#58a6ff' 
+                        }}>
+                          {analysis.stats.reciprocityRatio}
+                        </div>
+                      </div>
+                      {(analysis.stats.vouchesReceived > 0 || analysis.stats.vouchesGiven > 0) && (
+                        <>
+                          <div className={styles.statCard}>
+                            <h4>Vouches Received</h4>
+                            <div className={styles.statValue}>{analysis.stats.vouchesReceived}</div>
+                          </div>
+                          <div className={styles.statCard}>
+                            <h4>Vouches Given</h4>
+                            <div className={styles.statValue}>{analysis.stats.vouchesGiven}</div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
-                  <div className={styles.statCard}>
-                    <h4>Vouches Received</h4>
-                    <div className={styles.statValue}>{analysis.stats.vouchesReceived}</div>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h4>Vouches Given</h4>
-                    <div className={styles.statValue}>{analysis.stats.vouchesGiven}</div>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h4>Positive Reviews</h4>
-                    <div className={styles.statValue} style={{ color: '#28a745' }}>
-                      {analysis.stats.positiveReviews} ({analysis.stats.positiveRatio}%)
-                    </div>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h4>Negative Reviews</h4>
-                    <div className={styles.statValue} style={{ 
-                      color: analysis.stats.negativeReviews === 0 && analysis.stats.reviewsReceived > 20 ? '#ffc107' : '#dc3545' 
-                    }}>
-                      {analysis.stats.negativeReviews} ({analysis.stats.negativeRatio}%)
-                    </div>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h4>Neutral Reviews</h4>
-                    <div className={styles.statValue} style={{ color: '#6c757d' }}>
-                      {analysis.stats.neutralReviews}
-                    </div>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h4>Total Activity</h4>
-                    <div className={styles.statValue}>{analysis.stats.totalActivity}</div>
-                  </div>
-                  {analysis.stats.vouchReciprocityRatio && (
-                    <div className={styles.statCard}>
-                      <h4>Vouch Reciprocity</h4>
-                      <div className={styles.statValue} style={{ 
-                        color: parseFloat(analysis.stats.vouchReciprocityRatio) > 0.9 && parseFloat(analysis.stats.vouchReciprocityRatio) < 1.1 ? '#ffc107' : '#58a6ff' 
-                      }}>
-                        {analysis.stats.vouchReciprocityRatio}
+
+                  {/* Review Breakdown Section */}
+                  {(analysis.stats.positiveReviews > 0 || analysis.stats.negativeReviews > 0 || analysis.stats.neutralReviews > 0) && (
+                    <div className={styles.metricsSection}>
+                      <h4 className={styles.sectionTitle}>Review Breakdown</h4>
+                      <div className={styles.statsGrid}>
+                        {analysis.stats.positiveReviews > 0 && (
+                          <div className={styles.statCard}>
+                            <h4>Positive Reviews</h4>
+                            <div className={styles.statValue} style={{ color: '#28a745' }}>
+                              {analysis.stats.positiveReviews} ({analysis.stats.positiveRatio}%)
+                            </div>
+                          </div>
+                        )}
+                        {analysis.stats.negativeReviews !== undefined && analysis.stats.negativeReviews !== null && (
+                          <div className={styles.statCard}>
+                            <h4>Negative Reviews</h4>
+                            <div className={styles.statValue} style={{ 
+                              color: analysis.stats.negativeReviews === 0 && analysis.stats.reviewsReceived > 20 ? '#ffc107' : '#dc3545' 
+                            }}>
+                              {analysis.stats.negativeReviews} ({analysis.stats.negativeRatio}%)
+                            </div>
+                          </div>
+                        )}
+                        {analysis.stats.neutralReviews > 0 && (
+                          <div className={styles.statCard}>
+                            <h4>Neutral Reviews</h4>
+                            <div className={styles.statValue} style={{ color: '#6c757d' }}>
+                              {analysis.stats.neutralReviews}
+                            </div>
+                          </div>
+                        )}
+                        <div className={styles.statCard}>
+                          <h4>Total Activity</h4>
+                          <div className={styles.statValue}>{analysis.stats.totalActivity}</div>
+                        </div>
                       </div>
                     </div>
                   )}
-                  {analysis.stats.credibilityPerReview && (
-                    <div className={styles.statCard}>
-                      <h4>Credibility/Review</h4>
-                      <div className={styles.statValue}>{analysis.stats.credibilityPerReview}</div>
+
+                  {/* Quality & Efficiency Metrics */}
+                  {(() => {
+                    const hasValidMetrics = !!(
+                      (analysis.stats.credibilityPerReview && parseFloat(analysis.stats.credibilityPerReview) > 0) ||
+                      (analysis.stats.credibilityToXPRatio && parseFloat(analysis.stats.credibilityToXPRatio) > 0 && parseFloat(analysis.stats.credibilityToXPRatio) !== 999.99) ||
+                      (analysis.stats.xpPerReview && parseFloat(analysis.stats.xpPerReview) > 0) ||
+                      (analysis.stats.vouchReciprocityRatio && parseFloat(analysis.stats.vouchReciprocityRatio) > 0 && parseFloat(analysis.stats.vouchReciprocityRatio) !== 1)
+                    );
+                    
+                    if (!hasValidMetrics) return null;
+                    
+                    return (
+                      <div className={styles.metricsSection}>
+                        <h4 className={styles.sectionTitle}>Quality & Efficiency</h4>
+                        <div className={styles.statsGrid}>
+                          {!!(analysis.stats.credibilityPerReview && parseFloat(analysis.stats.credibilityPerReview) > 0 && parseFloat(analysis.stats.credibilityPerReview) !== 999.99) && (
+                            <div className={styles.statCard}>
+                              <h4>Credibility/Review</h4>
+                              <div className={styles.statValue} style={{
+                                color: parseFloat(analysis.stats.credibilityPerReview) > 150 ? '#dc3545' : '#58a6ff'
+                              }}>
+                                {analysis.stats.credibilityPerReview}
+                              </div>
+                            </div>
+                          )}
+                          {!!(analysis.stats.credibilityToXPRatio && parseFloat(analysis.stats.credibilityToXPRatio) > 0 && parseFloat(analysis.stats.credibilityToXPRatio) !== 999.99) && (
+                            <div className={styles.statCard}>
+                              <h4>Credibility/XP Ratio</h4>
+                              <div className={styles.statValue} style={{
+                                color: parseFloat(analysis.stats.credibilityToXPRatio) > 50 ? '#dc3545' : 
+                                       parseFloat(analysis.stats.credibilityToXPRatio) > 25 ? '#ffc107' : '#28a745'
+                              }}>
+                                {analysis.stats.credibilityToXPRatio}
+                              </div>
+                            </div>
+                          )}
+                          {!!(analysis.stats.xpPerReview && parseFloat(analysis.stats.xpPerReview) > 0) && (
+                            <div className={styles.statCard}>
+                              <h4>XP per Review</h4>
+                              <div className={styles.statValue} style={{
+                                color: analysis.stats.xpPerReview < 500 ? '#ffc107' : '#28a745'
+                              }}>
+                                {analysis.stats.xpPerReview}
+                              </div>
+                            </div>
+                          )}
+                          {!!(analysis.stats.vouchReciprocityRatio && parseFloat(analysis.stats.vouchReciprocityRatio) > 0 && parseFloat(analysis.stats.vouchReciprocityRatio) !== 1) && (
+                            <div className={styles.statCard}>
+                              <h4>Vouch Reciprocity</h4>
+                              <div className={styles.statValue} style={{ 
+                                color: parseFloat(analysis.stats.vouchReciprocityRatio) > 0.9 && parseFloat(analysis.stats.vouchReciprocityRatio) < 1.1 ? '#ffc107' : '#58a6ff' 
+                              }}>
+                                {analysis.stats.vouchReciprocityRatio}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Risk Assessment Metrics */}
+                  {(() => {
+                    const hasValidRiskMetrics = !!(
+                      (analysis.stats.r4rRiskScore && parseFloat(analysis.stats.r4rRiskScore) > 0) ||
+                      (analysis.stats.mutualEngagementRatio && parseFloat(analysis.stats.mutualEngagementRatio) > 0) ||
+                      (analysis.stats.symmetryIndex && parseFloat(analysis.stats.symmetryIndex) > 0) ||
+                      (analysis.stats.artificialityIndex && parseFloat(analysis.stats.artificialityIndex) > 0)
+                    );
+                    
+                    if (!hasValidRiskMetrics) return null;
+                    
+                    return (
+                      <div className={styles.metricsSection}>
+                        <h4 className={styles.sectionTitle}>Risk Assessment</h4>
+                        <div className={styles.statsGrid}>
+                          {!!(analysis.stats.r4rRiskScore && parseFloat(analysis.stats.r4rRiskScore) > 0) && (
+                            <div className={styles.statCard}>
+                              <h4>R4R Risk Score</h4>
+                              <div className={styles.statValue} style={{
+                                color: analysis.stats.r4rRiskScore > 70 ? '#dc3545' :
+                                       analysis.stats.r4rRiskScore > 40 ? '#ffc107' : '#28a745'
+                              }}>
+                                {analysis.stats.r4rRiskScore}/100
+                              </div>
+                            </div>
+                          )}
+                          {!!(analysis.stats.mutualEngagementRatio && parseFloat(analysis.stats.mutualEngagementRatio) > 0) && (
+                            <div className={styles.statCard}>
+                              <h4>Mutual Engagement</h4>
+                              <div className={styles.statValue} style={{
+                                color: parseFloat(analysis.stats.mutualEngagementRatio) > 0.9 ? '#dc3545' : '#58a6ff'
+                              }}>
+                                {analysis.stats.mutualEngagementRatio}
+                              </div>
+                            </div>
+                          )}
+                          {!!(analysis.stats.symmetryIndex && parseFloat(analysis.stats.symmetryIndex) > 0) && (
+                            <div className={styles.statCard}>
+                              <h4>Activity Symmetry</h4>
+                              <div className={styles.statValue} style={{
+                                color: parseFloat(analysis.stats.symmetryIndex) > 0.95 ? '#dc3545' : 
+                                       parseFloat(analysis.stats.symmetryIndex) > 0.8 ? '#ffc107' : '#28a745'
+                              }}>
+                                {analysis.stats.symmetryIndex}
+                              </div>
+                            </div>
+                          )}
+                          {!!(analysis.stats.artificialityIndex && parseFloat(analysis.stats.artificialityIndex) > 0) && (
+                            <div className={styles.statCard}>
+                              <h4>Artificiality Index</h4>
+                              <div className={styles.statValue} style={{
+                                color: analysis.stats.artificialityIndex > 80 ? '#dc3545' :
+                                       analysis.stats.artificialityIndex > 50 ? '#ffc107' : '#28a745'
+                              }}>
+                                {analysis.stats.artificialityIndex}/100
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Authenticity & Growth Metrics */}
+                  {(() => {
+                    const hasValidGrowthMetrics = !!(
+                      (analysis.stats.organicGrowthIndicator && parseFloat(analysis.stats.organicGrowthIndicator) > 0) ||
+                      (analysis.stats.authenticityScore && parseFloat(analysis.stats.authenticityScore) > 0)
+                    );
+                    
+                    if (!hasValidGrowthMetrics) return null;
+                    
+                    return (
+                      <div className={styles.metricsSection}>
+                        <h4 className={styles.sectionTitle}>Authenticity & Growth</h4>
+                        <div className={styles.statsGrid}>
+                          {!!(analysis.stats.organicGrowthIndicator && parseFloat(analysis.stats.organicGrowthIndicator) > 0) && (
+                            <div className={styles.statCard}>
+                              <h4>Organic Growth</h4>
+                              <div className={styles.statValue} style={{
+                                color: analysis.stats.organicGrowthIndicator > 80 ? '#28a745' :
+                                       analysis.stats.organicGrowthIndicator > 50 ? '#58a6ff' : '#dc3545'
+                              }}>
+                                {analysis.stats.organicGrowthIndicator}/100
+                              </div>
+                            </div>
+                          )}
+                          {!!(analysis.stats.authenticityScore && parseFloat(analysis.stats.authenticityScore) > 0) && (
+                            <div className={styles.statCard}>
+                              <h4>Authenticity Score</h4>
+                              <div className={styles.statValue} style={{
+                                color: analysis.stats.authenticityScore > 80 ? '#28a745' :
+                                       analysis.stats.authenticityScore > 50 ? '#58a6ff' : '#dc3545'
+                              }}>
+                                {analysis.stats.authenticityScore}/100
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Reviewer Reputation Metrics */}
+                  {analysis.stats.reviewerReputation && (
+                    <div className={styles.metricsSection}>
+                      <h4 className={styles.sectionTitle}>Reviewer Network Quality</h4>
+                      <div className={styles.statsGrid}>
+                        <div className={styles.statCard}>
+                          <h4>Avg Reviewer Credibility</h4>
+                          <div className={styles.statValue} style={{
+                            color: parseFloat(analysis.stats.reviewerReputation.averageCredibility) > 100 ? '#28a745' :
+                                   parseFloat(analysis.stats.reviewerReputation.averageCredibility) > 50 ? '#58a6ff' : '#ffc107'
+                          }}>
+                            {analysis.stats.reviewerReputation.averageCredibility}
+                          </div>
+                        </div>
+                        <div className={styles.statCard}>
+                          <h4>High Rep Reviewers</h4>
+                          <div className={styles.statValue} style={{ color: '#28a745' }}>
+                            {analysis.stats.reviewerReputation.highRepPercentage}%
+                          </div>
+                        </div>
+                        {parseFloat(analysis.stats.reviewerReputation.lowRepPercentage) > 0 && (
+                          <div className={styles.statCard}>
+                            <h4>Low Rep Reviewers</h4>
+                            <div className={styles.statValue} style={{
+                              color: parseFloat(analysis.stats.reviewerReputation.lowRepPercentage) > 50 ? '#dc3545' :
+                                     parseFloat(analysis.stats.reviewerReputation.lowRepPercentage) > 25 ? '#ffc107' : '#28a745'
+                            }}>
+                              {analysis.stats.reviewerReputation.lowRepPercentage}%
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

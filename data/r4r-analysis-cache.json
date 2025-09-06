@@ -1,12 +1,12 @@
 {
   "comprehensive_5476": {
     "data": {
-      "timestamp": 1756996043735,
+      "timestamp": 1757050285602,
       "user": {
         "profileId": 5476,
         "username": "hashvalue",
         "displayName": "daybot",
-        "credibilityScore": 1516
+        "credibilityScore": 1517
       },
       "metrics": {
         "basic": {
@@ -14,7 +14,7 @@
           "reviewsReceived": 24,
           "vouchesGiven": 16,
           "vouchesReceived": 16,
-          "credibilityScore": 1516
+          "credibilityScore": 1517
         },
         "ratios": {
           "reciprocityRatio": "0.000",
@@ -65,7 +65,7 @@
         "High-quality reviews contributing to good reputation"
       ]
     },
-    "timestamp": 1756996043735
+    "timestamp": 1757050285602
   },
   "comprehensive_7626": {
     "data": {
@@ -274,5 +274,416 @@
       ]
     },
     "timestamp": 1756996276676
+  },
+  "r4r_analysis_5476": {
+    "data": {
+      "timestamp": 1757053767659,
+      "user": {
+        "profileId": 5476,
+        "username": "hashvalue",
+        "displayName": "daybot",
+        "credibilityScore": 1517,
+        "xpTotal": 0
+      },
+      "metrics": {
+        "basic": {
+          "reviewsGiven": 0,
+          "reviewsReceived": 24,
+          "vouchesGiven": 16,
+          "vouchesReceived": 16,
+          "credibilityScore": 1517,
+          "xpTotal": 0
+        },
+        "ratios": {
+          "reciprocityRatio": 999.999,
+          "vouchReciprocityRatio": 1,
+          "vouchToReviewRatio": 0.667,
+          "positiveRatio": 95.8,
+          "negativeRatio": 0,
+          "neutralRatio": 4.2,
+          "giveReceiveBalance": 1,
+          "mutualEngagementRatio": 0,
+          "activityConcentrationRatio": 0.571
+        },
+        "quality": {
+          "credibilityPerReview": 63.2,
+          "xpPerReview": 0,
+          "credibilityToXPRatio": 999.99,
+          "activityToCredibilityRatio": 0.037,
+          "reviewEfficiencyScore": 25.28,
+          "engagementQualityIndex": 1.49,
+          "reputationVelocity": 0,
+          "networkValueContribution": 72
+        },
+        "balance": {
+          "reviewBalance": 24,
+          "vouchBalance": 0,
+          "mutualReviewCount": 0,
+          "totalActivity": 56,
+          "symmetryIndex": 0.571,
+          "diversityScore": 0.333,
+          "engagementDepth": 13.43
+        },
+        "breakdown": {
+          "positiveReceived": 23,
+          "negativeReceived": 0,
+          "neutralReceived": 1,
+          "positiveGiven": 0,
+          "negativeGiven": 0,
+          "neutralGiven": 0
+        },
+        "advanced": {
+          "r4rRiskScore": 15,
+          "artificialityIndex": 15,
+          "coordinationScore": 25,
+          "centralityRisk": 25,
+          "inflationDetector": 40,
+          "consistencyScore": 57.1,
+          "organicGrowthIndicator": 0,
+          "authenticityScore": 60,
+          "sustainabilityIndex": 80
+        }
+      },
+      "reviewerReputation": {
+        "totalReviewerCredibility": 0,
+        "averageReviewerCredibility": "0.0",
+        "reviewerCount": 0,
+        "highReputationReviewers": 0,
+        "lowReputationReviewers": 0,
+        "highRepPercentage": "0.0",
+        "lowRepPercentage": "0.0",
+        "reviewerStats": []
+      },
+      "riskAssessment": {
+        "level": "critical",
+        "factors": [
+          "🚨 CRITICAL: Perfect vouch reciprocity (1) indicates coordinated vouching",
+          "🚨 CRITICAL: Extremely high credibility-to-XP ratio (999.99) suggests reputation inflation",
+          "⚠️ HIGH: Low organic growth indicator (0) suggests artificial reputation building"
+        ],
+        "score": 100,
+        "enhancedMetrics": {
+          "reciprocityPattern": 999.999,
+          "vouchPattern": 1,
+          "qualityEfficiency": 999.99,
+          "activitySymmetry": 0.571,
+          "networkCentrality": 25,
+          "artificialityLevel": 15,
+          "coordinationLevel": 25,
+          "organicGrowth": 100,
+          "authenticityLevel": 60
+        }
+      },
+      "recommendations": [
+        "🚨 CRITICAL RISK: Avoid all review exchanges with this user",
+        "🚨 Report suspected farming activity to Ethos Network moderators",
+        "🚨 This user shows strong evidence of systematic reputation manipulation",
+        "📊 User receives much more than they give (999.999:1 ratio) - encourage more giving",
+        "📈 User should start contributing reviews to build community trust",
+        "⚡ Very high credibility-to-XP ratio (999.99) - verify through platform engagement",
+        "🎮 Low platform XP relative to credibility - encourage more genuine platform activity",
+        "👥 Reviews come from low-credibility reviewers (avg: 0.0) - verify quality",
+        "⚠️ Unusually high positive ratio - verify review authenticity"
+      ],
+      "analysisVersion": "2.0.0",
+      "dataSource": "cached_database_analyzer",
+      "cacheInfo": {
+        "lastUpdated": 1757053767506,
+        "nextRefresh": 1757071767506,
+        "dataAge": 153
+      }
+    },
+    "timestamp": 1757053767659
+  },
+  "r4r_analysis_15": {
+    "data": {
+      "timestamp": 1757051695344,
+      "user": {
+        "profileId": 15,
+        "username": "buz_eth",
+        "displayName": "buz",
+        "credibilityScore": 1895,
+        "xpTotal": 0
+      },
+      "metrics": {
+        "basic": {
+          "reviewsGiven": 0,
+          "reviewsReceived": 0,
+          "vouchesGiven": 0,
+          "vouchesReceived": 0,
+          "credibilityScore": 0,
+          "xpTotal": 0
+        },
+        "ratios": {
+          "reciprocityRatio": 0,
+          "vouchReciprocityRatio": 0,
+          "vouchToReviewRatio": 0,
+          "positiveRatio": 0,
+          "negativeRatio": 0,
+          "neutralRatio": 0
+        },
+        "quality": {
+          "credibilityPerReview": 0,
+          "xpPerReview": 0,
+          "credibilityToXPRatio": 0,
+          "activityToCredibilityRatio": 0
+        },
+        "balance": {
+          "reviewBalance": 0,
+          "vouchBalance": 0,
+          "mutualReviewCount": 0,
+          "totalActivity": 0
+        },
+        "breakdown": {
+          "positiveReceived": 0,
+          "negativeReceived": 0,
+          "neutralReceived": 0,
+          "positiveGiven": 0,
+          "negativeGiven": 0,
+          "neutralGiven": 0
+        }
+      },
+      "reviewerReputation": {
+        "totalReviewerCredibility": 0,
+        "averageReviewerCredibility": "0.0",
+        "reviewerCount": 0,
+        "highReputationReviewers": 0,
+        "lowReputationReviewers": 0,
+        "highRepPercentage": "0.0",
+        "lowRepPercentage": "0.0",
+        "reviewerStats": []
+      },
+      "riskAssessment": {
+        "level": "low",
+        "factors": [],
+        "score": 0,
+        "enhancedMetrics": {
+          "reciprocityPattern": 0,
+          "vouchPattern": 0,
+          "qualityEfficiency": 0,
+          "networkCentrality": 0,
+          "artificialityLevel": 0,
+          "coordinationLevel": 0,
+          "organicGrowth": 100,
+          "authenticityLevel": 100
+        }
+      },
+      "recommendations": [
+        "✅ User appears suitable for legitimate review exchanges",
+        "✅ Maintain balanced give-and-take in review activity",
+        "📊 User gives much more than they receive (0:1 ratio) - may be overgiving",
+        "👥 Reviews come from low-credibility reviewers (avg: 0.0) - verify quality",
+        "📊 Very low activity - consider users with more established track records"
+      ],
+      "analysisVersion": "2.0.0",
+      "dataSource": "enhanced_database_analyzer"
+    },
+    "timestamp": 1757051695344
+  },
+  "r4r_analysis_7626": {
+    "data": {
+      "timestamp": 1757053093994,
+      "user": {
+        "profileId": 7626,
+        "username": "dude_its_ritik",
+        "displayName": "hrithik ( 히리틱 ) ⚡️",
+        "credibilityScore": 2189,
+        "xpTotal": 0
+      },
+      "metrics": {
+        "basic": {
+          "reviewsGiven": 0,
+          "reviewsReceived": 212,
+          "vouchesGiven": 25,
+          "vouchesReceived": 25,
+          "credibilityScore": 2189,
+          "xpTotal": 0
+        },
+        "ratios": {
+          "reciprocityRatio": 999.999,
+          "vouchReciprocityRatio": 1,
+          "vouchToReviewRatio": 0.118,
+          "positiveRatio": 95.8,
+          "negativeRatio": 0,
+          "neutralRatio": 4.2,
+          "giveReceiveBalance": 1,
+          "mutualEngagementRatio": 0,
+          "activityConcentrationRatio": 0.809
+        },
+        "quality": {
+          "credibilityPerReview": 10.3,
+          "xpPerReview": 0,
+          "credibilityToXPRatio": 999.99,
+          "activityToCredibilityRatio": 0.12,
+          "reviewEfficiencyScore": 4.13,
+          "engagementQualityIndex": 1.96,
+          "reputationVelocity": 0,
+          "networkValueContribution": 112.5
+        },
+        "balance": {
+          "reviewBalance": 212,
+          "vouchBalance": 0,
+          "mutualReviewCount": 0,
+          "totalActivity": 262,
+          "symmetryIndex": 0.191,
+          "diversityScore": 0.333,
+          "engagementDepth": 62.82
+        },
+        "breakdown": {
+          "positiveReceived": 203,
+          "negativeReceived": 0,
+          "neutralReceived": 9,
+          "positiveGiven": 0,
+          "negativeGiven": 0,
+          "neutralGiven": 0
+        },
+        "advanced": {
+          "r4rRiskScore": 45,
+          "artificialityIndex": 0,
+          "coordinationScore": 25,
+          "centralityRisk": 25,
+          "inflationDetector": 0,
+          "consistencyScore": 19.1,
+          "organicGrowthIndicator": 0,
+          "authenticityScore": 50,
+          "sustainabilityIndex": 80
+        }
+      },
+      "reviewerReputation": {
+        "totalReviewerCredibility": 0,
+        "averageReviewerCredibility": "0.0",
+        "reviewerCount": 0,
+        "highReputationReviewers": 0,
+        "lowReputationReviewers": 0,
+        "highRepPercentage": "0.0",
+        "lowRepPercentage": "0.0",
+        "reviewerStats": []
+      },
+      "riskAssessment": {
+        "level": "critical",
+        "factors": [
+          "🚨 CRITICAL: Perfect vouch reciprocity (1) indicates coordinated vouching",
+          "🚨 CRITICAL: Extremely high credibility-to-XP ratio (999.99) suggests reputation inflation",
+          "⚠️ MEDIUM: Zero negative reviews despite high activity (212 reviews) is statistically unusual",
+          "🚨 CRITICAL: Industrial-scale activity (262 total actions) indicates professional farming operation",
+          "⚠️ MEDIUM: Low quality per review (10.3) suggests mass low-quality farming",
+          "⚠️ HIGH: Low organic growth indicator (0) suggests artificial reputation building",
+          "🚨 CRITICAL: Extreme receiving bias (212 received vs 0 given) indicates one-sided farming"
+        ],
+        "score": 100,
+        "enhancedMetrics": {
+          "reciprocityPattern": 999.999,
+          "vouchPattern": 1,
+          "qualityEfficiency": 999.99,
+          "activitySymmetry": 0.191,
+          "networkCentrality": 25,
+          "artificialityLevel": 0,
+          "coordinationLevel": 25,
+          "organicGrowth": 100,
+          "authenticityLevel": 50
+        }
+      },
+      "recommendations": [
+        "🚨 CRITICAL RISK: Avoid all review exchanges with this user",
+        "🚨 Report suspected farming activity to Ethos Network moderators",
+        "🚨 This user shows strong evidence of systematic reputation manipulation",
+        "📊 User receives much more than they give (999.999:1 ratio) - encourage more giving",
+        "📈 User should start contributing reviews to build community trust",
+        "⚡ Very high credibility-to-XP ratio (999.99) - verify through platform engagement",
+        "🎮 Low platform XP relative to credibility - encourage more genuine platform activity",
+        "👥 Reviews come from low-credibility reviewers (avg: 0.0) - verify quality",
+        "📊 Very high activity volume - extra verification recommended",
+        "⚠️ Unusually high positive ratio - verify review authenticity",
+        "⚠️ Zero negative reviews despite high activity - statistically unusual"
+      ],
+      "analysisVersion": "2.0.0",
+      "dataSource": "enhanced_database_analyzer"
+    },
+    "timestamp": 1757053093995
+  },
+  "r4r_analysis_15793": {
+    "data": {
+      "timestamp": 1757053178186,
+      "user": {
+        "profileId": 15793,
+        "username": "0x_rizz",
+        "displayName": "rizzzz.eth",
+        "credibilityScore": 1746,
+        "xpTotal": 0
+      },
+      "metrics": {
+        "basic": {
+          "reviewsGiven": 0,
+          "reviewsReceived": 0,
+          "vouchesGiven": 0,
+          "vouchesReceived": 0,
+          "credibilityScore": 0,
+          "xpTotal": 0
+        },
+        "ratios": {
+          "reciprocityRatio": 0,
+          "vouchReciprocityRatio": 0,
+          "vouchToReviewRatio": 0,
+          "positiveRatio": 0,
+          "negativeRatio": 0,
+          "neutralRatio": 0
+        },
+        "quality": {
+          "credibilityPerReview": 0,
+          "xpPerReview": 0,
+          "credibilityToXPRatio": 0,
+          "activityToCredibilityRatio": 0
+        },
+        "balance": {
+          "reviewBalance": 0,
+          "vouchBalance": 0,
+          "mutualReviewCount": 0,
+          "totalActivity": 0
+        },
+        "breakdown": {
+          "positiveReceived": 0,
+          "negativeReceived": 0,
+          "neutralReceived": 0,
+          "positiveGiven": 0,
+          "negativeGiven": 0,
+          "neutralGiven": 0
+        }
+      },
+      "reviewerReputation": {
+        "totalReviewerCredibility": 0,
+        "averageReviewerCredibility": "0.0",
+        "reviewerCount": 0,
+        "highReputationReviewers": 0,
+        "lowReputationReviewers": 0,
+        "highRepPercentage": "0.0",
+        "lowRepPercentage": "0.0",
+        "reviewerStats": []
+      },
+      "riskAssessment": {
+        "level": "low",
+        "factors": [],
+        "score": 0,
+        "enhancedMetrics": {
+          "reciprocityPattern": 0,
+          "vouchPattern": 0,
+          "qualityEfficiency": 0,
+          "networkCentrality": 0,
+          "artificialityLevel": 0,
+          "coordinationLevel": 0,
+          "organicGrowth": 100,
+          "authenticityLevel": 100
+        }
+      },
+      "recommendations": [
+        "✅ User appears suitable for legitimate review exchanges",
+        "✅ Maintain balanced give-and-take in review activity",
+        "📊 User gives much more than they receive (0:1 ratio) - may be overgiving",
+        "👥 Reviews come from low-credibility reviewers (avg: 0.0) - verify quality",
+        "📊 Very low activity - consider users with more established track records"
+      ],
+      "analysisVersion": "2.0.0",
+      "dataSource": "enhanced_database_analyzer"
+    },
+    "timestamp": 1757053178186
   }
 }

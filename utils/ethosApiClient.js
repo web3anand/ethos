@@ -56,6 +56,14 @@ class EthosApiClient {
     });
 
     if (!response.ok) {
+      const responseBody = await response.text();
+      console.error('Ethos API Request Failed:', {
+        url,
+        options,
+        status: response.status,
+        statusText: response.statusText,
+        responseBody
+      });
       throw new Error(`Ethos API error: ${response.status} ${response.statusText}`);
     }
 
@@ -652,6 +660,173 @@ class EthosApiClient {
     }
   }
 
+  // V2 API: Get detailed review activities (CORRECTED - using proper POST endpoints)
+  async getDetailedUserActivities(profileId) {
+    const cacheKey = `v2activities:${profileId}`;
+    const cached = this.getCachedResult(cacheKey);
+    
+    if (cached) {
+      console.log(`[Ethos API v2] Cache hit for user activities: ${profileId}`);
+      return cached;
+    }
+
+    try {
+      console.log(`[Ethos API v2] Getting activities for profile: ${profileId}`);
+      
+      const userkey = `profileId:${profileId}`;
+      
+      // Use correct API v2 POST endpoints as per official documentation
+      const endpoints = [
+        {
+          name: 'activities-given',
+          url: `${this.baseUrlV2}/activities/profile/given`,
+          body: {
+            userkey: userkey,
+            filter: ['review', 'vouch', 'attestation'],
+            excludeSpam: true,
+            limit: 1000,
+            offset: 0
+          }
+        },
+        {
+          name: 'activities-received', 
+          url: `${this.baseUrlV2}/activities/profile/received`,
+          body: {
+            userkey: userkey,
+            filter: ['review', 'vouch', 'attestation'],
+            excludeSpam: true,
+            limit: 1000,
+            offset: 0
+          }
+        }
+      ];
+
+      const results = {};
+      
+      for (const endpoint of endpoints) {
+        try {
+          console.log(`[Ethos API v2] Trying POST endpoint: ${endpoint.name}`);
+          
+          const response = await this.makeRequest(endpoint.url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(endpoint.body)
+          });
+          
+          if (response && response.values) {
+            results[endpoint.name] = response.values;
+            console.log(`[Ethos API v2] ✅ ${endpoint.name} returned ${response.values.length} activities`);
+          } else {
+            results[endpoint.name] = [];
+            console.log(`[Ethos API v2] ⚠️ ${endpoint.name} returned no values`);
+          }
+          
+        } catch (error) {
+          console.log(`[Ethos API v2] ❌ ${endpoint.name} failed:`, error.message);
+          results[endpoint.name] = [];
+        }
+      }
+
+      // Process the activities to extract review counts
+      const reviewsGiven = results['activities-given']?.filter(activity => 
+        activity.activityType === 'review' || activity.type === 'review'
+      ) || [];
+      
+      const reviewsReceived = results['activities-received']?.filter(activity => 
+        activity.activityType === 'review' || activity.type === 'review'
+      ) || [];
+      
+      const vouchesGiven = results['activities-given']?.filter(activity => 
+        activity.activityType === 'vouch' || activity.type === 'vouch'
+      ) || [];
+      
+      const vouchesReceived = results['activities-received']?.filter(activity => 
+        activity.activityType === 'vouch' || activity.type === 'vouch'
+      ) || [];
+
+      const processedData = {
+        reviewsGiven,
+        reviewsReceived,
+        vouchesGiven,
+        vouchesReceived,
+        activities: [...(results['activities-given'] || []), ...(results['activities-received'] || [])],
+        summary: {
+          totalReviewsGiven: reviewsGiven.length,
+          totalReviewsReceived: reviewsReceived.length,
+          totalVouchesGiven: vouchesGiven.length,
+          totalVouchesReceived: vouchesReceived.length,
+          totalActivities: (results['activities-given']?.length || 0) + (results['activities-received']?.length || 0)
+        }
+      };
+
+      this.setCachedResult(cacheKey, processedData);
+      console.log(`[Ethos API v2] ✅ Activities summary for ${profileId}:`, processedData.summary);
+      return processedData;
+
+    } catch (error) {
+      console.log(`[Ethos API v2] ❌ Error getting activities for ${profileId}:`, error.message);
+      return {
+        reviewsGiven: [],
+        reviewsReceived: [],
+        vouchesGiven: [],
+        vouchesReceived: [],
+        activities: [],
+        summary: {
+          totalReviewsGiven: 0,
+          totalReviewsReceived: 0,
+          totalVouchesGiven: 0,
+          totalVouchesReceived: 0,
+          totalActivities: 0
+        }
+      };
+    }
+  }
+
+  // Enhanced method to get comprehensive user data including activities
+  async getComprehensiveUserData(userkey) {
+    console.log(`[Ethos API] Getting comprehensive data for: ${userkey}`);
+    
+    // Extract profile ID from userkey
+    const profileId = userkey.includes('profileId:') ? 
+      userkey.split('profileId:')[1] : userkey;
+    
+    // Get basic stats
+    const basicStats = await this.getUserStats(userkey);
+    
+    // Get detailed activities  
+    const activities = await this.getDetailedUserActivities(profileId);
+    
+    // Get detailed profile
+    const profile = await this.getDetailedProfile(profileId);
+    
+    // Combine and enhance the data
+    const comprehensiveData = {
+      basicStats,
+      activities,
+      profile,
+      enhanced: {
+        reviewsGiven: activities?.summary?.totalReviewsGiven || 0,
+        reviewsReceived: basicStats?.reviews?.received || 0,
+        vouchesGiven: activities?.summary?.totalVouchesGiven || basicStats?.vouches?.count?.deposited || 0,
+        vouchesReceived: basicStats?.vouches?.count?.received || 0,
+        reciprocityRatio: null
+      }
+    };
+    
+    // Calculate accurate reciprocity ratio
+    if (comprehensiveData.enhanced.reviewsReceived > 0) {
+      comprehensiveData.enhanced.reciprocityRatio = 
+        comprehensiveData.enhanced.reviewsGiven / comprehensiveData.enhanced.reviewsReceived;
+    } else if (comprehensiveData.enhanced.reviewsGiven > 0) {
+      comprehensiveData.enhanced.reciprocityRatio = 999.999; // Very high ratio
+    }
+    
+    console.log(`[Ethos API] Comprehensive data summary:`, comprehensiveData.enhanced);
+    return comprehensiveData;
+  }
+
   // V1 API: Get user stats including influencer score
   async getUserStats(userkey) {
     const cacheKey = `v1stats:${userkey}`;
@@ -731,5 +906,7 @@ export const getUserByProfileId = (profileId) => ethosApiClient.getUserByProfile
 export const getUsersByProfileIds = (profileIds) => ethosApiClient.getUsersByProfileIds(profileIds);
 export const getUserStats = (userkey) => ethosApiClient.getUserStats(userkey);
 export const getDetailedProfile = (profileId) => ethosApiClient.getDetailedProfile(profileId);
+export const getDetailedUserActivities = (profileId) => ethosApiClient.getDetailedUserActivities(profileId);
+export const getComprehensiveUserData = (userkey) => ethosApiClient.getComprehensiveUserData(userkey);
 export const clearEthosCache = () => ethosApiClient.clearCache();
 export const getEthosCacheStats = () => ethosApiClient.getCacheStats();

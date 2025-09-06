@@ -8,16 +8,27 @@
     "build": "next build",
     "start": "next start",
     "test:x-api": "node scripts/test-x-api.js",
-    "test:ethos-api": "node scripts/test-ethos-api.js"
+    "test:ethos-api": "node scripts/test-ethos-api.js",
+    "test:database": "node scripts/test-database.js",
+    "test:enhanced-r4r": "node scripts/test-enhanced-r4r.js",
+    "sync:start": "node scripts/scheduler.js start",
+    "sync:full": "node scripts/scheduler.js sync full",
+    "sync:profiles": "node scripts/scheduler.js sync profiles",
+    "sync:r4r": "node scripts/scheduler.js sync r4r",
+    "sync:eth-price": "node scripts/scheduler.js sync eth-price",
+    "sync:status": "node scripts/scheduler.js status"
   },
   "dependencies": {
     "axios": "^1.5.0",
+    "better-sqlite3": "^12.2.0",
     "ethos-connect": "^0.0.194",
     "lucide-react": "^0.542.0",
     "next": "^14.2.32",
+    "node-cron": "^4.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "recharts": "^3.1.2"
+    "recharts": "^3.1.2",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.12",
