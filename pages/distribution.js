@@ -147,18 +147,20 @@ export default function Distribution() {
           const season = profile.season_id || profile.season;
           const week = profile.week;
           const key = `${season}-${week}`;
-          
+
           if (!weeklyStats[key]) {
             weeklyStats[key] = {
               season: season,
               week: week,
               totalXp: 0,
+              weeklyXp: 0, // Initialize weeklyXp
               activeUsers: 0,
               users: new Set()
             };
           }
-          
-          weeklyStats[key].totalXp += profile.weekly_xp || 0;
+
+          weeklyStats[key].totalXp += profile.total_xp || 0;
+          weeklyStats[key].weeklyXp += profile.weekly_xp || 0; // Accumulate weeklyXp
           weeklyStats[key].users.add(profile.profile_id);
         });
         
@@ -1464,7 +1466,7 @@ export default function Distribution() {
                           </td>
                           <td className="font-bold text-blue-400">
                             {selectedWeek ? 
-                              (user.weekly_xp || 0).toLocaleString() : 
+                              (selectedWeek === '0' ? (user.weekly_xp || 0).toLocaleString() : (user.weekly_xp || 0).toLocaleString()) : 
                               (user.cumulative_xp || 0).toLocaleString()
                             }
                           </td>
@@ -1575,7 +1577,7 @@ export default function Distribution() {
                     <p className="text-gray-400 text-sm">Season 0 XP</p>
                     <p className="text-2xl font-bold text-blue-400">
                       {ethosDistributionApi.formatXpToMillions(
-                        weeklyDistributionAnalysis.filter(w => w.season === 0).reduce((sum, week) => sum + week.totalXp, 0)
+                        weeklyDistributionAnalysis.filter(w => w.season === 0 && w.week === 0).reduce((sum, week) => sum + week.totalXp, 0)
                       )}
                     </p>
                   </div>
@@ -1624,7 +1626,19 @@ export default function Distribution() {
                     </tr>
                   </thead>
                   <tbody>
-                    {weeklyDistributionAnalysis.map((week, index) => (
+                    {weeklyDistributionAnalysis.map(week => {
+  if ((week.season === 0 || week.season === 1) && week.week === 0) {
+    // Ensure Week 0 data is included for Season 0 and Season 1
+    return {
+      ...week,
+      totalXp: week.totalXp || 0,
+      activeUsers: week.activeUsers || 0,
+      avgXpPerUser: week.avgXpPerUser || 0,
+      percentageOfSeason: week.percentageOfSeason || 0
+    };
+  }
+  return week;
+}).map((week, index) => (
                       <tr key={`${week.season}-${week.week}`} className="border-b border-[#21262d] hover:bg-[#21262d]">
                         <td className="py-3 px-4">
                           <span className={`px-2 py-1 text-xs rounded ${
@@ -1708,7 +1722,7 @@ export default function Distribution() {
                           <span className="text-gray-400">Total XP:</span>
                           <span className="text-blue-400 font-semibold">
                             {ethosDistributionApi.formatXpToMillions(
-                              weeklyDistributionAnalysis.filter(w => w.season === 0).reduce((sum, week) => sum + week.totalXp, 0)
+                              weeklyDistributionAnalysis.filter(w => w.season === 0 && w.week === 0).reduce((sum, week) => sum + week.totalXp, 0)
                             )}
                           </span>
                         </div>
@@ -1722,7 +1736,7 @@ export default function Distribution() {
                           <span className="text-gray-400">Avg XP/Week:</span>
                           <span className="text-gray-300">
                             {ethosDistributionApi.formatXpToMillions(
-                              weeklyDistributionAnalysis.filter(w => w.season === 0).reduce((sum, week) => sum + week.totalXp, 0) / 
+                              weeklyDistributionAnalysis.filter(w => w.season === 0 && w.week === 0).reduce((sum, week) => sum + week.totalXp, 0) / 
                               Math.max(weeklyDistributionAnalysis.filter(w => w.season === 0).length, 1)
                             )}
                           </span>
@@ -1742,7 +1756,7 @@ export default function Distribution() {
                         <div className="flex justify-between">
                           <span className="text-gray-400">Total XP:</span>
                           <span className="text-green-400 font-semibold">
-                            {ethosDistributionApi.formatXpToMillions(
+                                                       {ethosDistributionApi.formatXpToMillions(
                               weeklyDistributionAnalysis.filter(w => w.season === 1).reduce((sum, week) => sum + week.totalXp, 0)
                             )}
                           </span>
