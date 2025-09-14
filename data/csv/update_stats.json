@@ -1,12 +1,12 @@
 {
   "processed": 37500,
-  "newProfiles": 12617,
-  "updatedProfiles": 4790,
+  "newProfiles": 1,
+  "updatedProfiles": 17407,
   "refreshedProfiles": 0,
   "errors": 0,
-  "duration": 558,
-  "finalProfileCount": 17407,
-  "finalWeeklyRecords": 261075,
+  "duration": 585,
+  "finalProfileCount": 17408,
+  "finalWeeklyRecords": 261090,
   "lastProcessedId": 37500,
-  "timestamp": 1757837004163
+  "timestamp": 1757840796784
 }

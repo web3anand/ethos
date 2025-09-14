@@ -70,6 +70,8 @@ export default function Distribution() {
 
   // Weekly leaderboard state
   const [weeklyData, setWeeklyData] = useState([]);
+  const [filteredWeeklyData, setFilteredWeeklyData] = useState([]);
+  const [displayedWeeklyData, setDisplayedWeeklyData] = useState([]);
   const [weeklyLoading, setWeeklyLoading] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState('1'); // Default to Season 1
   const [selectedWeek, setSelectedWeek] = useState(''); // Empty means season totals
@@ -77,36 +79,40 @@ export default function Distribution() {
   const [availableSeasons, setAvailableSeasons] = useState([]);
   const [availableWeeks, setAvailableWeeks] = useState([]);
   const [weeklyPagination, setWeeklyPagination] = useState({ total: 0, hasMore: false });
+  const [weeklyCurrentPage, setWeeklyCurrentPage] = useState(1);
+  const weeklyItemsPerPage = 25;
   const [weeklyDistributionAnalysis, setWeeklyDistributionAnalysis] = useState([]);
 
   // Fetch weekly leaderboard data
-  const fetchWeeklyData = async (season = selectedSeason, week = selectedWeek, search = weeklySearchTerm) => {
+  const fetchWeeklyData = async (season = selectedSeason, week = selectedWeek) => {
     try {
       setWeeklyLoading(true);
       const params = new URLSearchParams({
         offset: '0',
-        limit: '25' // Start with smaller limit for faster initial load
+        limit: '100000' // Get all data for local filtering
       });
       
       if (season) params.append('season', season);
       if (week) params.append('week', week);
-      if (search) params.append('search', search);
       
       const response = await fetch(`/api/csv-weekly-xp?${params}`);
       const data = await response.json();
       
       if (response.ok) {
         setWeeklyData(data.profiles);
+        setFilteredWeeklyData(data.profiles); // Initialize filtered data
         setWeeklyPagination({ total: data.total, hasMore: data.pagination.hasMore });
         setAvailableSeasons(data.seasons);
         setAvailableWeeks(data.weeks.filter(w => w.season_id == season));
       } else {
         console.error('Error fetching weekly data:', data.error);
         setWeeklyData([]);
+        setFilteredWeeklyData([]);
       }
     } catch (error) {
       console.error('Error fetching weekly data:', error);
       setWeeklyData([]);
+      setFilteredWeeklyData([]);
     } finally {
       setWeeklyLoading(false);
     }
@@ -116,20 +122,51 @@ export default function Distribution() {
   const handleSeasonChange = (season) => {
     setSelectedSeason(season);
     setSelectedWeek(''); // Reset week when season changes
-    fetchWeeklyData(season, '', weeklySearchTerm);
+    setWeeklySearchTerm(''); // Reset search when season changes
+    setWeeklyCurrentPage(1); // Reset to first page
+    fetchWeeklyData(season, '');
   };
 
   // Handle week change
   const handleWeekChange = (week) => {
     setSelectedWeek(week);
-    fetchWeeklyData(selectedSeason, week, weeklySearchTerm);
+    setWeeklySearchTerm(''); // Reset search when week changes
+    setWeeklyCurrentPage(1); // Reset to first page
+    fetchWeeklyData(selectedSeason, week);
   };
 
-  // Handle weekly search
+  // Handle weekly search - filters locally
   const handleWeeklySearch = (term) => {
     setWeeklySearchTerm(term);
-    fetchWeeklyData(selectedSeason, selectedWeek, term);
   };
+
+  // Filter weekly data when search term or data changes
+  useEffect(() => {
+    if (!weeklySearchTerm.trim()) {
+      // If search is empty, show all data
+      setFilteredWeeklyData(weeklyData);
+    } else {
+      // Filter data locally
+      const filtered = weeklyData.filter(user => {
+        const searchLower = weeklySearchTerm.toLowerCase();
+        return (
+          user.username?.toLowerCase().includes(searchLower) ||
+          user.display_name?.toLowerCase().includes(searchLower) ||
+          user.profile_id?.toString().includes(searchLower)
+        );
+      });
+      setFilteredWeeklyData(filtered);
+    }
+    setWeeklyCurrentPage(1); // Reset to first page when filtering
+  }, [weeklySearchTerm, weeklyData]);
+
+  // Paginate filtered data for display
+  useEffect(() => {
+    const startIndex = (weeklyCurrentPage - 1) * weeklyItemsPerPage;
+    const endIndex = startIndex + weeklyItemsPerPage;
+    const paginatedData = filteredWeeklyData.slice(startIndex, endIndex);
+    setDisplayedWeeklyData(paginatedData);
+  }, [filteredWeeklyData, weeklyCurrentPage]);
 
   // Fetch weekly distribution analysis data
   const fetchWeeklyDistributionAnalysis = async () => {
@@ -435,7 +472,7 @@ export default function Distribution() {
   // Load weekly data when the weekly tab is selected
   useEffect(() => {
     if (selectedView === 'weekly') {
-      fetchWeeklyData();
+      fetchWeeklyData(selectedSeason, selectedWeek);
     }
   }, [selectedView]);
 
@@ -972,10 +1009,7 @@ export default function Distribution() {
       return;
     }
     
-    if (fullRefreshStatus?.onCooldown) {
-      alert(`Full refresh is on cooldown. Please wait ${fullRefreshStatus.remainingCooldownHours} more hours before trying again.`);
-      return;
-    }
+    // No cooldown check needed - password protection instead
 
     // Create a custom dialog for full refresh
     const dialog = document.createElement('div');
@@ -1019,12 +1053,27 @@ export default function Distribution() {
           </ul>
           <div style="background: #dc2626; border-radius: 6px; padding: 12px; margin-bottom: 16px;">
             <p style="margin: 0; color: white; font-size: 14px; font-weight: 600;">
-              ⏰ 12-HOUR COOLDOWN: Once started, this cannot be run again for 12 hours!
+              🔐 PASSWORD REQUIRED: Enter password to access force refresh
             </p>
           </div>
           <p style="margin: 0; color: #fbbf24; font-size: 14px;">
             ⚠️ Use only when you need to ensure ALL profiles have the latest data
           </p>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; color: #ccc; font-size: 14px; font-weight: 500;">
+            Password:
+          </label>
+          <input type="password" id="refreshPassword" placeholder="Enter password" style="
+            width: 100%;
+            padding: 10px 12px;
+            background: #333;
+            border: 1px solid #555;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+          " />
         </div>
         <div style="display: flex; gap: 12px; justify-content: flex-end;">
           <button id="cancelFullBtn" style="
@@ -1062,17 +1111,26 @@ export default function Distribution() {
     });
     
     confirmBtn.addEventListener('click', async () => {
+      const passwordInput = dialog.querySelector('#refreshPassword');
+      const password = passwordInput.value.trim();
+      
+      if (!password) {
+        alert('Please enter the password to access force refresh.');
+        return;
+      }
+      
       document.body.removeChild(dialog);
       
       try {
         console.log('[Distribution] Starting full refresh...');
         
-        // Call the full refresh API
+        // Call the full refresh API with password
         const response = await fetch('/api/force-full-refresh', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          body: JSON.stringify({ password }),
         });
         
         const result = await response.json();
@@ -1081,14 +1139,14 @@ export default function Distribution() {
           console.log('[Distribution] Full refresh started:', result);
           
           // Show success dialog
-          alert(`Full refresh started successfully!\n\nThis will take 30+ minutes to complete.\nNext refresh available: ${new Date(result.nextAllowedRefresh).toLocaleString()}`);
+          alert(`Full refresh started successfully!\n\nThis will take 30+ minutes to complete.`);
           
           // Refresh status to show the update is running
           checkFullRefreshStatus();
         } else {
           console.error('[Distribution] Full refresh error:', result);
-          if (result.status === 'cooldown') {
-            alert(`Full refresh is on cooldown.\n\nRemaining time: ${result.remainingHours} hours\nLast refresh: ${new Date(result.lastRefresh?.timestamp).toLocaleString()}`);
+          if (result.status === 401) {
+            alert(`Access denied: ${result.message || 'Invalid password'}`);
           } else {
             alert(`Full refresh failed: ${result.error || 'Unknown error'}`);
           }
@@ -1400,12 +1458,12 @@ export default function Distribution() {
                 <div className="flex items-center space-x-2">
                   <span className="text-gray-400">Showing:</span>
                   <span className="text-white font-medium">
-                    {selectedWeek ? `Week ${selectedWeek} of ${availableSeasons.find(s => s.season_id == selectedSeason)?.season_name}` : `${availableSeasons.find(s => s.season_id == selectedSeason)?.season_name} Total`}
+                    {selectedWeek !== '' ? `Week ${selectedWeek} of ${availableSeasons.find(s => s.season_id == selectedSeason)?.season_name}` : `${availableSeasons.find(s => s.season_id == selectedSeason)?.season_name} Total`}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-gray-400">Total Results:</span>
-                  <span className="text-blue-400 font-medium">{weeklyPagination.total.toLocaleString()}</span>
+                  <span className="text-blue-400 font-medium">{filteredWeeklyData.length.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-gray-400">Metric:</span>
@@ -1430,15 +1488,15 @@ export default function Distribution() {
                       <tr>
                         <th>Rank</th>
                         <th>User</th>
-                        <th>{selectedWeek ? 'Weekly XP' : 'Season XP'}</th>
-                        {!selectedWeek && <th>Cumulative XP</th>}
+                        <th>{selectedWeek !== '' ? 'Weekly XP' : 'Season XP'}</th>
+                        {selectedWeek === '' && <th>Cumulative XP</th>}
                         <th>Total XP</th>
                         <th>Season</th>
-                        {selectedWeek && <th>Week</th>}
+                        {selectedWeek !== '' && <th>Week</th>}
                       </tr>
                     </thead>
                     <tbody>
-                      {weeklyData.map((user) => (
+                      {displayedWeeklyData.map((user) => (
                         <tr key={`${user.profile_id}-${user.season_id}-${user.week}`}>
                           <td>
                             <span className={classicStyles.rank}>#{user.rank}</span>
@@ -1463,12 +1521,12 @@ export default function Distribution() {
                             </div>
                           </td>
                           <td className="font-bold text-blue-400">
-                            {selectedWeek ? 
+                            {selectedWeek !== '' ? 
                               (user.weekly_xp || 0).toLocaleString() : 
                               (user.cumulative_xp || 0).toLocaleString()
                             }
                           </td>
-                          {!selectedWeek && (
+                          {selectedWeek === '' && (
                             <td className="text-green-400">
                               {(user.cumulative_xp || 0).toLocaleString()}
                             </td>
@@ -1491,12 +1549,37 @@ export default function Distribution() {
                     </tbody>
                   </table>
                   
-                  {weeklyData.length === 0 && !weeklyLoading && (
+                  {displayedWeeklyData.length === 0 && !weeklyLoading && (
                     <div className="text-center py-12">
                       <p className="text-gray-400 text-lg">No data found for the selected criteria</p>
                       <p className="text-gray-500 text-sm mt-2">
                         Try selecting a different season or week, or check your search term
                       </p>
+                    </div>
+                  )}
+                  
+                  {/* Pagination Controls */}
+                  {filteredWeeklyData.length > weeklyItemsPerPage && (
+                    <div className="flex justify-center items-center space-x-4 mt-6">
+                      <button
+                        onClick={() => setWeeklyCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={weeklyCurrentPage === 1}
+                        className="px-4 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#30363d] transition-colors"
+                      >
+                        Previous
+                      </button>
+                      
+                      <span className="text-gray-400">
+                        Page {weeklyCurrentPage} of {Math.ceil(filteredWeeklyData.length / weeklyItemsPerPage)}
+                      </span>
+                      
+                      <button
+                        onClick={() => setWeeklyCurrentPage(p => Math.min(Math.ceil(filteredWeeklyData.length / weeklyItemsPerPage), p + 1))}
+                        disabled={weeklyCurrentPage >= Math.ceil(filteredWeeklyData.length / weeklyItemsPerPage)}
+                        className="px-4 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#30363d] transition-colors"
+                      >
+                        Next
+                      </button>
                     </div>
                   )}
                 </div>

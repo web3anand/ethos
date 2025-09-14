@@ -153,9 +153,31 @@ function getProcessedWeeklyData(data, season, week) {
   let aggregatedData;
   
   if (week !== undefined) {
-    // Specific week data
+    // Specific week data - filter by week and aggregate by profile_id to avoid duplicates
     filteredData = filteredData.filter(record => record.week === parseInt(week));
-    aggregatedData = filteredData;
+    
+    // Aggregate by profile_id to handle cases where same profile has multiple records for same week
+    const profileTotals = new Map();
+    
+    filteredData.forEach(record => {
+      const profileId = record.profile_id;
+      if (!profileTotals.has(profileId)) {
+        profileTotals.set(profileId, {
+          profile_id: profileId,
+          season_id: record.season_id || record.season,
+          week: record.week,
+          weekly_xp: 0,
+          cumulative_xp: 0
+        });
+      }
+      
+      const current = profileTotals.get(profileId);
+      current.weekly_xp += record.weekly_xp || 0;
+      current.cumulative_xp = Math.max(current.cumulative_xp, record.cumulative_xp || 0);
+    });
+    
+    aggregatedData = Array.from(profileTotals.values());
+    console.log(`🔍 Week ${week} aggregation: ${filteredData.length} records -> ${aggregatedData.length} unique profiles`);
   } else {
     // Season totals - aggregate by profile_id
     const profileTotals = new Map();
@@ -185,7 +207,8 @@ function getProcessedWeeklyData(data, season, week) {
     .filter(record => {
       // Only include users who have XP for this specific query
       if (week !== undefined) {
-        return record.weekly_xp > 0; // Weekly view: must have earned XP in this specific week
+        // For weekly views, only include users who earned XP in that specific week
+        return record.weekly_xp > 0;
       } else {
         return record.cumulative_xp > 0; // Season view: must have cumulative XP in this season
       }

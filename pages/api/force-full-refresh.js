@@ -2,37 +2,27 @@ import { runIncrementalUpdate } from '../../scripts/incremental-profile-updater.
 import fs from 'fs';
 import path from 'path';
 
-// File-based lock and cooldown mechanism
+// File-based lock mechanism (no cooldown)
 const LOCK_FILE = path.join(process.cwd(), 'data', 'csv', 'force-refresh.lock');
-const COOLDOWN_HOURS = 12;
-const COOLDOWN_MS = COOLDOWN_HOURS * 60 * 60 * 1000; // 12 hours in milliseconds
+const REFRESH_PASSWORD = 'acees'; // Password to access force refresh
 
 // Track running refresh
 let isRefreshing = false;
 let lastRefreshStats = null;
 let refreshStartTime = null;
 
-// Check if refresh is on cooldown
-function isOnCooldown() {
+// Check if refresh is currently running
+function isCurrentlyRunning() {
   try {
     if (!fs.existsSync(LOCK_FILE)) {
-      return { onCooldown: false, remainingTime: 0 };
+      return { isRunning: false };
     }
     
     const lockData = JSON.parse(fs.readFileSync(LOCK_FILE, 'utf8'));
-    const timeSinceLastRefresh = Date.now() - lockData.timestamp;
-    
-    if (timeSinceLastRefresh < COOLDOWN_MS) {
-      const remainingTime = COOLDOWN_MS - timeSinceLastRefresh;
-      return { onCooldown: true, remainingTime, lastRefresh: lockData };
-    }
-    
-    // Cooldown expired, remove lock file
-    fs.unlinkSync(LOCK_FILE);
-    return { onCooldown: false, remainingTime: 0 };
+    return { isRunning: true, lockData };
   } catch (error) {
-    console.warn('Error checking cooldown:', error.message);
-    return { onCooldown: false, remainingTime: 0 };
+    console.warn('Error checking lock status:', error.message);
+    return { isRunning: false };
   }
 }
 
@@ -45,7 +35,7 @@ function createRefreshLock() {
       status: 'running'
     };
     fs.writeFileSync(LOCK_FILE, JSON.stringify(lockData, null, 2));
-    console.log('🔒 Created force refresh lock with 12-hour cooldown');
+    console.log('🔒 Created force refresh lock');
   } catch (error) {
     console.error('Error creating refresh lock:', error);
   }
@@ -53,17 +43,15 @@ function createRefreshLock() {
 
 // Get refresh status
 function getRefreshStatus() {
-  const cooldown = isOnCooldown();
+  const running = isCurrentlyRunning();
   
   return {
     isRefreshing,
-    onCooldown: cooldown.onCooldown,
-    remainingCooldownTime: cooldown.remainingTime,
-    remainingCooldownHours: Math.ceil(cooldown.remainingTime / (60 * 60 * 1000)),
+    isRunning: running.isRunning,
     lastRefreshStats,
     lastRefreshTime: lastRefreshStats ? new Date(lastRefreshStats.timestamp).toISOString() : null,
     refreshStartTime: refreshStartTime ? new Date(refreshStartTime).toISOString() : null,
-    cooldownHours: COOLDOWN_HOURS
+    lockData: running.lockData
   };
 }
 
@@ -78,6 +66,15 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Check password
+    const { password } = req.body;
+    if (password !== REFRESH_PASSWORD) {
+      return res.status(401).json({ 
+        error: 'Invalid password',
+        message: 'Password required to access force refresh'
+      });
+    }
+
     // Check if refresh is already running
     if (isRefreshing) {
       const status = getRefreshStatus();
@@ -88,22 +85,8 @@ export default async function handler(req, res) {
         message: 'A force refresh is currently running. Please wait for it to complete.'
       });
     }
-    
-    // Check cooldown
-    const cooldownCheck = isOnCooldown();
-    if (cooldownCheck.onCooldown) {
-      const hoursRemaining = Math.ceil(cooldownCheck.remainingTime / (60 * 60 * 1000));
-      return res.status(429).json({ 
-        error: 'Force refresh on cooldown',
-        status: 'cooldown',
-        remainingHours: hoursRemaining,
-        remainingTime: cooldownCheck.remainingTime,
-        message: `Force refresh is on cooldown. Please wait ${hoursRemaining} more hours before trying again.`,
-        lastRefresh: cooldownCheck.lastRefresh
-      });
-    }
 
-    // Create lock file (starts cooldown)
+    // Create lock file
     createRefreshLock();
     
     // Start the refresh process
@@ -131,9 +114,7 @@ export default async function handler(req, res) {
       message: 'Force full refresh started',
       status: 'started',
       timestamp: new Date().toISOString(),
-      processId: process.pid,
-      cooldownHours: COOLDOWN_HOURS,
-      nextAllowedRefresh: new Date(Date.now() + COOLDOWN_MS).toISOString()
+      processId: process.pid
     });
 
   } catch (error) {
