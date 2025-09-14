@@ -106,6 +106,57 @@ CREATE TABLE IF NOT EXISTS eth_prices (
     recorded_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Fresh leaderboard data (replaces JSON cache)
+CREATE TABLE IF NOT EXISTS fresh_leaderboard (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    profile_id INTEGER UNIQUE NOT NULL,
+    username TEXT,
+    display_name TEXT,
+    avatar_url TEXT,
+    score INTEGER DEFAULT 0,
+    xp_total INTEGER DEFAULT 0,
+    xp_streak_days INTEGER DEFAULT 0,
+    leaderboard_rank INTEGER,
+    status TEXT DEFAULT 'ACTIVE',
+    influence_factor INTEGER DEFAULT 0,
+    last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data_source TEXT DEFAULT 'api', -- 'api', 'cached', 'estimated'
+    FOREIGN KEY (profile_id) REFERENCES profiles(profile_id)
+);
+
+-- Seasons data (replaces seasons cache)
+CREATE TABLE IF NOT EXISTS seasons_data (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    season_id INTEGER NOT NULL,
+    season_name TEXT NOT NULL,
+    week_number INTEGER NOT NULL,
+    total_xp INTEGER DEFAULT 0,
+    active_users INTEGER DEFAULT 0,
+    average_xp_per_user INTEGER DEFAULT 0,
+    start_date TEXT,
+    end_date TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(season_id, week_number)
+);
+
+-- Weekly leaderboards for seasons
+CREATE TABLE IF NOT EXISTS weekly_leaderboards (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    season_id INTEGER NOT NULL,
+    week_number INTEGER NOT NULL,
+    profile_id INTEGER NOT NULL,
+    username TEXT,
+    display_name TEXT,
+    weekly_xp INTEGER DEFAULT 0,
+    cumulative_xp INTEGER DEFAULT 0,
+    week_rank INTEGER,
+    season_rank INTEGER,
+    last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (profile_id) REFERENCES profiles(profile_id),
+    UNIQUE(season_id, week_number, profile_id)
+);
+
 -- Indexes for better query performance
 CREATE INDEX IF NOT EXISTS idx_profiles_username ON profiles(username);
 CREATE INDEX IF NOT EXISTS idx_profiles_score ON profiles(score DESC);
@@ -118,3 +169,9 @@ CREATE INDEX IF NOT EXISTS idx_reviews_type ON reviews(review_type);
 CREATE INDEX IF NOT EXISTS idx_user_stats_profile_id ON user_stats(profile_id);
 CREATE INDEX IF NOT EXISTS idx_r4r_profile_id ON r4r_analysis(profile_id);
 CREATE INDEX IF NOT EXISTS idx_sync_logs_type_status ON sync_logs(sync_type, status);
+CREATE INDEX IF NOT EXISTS idx_fresh_leaderboard_rank ON fresh_leaderboard(leaderboard_rank);
+CREATE INDEX IF NOT EXISTS idx_fresh_leaderboard_xp ON fresh_leaderboard(xp_total DESC);
+CREATE INDEX IF NOT EXISTS idx_fresh_leaderboard_updated ON fresh_leaderboard(last_updated DESC);
+CREATE INDEX IF NOT EXISTS idx_seasons_data_season ON seasons_data(season_id, week_number);
+CREATE INDEX IF NOT EXISTS idx_weekly_leaderboards_season_week ON weekly_leaderboards(season_id, week_number);
+CREATE INDEX IF NOT EXISTS idx_weekly_leaderboards_rank ON weekly_leaderboards(week_rank, season_rank);

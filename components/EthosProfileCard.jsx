@@ -5,7 +5,6 @@ import fetchEthPrice from '../utils/fetchEthPrice';
 import { fetchUserAddresses } from '../lib/ethos';
 import { getUserStats } from '../utils/ethosApiClient';
 import UserActivities from './UserActivities';
-import XpDistribution from './XpDistribution';
 // import EthosLogo from './EthosLogo';
 
 // Copy button with tooltip for address
@@ -261,51 +260,51 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
                 </div>
               )}
             </div>
-            <div className={styles.profileCardEthosPillWrap}>
-              <div
-                className={styles.profileCardEthosPill}
-                style={{ 
-                  background: scoreLevel.color,
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                }}
-              >
-                <span style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'flex-start',
-                  gap: '12px',
-                  minWidth: 'auto',
-                  width: '100%'
-                }}>
-                  <Image
-                    src="/ethos.png"
-                    alt="Ethos Logo"
-                    width={24}
-                    height={24}
-                    style={{
-                      flexShrink: 0,
-                      objectFit: 'contain'
-                    }}
-                  />
-                  <span 
-                    style={{
-                      fontWeight: 600,
-                      color: scoreLevel.color === '#e2e2e2' ? '#222' : '#fff',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      fontSize: 'inherit'
-                    }}
-                    data-length={scoreLevel.name.length}
-                  >{scoreLevel.name}</span>
-                </span>
-              </div>
+            <div className={styles.nameBar}>
+              <span className={styles.profileCardName}>{profile.displayName}</span>
             </div>
           </div>
-          <div className={styles.nameBar}>
-            <span className={styles.profileCardName}>{profile.displayName}</span>
+          <div className={styles.profileCardEthosPillWrap}>
+            <div
+              className={styles.profileCardEthosPill}
+              style={{ 
+                background: scoreLevel.color,
+                padding: '8px 16px',
+                borderRadius: '20px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+            >
+              <span style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'flex-start',
+                gap: '12px',
+                minWidth: 'auto',
+                width: '100%'
+              }}>
+                <Image
+                  src="/ethos.png"
+                  alt="Ethos Logo"
+                  width={24}
+                  height={24}
+                  style={{
+                    flexShrink: 0,
+                    objectFit: 'contain'
+                  }}
+                />
+                <span 
+                  style={{
+                    fontWeight: 600,
+                    color: scoreLevel.color === '#e2e2e2' ? '#222' : '#fff',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    fontSize: 'inherit'
+                  }}
+                  data-length={scoreLevel.name.length}
+                >{scoreLevel.name}</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -428,50 +427,50 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
               </div>
             )}
           </div>
-          <div className={styles.profileCardEthosPillWrap}>
-            <div
-              className={styles.profileCardEthosPill}
-              style={{ 
-                background: scoreLevel.color,
-                padding: '8px 16px',
-                borderRadius: '20px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-              }}
-            >
-              <span style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'flex-start',
-                gap: '12px',
-                minWidth: '280px',
-                width: '100%'
-              }}>
-                <Image
-                  src="/ethos.png"
-                  alt="Ethos Logo"
-                  width={24}
-                  height={24}
-                  style={{
-                    flexShrink: 0,
-                    objectFit: 'contain'
-                  }}
-                />
-                <span 
-                  style={{
-                    fontWeight: 600,
-                    color: scoreLevel.color === '#e2e2e2' ? '#222' : '#fff',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}
-                  data-length={scoreLevel.name.length}
-                >{scoreLevel.name}</span>
-              </span>
-            </div>
+          <div className={styles.nameBar}>
+            <span className={styles.profileCardName}>{profile.displayName}</span>
           </div>
         </div>
-        <div className={styles.nameBar}>
-          <span className={styles.profileCardName}>{profile.displayName}</span>
+        <div className={styles.profileCardEthosPillWrap}>
+          <div
+            className={styles.profileCardEthosPill}
+            style={{ 
+              background: scoreLevel.color,
+              padding: '8px 16px',
+              borderRadius: '20px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}
+          >
+            <span style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'flex-start',
+              gap: '12px',
+              minWidth: '280px',
+              width: '100%'
+            }}>
+              <Image
+                src="/ethos.png"
+                alt="Ethos Logo"
+                width={24}
+                height={24}
+                style={{
+                  flexShrink: 0,
+                  objectFit: 'contain'
+                }}
+              />
+              <span 
+                style={{
+                  fontWeight: 600,
+                  color: scoreLevel.color === '#e2e2e2' ? '#222' : '#fff',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}
+                data-length={scoreLevel.name.length}
+              >{scoreLevel.name}</span>
+            </span>
+          </div>
         </div>
       </div>
 
@@ -553,8 +552,6 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
       {/* User Activities Section */}
       <UserActivities profile={profile} />
 
-      {/* XP Distribution Section */}
-      <XpDistribution profile={profile} />
     </div>
   );
 }

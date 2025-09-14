@@ -1,0 +1,11 @@
+{
+  "totalProfiles": 0,
+  "validProfiles": 17366,
+  "totalFetched": 36500,
+  "consecutiveNotFound": 3197,
+  "lastProfileId": 36500,
+  "errors": 7,
+  "startTime": "2025-09-13T09:45:18.920Z",
+  "lastUpdated": "2025-09-13T10:06:39.406Z",
+  "duration": 1280486
+}

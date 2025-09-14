@@ -30,16 +30,16 @@
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .statCard {
   background-color: #161b22;
   border: 1px solid #30363d;
-  border-radius: 8px;
-  padding: 1.5rem;
+  border-radius: 6px;
+  padding: 1rem;
   text-align: left;
   transition: all 0.2s ease-in-out;
 }
@@ -50,21 +50,21 @@
 }
 
 .statLabel {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #8b949e;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .statValue {
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: #e6e6e6;
 }
 
 .statSubValue {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #8b949e;
-  margin-top: 0.25rem;
+  margin-top: 0.15rem;
 }
 
 .tabs {

@@ -1,6 +1,13 @@
 // Enhanced Ethos API client for comprehensive user search and lookup
 // Uses both v1 (deprecated) and v2 APIs for maximum coverage
 
+// High-performance configuration based on API limits
+const DEFAULT_CONCURRENCY = 150;     // API calls in parallel
+const DEFAULT_BATCH_SIZE = 1000;     // Records per DB flush
+const DEFAULT_MAX_RETRIES = 3;       // Retry failed requests
+const DEFAULT_SLEEP_MS = 50;         // Delay between batches
+const MAX_RECORDS_PER_QUERY = 250;   // SQL parameter limit
+
 class EthosApiClient {
   constructor() {
     this.baseUrlV1 = 'https://api.ethos.network/api/v1';
@@ -8,7 +15,9 @@ class EthosApiClient {
     this.cache = new Map();
     this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
     this.lastRequestTime = 0;
-    this.requestDelay = 200; // 200ms delay between requests
+    this.requestDelay = 10; // Reduced to 10ms for high-performance mode
+    this.concurrency = DEFAULT_CONCURRENCY;
+    this.maxRetries = DEFAULT_MAX_RETRIES;
   }
 
   // Get cached result if available and not expired
@@ -888,6 +897,149 @@ class EthosApiClient {
       }
       console.error(`[Ethos API v1] Error fetching detailed profile for ${profileId}:`, error);
       throw error;
+    }
+  }
+
+  // HIGH-PERFORMANCE: Concurrent profileId-based fetching with optimized batching
+  async fetchUsersHighPerformance(startProfileId = 1, maxUsers = 21000, options = {}) {
+    const {
+      concurrency = this.concurrency,
+      batchSize = DEFAULT_BATCH_SIZE,
+      sleepMs = DEFAULT_SLEEP_MS,
+      maxRetries = this.maxRetries,
+      onProgress = null,
+      incrementalMode = false // Set true for incremental updates
+    } = options;
+
+    console.log(`[Ethos API HP] Starting high-performance fetch: ${maxUsers} users, ${concurrency} concurrent requests`);
+    
+    const results = [];
+    const errors = [];
+    let processed = 0;
+    let currentProfileId = startProfileId;
+
+    // Create semaphore for concurrency control
+    const semaphore = new Array(concurrency).fill(0).map(() => Promise.resolve());
+    let semaphoreIndex = 0;
+
+    const fetchSingleUser = async (profileId, retryCount = 0) => {
+      try {
+        // Wait for available slot in semaphore
+        await semaphore[semaphoreIndex];
+        const currentSlot = semaphoreIndex;
+        semaphoreIndex = (semaphoreIndex + 1) % concurrency;
+
+        const fetchPromise = this.getUserByProfileId(profileId);
+        semaphore[currentSlot] = fetchPromise.catch(() => null); // Don't let errors block semaphore
+
+        const user = await fetchPromise;
+        
+        if (user && user.score > 0) {
+          return {
+            ...user,
+            profileId: user.profileId || profileId,
+            fetchedAt: new Date().toISOString(),
+            source: 'high-performance-concurrent'
+          };
+        }
+        return null;
+      } catch (error) {
+        if (retryCount < maxRetries && !error.message.includes('404')) {
+          console.warn(`[Ethos API HP] Retry ${retryCount + 1}/${maxRetries} for profileId ${profileId}`);
+          await new Promise(resolve => setTimeout(resolve, 100 * (retryCount + 1))); // Exponential backoff
+          return fetchSingleUser(profileId, retryCount + 1);
+        }
+        
+        if (!error.message.includes('404')) {
+          errors.push({ profileId, error: error.message });
+        }
+        return null;
+      }
+    };
+
+    // Process in batches with concurrent requests
+    const totalBatches = Math.ceil(maxUsers / batchSize);
+    
+    for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+      const batchStart = currentProfileId;
+      const batchEnd = Math.min(batchStart + batchSize - 1, startProfileId + maxUsers - 1);
+      const batchSize_actual = batchEnd - batchStart + 1;
+
+      console.log(`[Ethos API HP] Processing batch ${batchIndex + 1}/${totalBatches}: profileIds ${batchStart}-${batchEnd} (${batchSize_actual} users)`);
+
+      // Create concurrent promises for this batch
+      const batchPromises = [];
+      for (let profileId = batchStart; profileId <= batchEnd; profileId++) {
+        batchPromises.push(fetchSingleUser(profileId));
+      }
+
+      // Wait for all concurrent requests in this batch
+      const batchResults = await Promise.all(batchPromises);
+      
+      // Filter and add valid users
+      const validUsers = batchResults.filter(user => user !== null);
+      results.push(...validUsers);
+      
+      processed += batchSize_actual;
+      currentProfileId = batchEnd + 1;
+
+      // Progress callback
+      if (onProgress) {
+        onProgress({
+          processed,
+          total: maxUsers,
+          validUsers: results.length,
+          currentBatch: batchIndex + 1,
+          totalBatches,
+          errors: errors.length,
+          percentage: (processed / maxUsers) * 100
+        });
+      }
+
+      console.log(`[Ethos API HP] Batch ${batchIndex + 1} complete: ${validUsers.length} valid users found (${results.length} total)`);
+
+      // Small delay between batches to prevent overwhelming the API
+      if (batchIndex < totalBatches - 1) {
+        await new Promise(resolve => setTimeout(resolve, sleepMs));
+      }
+    }
+
+    console.log(`[Ethos API HP] High-performance fetch complete: ${results.length} users found, ${errors.length} errors`);
+    
+    return {
+      users: results,
+      errors,
+      stats: {
+        totalProcessed: processed,
+        validUsers: results.length,
+        errorCount: errors.length,
+        successRate: ((processed - errors.length) / processed * 100).toFixed(2) + '%',
+        avgUsersPerBatch: (results.length / totalBatches).toFixed(1)
+      }
+    };
+  }
+
+  // INCREMENTAL: Get last profileId from cache and fetch only new users
+  async fetchUsersIncremental(lastKnownProfileId = null, options = {}) {
+    // If no lastKnownProfileId provided, try to determine from cache or start from a reasonable point
+    const startId = lastKnownProfileId || await this.getLastCachedProfileId() || 1;
+    
+    console.log(`[Ethos API] Starting incremental fetch from profileId: ${startId}`);
+    
+    return this.fetchUsersHighPerformance(startId, 5000, { // Smaller batch for incremental
+      ...options,
+      incrementalMode: true
+    });
+  }
+
+  // Helper: Get the highest profileId from cache (for incremental updates)
+  async getLastCachedProfileId() {
+    try {
+      // This could read from your cache file or memory
+      // For now, return a reasonable starting point
+      return 20000; // Adjust based on your current data
+    } catch {
+      return 1;
     }
   }
 }

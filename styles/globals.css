@@ -4,6 +4,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Avatar image error handling */
+img[data-avatar="true"]:not([src]),
+img[data-avatar="true"][src=""],
+img[data-avatar="true"][src*="404"] {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
 /* Viewport and mobile optimization */
 html {
   -webkit-text-size-adjust: 100%;
@@ -79,6 +92,16 @@ body {
   border-radius: 24px; /* Increased border-radius for a more curved look */
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1.5rem;
+}
+
+@media (min-width: 769px) {
+  .glass-container {
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+    padding: 0;
+  }
 }
 
 /* New Layout & Component Styles */
