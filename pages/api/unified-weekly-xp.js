@@ -34,7 +34,7 @@ export default async function handler(req, res) {
           w.weekly_xp,
           w.cumulative_xp,
           ROW_NUMBER() OVER (
-            ORDER BY ${week !== undefined ? 'w.weekly_xp' : 'w.cumulative_xp'} DESC
+            ORDER BY ${(week !== undefined && week !== null && week !== '') ? 'w.weekly_xp' : 'w.cumulative_xp'} DESC
           ) as rank
         FROM weekly_xp_data w
         LEFT JOIN xp_profiles p ON w.profile_id = p.profile_id
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
           w.weekly_xp,
           w.cumulative_xp,
           ROW_NUMBER() OVER (
-            ORDER BY ${week !== undefined ? 'w.weekly_xp' : 'w.cumulative_xp'} DESC
+            ORDER BY ${(week !== undefined && week !== null && week !== '') ? 'w.weekly_xp' : 'w.cumulative_xp'} DESC
           ) as rank
         FROM weekly_xp_data w
         LEFT JOIN xp_profiles p ON w.profile_id = p.profile_id
@@ -79,7 +79,7 @@ export default async function handler(req, res) {
       }
       
       // Filter by week if specified
-      if (week !== undefined) {
+      if (week !== undefined && week !== null && week !== '') {
         query += ` AND w.week = ?`;
         params.push(parseInt(week));
       }
@@ -92,12 +92,12 @@ export default async function handler(req, res) {
       }
       
       // Only include profiles with XP data for the specified criteria
-      if (season !== undefined || week !== undefined) {
+      if (season !== undefined || (week !== undefined && week !== null && week !== '')) {
         query += ` AND w.profile_id IS NOT NULL`;
       }
       
       // Add ordering and limit
-      query += ` ORDER BY ${week !== undefined ? 'w.weekly_xp' : 'w.cumulative_xp'} DESC`;
+      query += ` ORDER BY ${(week !== undefined && week !== null && week !== '') ? 'w.weekly_xp' : 'w.cumulative_xp'} DESC`;
       query += ` LIMIT ? OFFSET ?`;
       params.push(parseInt(limit), parseInt(offset));
       
@@ -119,7 +119,7 @@ export default async function handler(req, res) {
         countParams.push(parseInt(season));
       }
       
-      if (week !== undefined) {
+      if (week !== undefined && week !== null && week !== '') {
         countQuery += ` AND w.week = ?`;
         countParams.push(parseInt(week));
       }
@@ -130,7 +130,7 @@ export default async function handler(req, res) {
         countParams.push(searchPattern, searchPattern, search);
       }
       
-      if (season !== undefined || week !== undefined) {
+      if (season !== undefined || (week !== undefined && week !== null && week !== '')) {
         countQuery += ` AND w.profile_id IS NOT NULL`;
       }
       
@@ -181,7 +181,7 @@ export default async function handler(req, res) {
           w.weekly_xp,
           w.cumulative_xp,
           ROW_NUMBER() OVER (
-            ORDER BY ${week !== undefined ? 'w.weekly_xp' : 'w.cumulative_xp'} DESC
+            ORDER BY ${(week !== undefined && week !== null && week !== '') ? 'w.weekly_xp' : 'w.cumulative_xp'} DESC
           ) as rank
         FROM weekly_xp_data w
         LEFT JOIN users u ON w.profile_id = u.profile_id

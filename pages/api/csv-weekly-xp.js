@@ -7,7 +7,7 @@ let csvCache = {
   weeklyXp: null,
   seasonWeeks: null,
   lastLoaded: null,
-  cacheTimeoutMs: 30 * 60 * 1000, // 30 minutes (increased from 5)
+  cacheTimeoutMs: 5 * 60 * 1000, // 5 minutes (reduced for testing)
   userLookup: null, // Fast user lookup map
   processedData: new Map() // Cache processed weekly data by season/week
 };
@@ -136,48 +136,34 @@ function getProcessedWeeklyData(data, season, week) {
   
   // Apply season filter - handle missing season data
   if (season !== undefined) {
-    // If season data is missing (empty or null), assume all data is for the requested season
-    // This handles cases where the CSV doesn't have season information
     filteredData = filteredData.filter(record => {
       const recordSeason = record.season_id || record.season;
       // Convert both to numbers for comparison
       const recordSeasonNum = parseInt(recordSeason);
       const requestedSeasonNum = parseInt(season);
-      // If no season data, include the record (assume it's for the requested season)
-      // If season data exists, filter by it
-      return isNaN(recordSeasonNum) || recordSeasonNum === requestedSeasonNum;
+      // Only include records that have season data and match the requested season
+      return !isNaN(recordSeasonNum) && recordSeasonNum === requestedSeasonNum;
     });
   }
   
   // Apply week filter or aggregate by profile for season totals
   let aggregatedData;
   
-  if (week !== undefined) {
-    // Specific week data - filter by week and aggregate by profile_id to avoid duplicates
+  if (week !== undefined && week !== null && week !== '') {
+    // Specific week data - filter by week and season
     filteredData = filteredData.filter(record => record.week === parseInt(week));
     
-    // Aggregate by profile_id to handle cases where same profile has multiple records for same week
-    const profileTotals = new Map();
+    // For weekly data, we want the specific weekly_xp for that week, not aggregated
+    // Each record should represent one user's performance in that specific week
+    aggregatedData = filteredData.map(record => ({
+      profile_id: record.profile_id,
+      season_id: record.season_id || record.season,
+      week: record.week,
+      weekly_xp: record.weekly_xp || 0,
+      cumulative_xp: record.cumulative_xp || 0
+    }));
     
-    filteredData.forEach(record => {
-      const profileId = record.profile_id;
-      if (!profileTotals.has(profileId)) {
-        profileTotals.set(profileId, {
-          profile_id: profileId,
-          season_id: record.season_id || record.season,
-          week: record.week,
-          weekly_xp: 0,
-          cumulative_xp: 0
-        });
-      }
-      
-      const current = profileTotals.get(profileId);
-      current.weekly_xp += record.weekly_xp || 0;
-      current.cumulative_xp = Math.max(current.cumulative_xp, record.cumulative_xp || 0);
-    });
-    
-    aggregatedData = Array.from(profileTotals.values());
-    console.log(`🔍 Week ${week} aggregation: ${filteredData.length} records -> ${aggregatedData.length} unique profiles`);
+    console.log(`🔍 Week ${week} data: ${filteredData.length} records -> ${aggregatedData.length} unique profiles`);
   } else {
     // Season totals - aggregate by profile_id
     const profileTotals = new Map();
@@ -206,7 +192,7 @@ function getProcessedWeeklyData(data, season, week) {
   const combinedData = aggregatedData
     .filter(record => {
       // Only include users who have XP for this specific query
-      if (week !== undefined) {
+      if (week !== undefined && week !== null && week !== '') {
         // For weekly views, only include users who earned XP in that specific week
         return record.weekly_xp > 0;
       } else {
@@ -229,7 +215,7 @@ function getProcessedWeeklyData(data, season, week) {
     });
   
   // Sort by the appropriate metric
-  const sortKey = week !== undefined ? 'weekly_xp' : 'cumulative_xp';
+  const sortKey = (week !== undefined && week !== null && week !== '') ? 'weekly_xp' : 'cumulative_xp';
   combinedData.sort((a, b) => b[sortKey] - a[sortKey]);
   
   // Add ranking
@@ -247,6 +233,13 @@ function getProcessedWeeklyData(data, season, week) {
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Clear cache if requested
+  if (req.query.clearCache === 'true') {
+    csvCache.lastLoaded = null;
+    csvCache.processedData.clear();
+    console.log('🧹 Cache cleared');
   }
 
   try {

@@ -71,7 +71,7 @@ export default function Distribution() {
   // Weekly leaderboard state
   const [weeklyData, setWeeklyData] = useState([]);
   const [weeklyLoading, setWeeklyLoading] = useState(false);
-  const [selectedSeason, setSelectedSeason] = useState('1'); // Default to Season 1
+  const [selectedSeason, setSelectedSeason] = useState('0'); // Default to Season 0
   const [selectedWeek, setSelectedWeek] = useState(''); // Empty means season totals
   const [weeklySearchTerm, setWeeklySearchTerm] = useState('');
   const [availableSeasons, setAvailableSeasons] = useState([]);
@@ -82,24 +82,77 @@ export default function Distribution() {
   // Fetch weekly leaderboard data
   const fetchWeeklyData = async (season = selectedSeason, week = selectedWeek, search = weeklySearchTerm) => {
     try {
+      console.log(`[Distribution] 🔄 Fetching weekly data: season=${season}, week=${week}, search=${search}`);
+      console.log(`[Distribution] 🔍 Current state: selectedSeason=${selectedSeason}, selectedWeek=${selectedWeek}, weeklySearchTerm=${weeklySearchTerm}`);
       setWeeklyLoading(true);
       const params = new URLSearchParams({
         offset: '0',
-        limit: '25' // Start with smaller limit for faster initial load
+        limit: '25', // Start with smaller limit for faster initial load
+        clearCache: 'true', // Force cache clear
+        _t: Date.now(), // Cache busting timestamp
+        _r: Math.random() // Additional random cache busting
       });
       
-      if (season) params.append('season', season);
-      if (week) params.append('week', week);
+      if (season !== undefined && season !== null && season !== '') params.append('season', season);
+      if (week !== undefined && week !== null && week !== '') params.append('week', week);
       if (search) params.append('search', search);
       
-      const response = await fetch(`/api/csv-weekly-xp?${params}`);
+      // Debug logging
+      console.log(`[Distribution] 🔍 API Parameters:`, {
+        season: season,
+        week: week,
+        search: search,
+        seasonType: typeof season,
+        seasonFalsy: !season,
+        seasonUndefined: season === undefined,
+        seasonNull: season === null,
+        seasonEmpty: season === '',
+        weekType: typeof week,
+        weekFalsy: !week,
+        weekUndefined: week === undefined,
+        weekNull: week === null,
+        weekEmpty: week === '',
+        finalParams: params.toString()
+      });
+      
+      const response = await fetch(`/api/csv-weekly-xp?${params}`, {
+        cache: 'no-store', // Disable browser caching
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
       const data = await response.json();
+      
+      console.log(`[Distribution] 📊 Fetched data for Season ${season}, Week ${week}:`, {
+        total: data.total,
+        profiles: data.profiles.length,
+        firstUser: data.profiles[0] ? {
+          rank: data.profiles[0].rank,
+          weekly_xp: data.profiles[0].weekly_xp,
+          cumulative_xp: data.profiles[0].cumulative_xp,
+          season_id: data.profiles[0].season_id,
+          week: data.profiles[0].week
+        } : null
+      });
+      
+      // Debug: Check if the data matches what we expect
+      if (data.profiles[0]) {
+        const user = data.profiles[0];
+        console.log(`[Distribution] 🔍 Data verification:`);
+        console.log(`   Expected Season: ${season}, Got: ${user.season_id}`);
+        console.log(`   Expected Week: ${week || 'Total'}, Got: ${user.week}`);
+        console.log(`   User: ${user.username}, Rank: #${user.rank}, XP: ${user.weekly_xp || user.cumulative_xp}`);
+      }
       
       if (response.ok) {
         setWeeklyData(data.profiles);
         setWeeklyPagination({ total: data.total, hasMore: data.pagination.hasMore });
         setAvailableSeasons(data.seasons);
-        setAvailableWeeks(data.weeks.filter(w => w.season_id == season));
+        const filteredWeeks = data.weeks.filter(w => w.season_id == season);
+        console.log(`[Distribution] 🔍 Available weeks for season ${season}:`, filteredWeeks);
+        setAvailableWeeks(filteredWeeks);
       } else {
         console.error('Error fetching weekly data:', data.error);
         setWeeklyData([]);
@@ -114,14 +167,29 @@ export default function Distribution() {
 
   // Handle season change
   const handleSeasonChange = (season) => {
+    console.log(`[Distribution] 🔄 Season changed to: ${season}`);
+    console.log(`[Distribution] 🔍 Before state update: selectedSeason=${selectedSeason}, selectedWeek=${selectedWeek}`);
     setSelectedSeason(season);
-    setSelectedWeek(''); // Reset week when season changes
-    fetchWeeklyData(season, '', weeklySearchTerm);
+    // Don't reset week immediately - let the user choose
+    console.log(`[Distribution] 🔍 After state update: season=${season}, week=${selectedWeek}, search=${weeklySearchTerm}`);
   };
 
   // Handle week change
   const handleWeekChange = (week) => {
+    console.log(`[Distribution] 🔄 Week changed to: ${week}`);
+    console.log(`[Distribution] 🔍 Before state update: selectedSeason=${selectedSeason}, selectedWeek=${selectedWeek}`);
+    console.log(`[Distribution] 🔍 Week details:`, {
+      week: week,
+      weekType: typeof week,
+      weekFalsy: !week,
+      weekUndefined: week === undefined,
+      weekNull: week === null,
+      weekEmpty: week === '',
+      weekZero: week === 0,
+      weekStringZero: week === '0'
+    });
     setSelectedWeek(week);
+    console.log(`[Distribution] 🔍 After state update: season=${selectedSeason}, week=${week}, search=${weeklySearchTerm}`);
     fetchWeeklyData(selectedSeason, week, weeklySearchTerm);
   };
 
@@ -136,7 +204,7 @@ export default function Distribution() {
     try {
       console.log('[Distribution] 📊 Fetching weekly distribution analysis...');
       
-      const response = await fetch('/api/csv-weekly-xp?offset=0&limit=100000'); // Get all weekly data
+      const response = await fetch(`/api/csv-weekly-xp?offset=0&limit=100000&clearCache=true&_t=${Date.now()}&_r=${Math.random()}`); // Get all weekly data
       const data = await response.json();
       
       if (data && data.profiles) {
@@ -437,9 +505,32 @@ export default function Distribution() {
   // Load weekly data when the weekly tab is selected
   useEffect(() => {
     if (selectedView === 'weekly') {
-      fetchWeeklyData();
+      console.log(`[Distribution] 🔄 useEffect triggered: season=${selectedSeason}, week=${selectedWeek}, search=${weeklySearchTerm}`);
+      // Force refresh with current state values
+      fetchWeeklyData(selectedSeason, selectedWeek, weeklySearchTerm);
     }
-  }, [selectedView]);
+  }, [selectedView, selectedSeason, selectedWeek, weeklySearchTerm]);
+
+  // Handle season change by triggering API call
+  useEffect(() => {
+    if (selectedView === 'weekly' && selectedSeason) {
+      console.log(`[Distribution] 🔄 Season change useEffect: season=${selectedSeason}, week=${selectedWeek}`);
+      fetchWeeklyData(selectedSeason, selectedWeek, weeklySearchTerm);
+    }
+  }, [selectedSeason]);
+
+  // Handle week selection validation when available weeks change
+  useEffect(() => {
+    if (selectedView === 'weekly' && availableWeeks.length > 0 && selectedWeek !== '') {
+      const isValidWeek = availableWeeks.some(w => w.week == selectedWeek);
+      console.log(`[Distribution] 🔍 Week validation: selectedWeek=${selectedWeek}, availableWeeks=`, availableWeeks.map(w => w.week), `isValid=${isValidWeek}`);
+      
+      if (!isValidWeek) {
+        console.log(`[Distribution] 🔄 Invalid week ${selectedWeek} for current season, resetting to empty`);
+        setSelectedWeek('');
+      }
+    }
+  }, [availableWeeks, selectedWeek, selectedView]);
 
   useEffect(() => {
     if (searchTerm.trim()) {
@@ -1027,6 +1118,26 @@ export default function Distribution() {
           <p style="margin: 0; color: #fbbf24; font-size: 14px;">
             ⚠️ Use only when you need to ensure ALL profiles have the latest data
           </p>
+          <div style="margin: 20px 0;">
+            <label style="display: block; margin-bottom: 8px; color: #ccc; font-size: 14px;">
+              Password Required:
+            </label>
+            <input 
+              id="refreshPassword" 
+              type="password" 
+              placeholder="Enter password to confirm"
+              style="
+                width: 100%;
+                padding: 10px;
+                background: #0d1117;
+                border: 1px solid #30363d;
+                border-radius: 6px;
+                color: white;
+                font-size: 14px;
+                outline: none;
+              "
+            />
+          </div>
         </div>
         <div style="display: flex; gap: 12px; justify-content: flex-end;">
           <button id="cancelFullBtn" style="
@@ -1064,17 +1175,26 @@ export default function Distribution() {
     });
     
     confirmBtn.addEventListener('click', async () => {
+      const passwordInput = dialog.querySelector('#refreshPassword');
+      const password = passwordInput.value;
+      
+      if (!password) {
+        alert('Password is required to start full refresh');
+        return;
+      }
+      
       document.body.removeChild(dialog);
       
       try {
         console.log('[Distribution] Starting full refresh...');
         
-        // Call the full refresh API
+        // Call the full refresh API with password
         const response = await fetch('/api/force-full-refresh', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          body: JSON.stringify({ password })
         });
         
         const result = await response.json();
@@ -1402,7 +1522,7 @@ export default function Distribution() {
                 <div className="flex items-center space-x-2">
                   <span className="text-gray-400">Showing:</span>
                   <span className="text-white font-medium">
-                    {selectedWeek ? `Week ${selectedWeek} of ${availableSeasons.find(s => s.season_id == selectedSeason)?.season_name}` : `${availableSeasons.find(s => s.season_id == selectedSeason)?.season_name} Total`}
+                    {(selectedWeek !== undefined && selectedWeek !== null && selectedWeek !== '') ? `Week ${selectedWeek} of ${availableSeasons.find(s => s.season_id == selectedSeason)?.season_name}` : `${availableSeasons.find(s => s.season_id == selectedSeason)?.season_name} Total`}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -1412,7 +1532,7 @@ export default function Distribution() {
                 <div className="flex items-center space-x-2">
                   <span className="text-gray-400">Metric:</span>
                   <span className="text-green-400 font-medium">
-                    {selectedWeek ? 'Weekly XP' : 'Cumulative XP'}
+                    {(selectedWeek !== undefined && selectedWeek !== null && selectedWeek !== '') ? 'Weekly XP' : 'Cumulative XP'}
                   </span>
                 </div>
               </div>
@@ -1432,11 +1552,11 @@ export default function Distribution() {
                       <tr>
                         <th>Rank</th>
                         <th>User</th>
-                        <th>{selectedWeek ? 'Weekly XP' : 'Season XP'}</th>
-                        {!selectedWeek && <th>Cumulative XP</th>}
+                        <th>{(selectedWeek !== undefined && selectedWeek !== null && selectedWeek !== '') ? 'Weekly XP' : 'Season XP'}</th>
+                        {!(selectedWeek !== undefined && selectedWeek !== null && selectedWeek !== '') && <th>Cumulative XP</th>}
                         <th>Total XP</th>
                         <th>Season</th>
-                        {selectedWeek && <th>Week</th>}
+                        {(selectedWeek !== undefined && selectedWeek !== null && selectedWeek !== '') && <th>Week</th>}
                       </tr>
                     </thead>
                     <tbody>
@@ -1465,12 +1585,12 @@ export default function Distribution() {
                             </div>
                           </td>
                           <td className="font-bold text-blue-400">
-                            {selectedWeek ? 
-                              (selectedWeek === '0' ? (user.weekly_xp || 0).toLocaleString() : (user.weekly_xp || 0).toLocaleString()) : 
+                            {(selectedWeek !== undefined && selectedWeek !== null && selectedWeek !== '') ? 
+                              (user.weekly_xp || 0).toLocaleString() : 
                               (user.cumulative_xp || 0).toLocaleString()
                             }
                           </td>
-                          {!selectedWeek && (
+                          {!(selectedWeek !== undefined && selectedWeek !== null && selectedWeek !== '') && (
                             <td className="text-green-400">
                               {(user.cumulative_xp || 0).toLocaleString()}
                             </td>
@@ -1481,10 +1601,10 @@ export default function Distribution() {
                               Season {user.season_id}
                             </span>
                           </td>
-                          {selectedWeek && (
+                          {(selectedWeek !== undefined && selectedWeek !== null && selectedWeek !== '') && (
                             <td>
                               <span className="px-2 py-1 bg-blue-700 text-blue-300 text-xs rounded">
-                                Week {user.week}
+                                Week {selectedWeek}
                               </span>
                             </td>
                           )}
@@ -1592,13 +1712,13 @@ export default function Distribution() {
                   <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4">
                     <p className="text-gray-400 text-sm">S0 Users</p>
                     <p className="text-2xl font-bold text-blue-300">
-                      {Math.max(...weeklyDistributionAnalysis.filter(w => w.season === 0).map(w => w.activeUsers), 0).toLocaleString()}
+                      {weeklyDistributionAnalysis.filter(w => w.season === 0).length > 0 ? Math.max(...weeklyDistributionAnalysis.filter(w => w.season === 0).map(w => w.activeUsers)).toLocaleString() : '0'}
                     </p>
                   </div>
                   <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4">
                     <p className="text-gray-400 text-sm">S1 Users</p>
                     <p className="text-2xl font-bold text-green-300">
-                      {Math.max(...weeklyDistributionAnalysis.filter(w => w.season === 1).map(w => w.activeUsers), 0).toLocaleString()}
+                      {weeklyDistributionAnalysis.filter(w => w.season === 1).length > 0 ? Math.max(...weeklyDistributionAnalysis.filter(w => w.season === 1).map(w => w.activeUsers)).toLocaleString() : '0'}
                     </p>
                   </div>
                   <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4">
@@ -1729,7 +1849,7 @@ export default function Distribution() {
                         <div className="flex justify-between">
                           <span className="text-gray-400">Peak Users:</span>
                           <span className="text-blue-300">
-                            {Math.max(...weeklyDistributionAnalysis.filter(w => w.season === 0).map(w => w.activeUsers), 0).toLocaleString()}
+                            {weeklyDistributionAnalysis.filter(w => w.season === 0).length > 0 ? Math.max(...weeklyDistributionAnalysis.filter(w => w.season === 0).map(w => w.activeUsers)).toLocaleString() : '0'}
                           </span>
                         </div>
                         <div className="flex justify-between">
@@ -1764,7 +1884,7 @@ export default function Distribution() {
                         <div className="flex justify-between">
                           <span className="text-gray-400">Peak Users:</span>
                           <span className="text-green-300">
-                            {Math.max(...weeklyDistributionAnalysis.filter(w => w.season === 1).map(w => w.activeUsers), 0).toLocaleString()}
+                            {weeklyDistributionAnalysis.filter(w => w.season === 1).length > 0 ? Math.max(...weeklyDistributionAnalysis.filter(w => w.season === 1).map(w => w.activeUsers)).toLocaleString() : '0'}
                           </span>
                         </div>
                         <div className="flex justify-between">
