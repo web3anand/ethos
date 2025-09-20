@@ -1,0 +1,21 @@
+{
+  "timestamp": "2025-09-20T11-00-59",
+  "files": [
+    {
+      "name": "comprehensive_profiles.csv",
+      "size": 6678606,
+      "status": "success"
+    },
+    {
+      "name": "comprehensive_weekly_xp.csv",
+      "size": 23940586,
+      "status": "success"
+    },
+    {
+      "name": "season_weeks.csv",
+      "size": 1235,
+      "status": "success"
+    }
+  ],
+  "totalSize": 30620427
+}

@@ -15,9 +15,10 @@ class EthosApiClient {
     this.cache = new Map();
     this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
     this.lastRequestTime = 0;
-    this.requestDelay = 10; // Reduced to 10ms for high-performance mode
+    this.requestDelay = 100; // Increased to 100ms to prevent rate limiting
     this.concurrency = DEFAULT_CONCURRENCY;
     this.maxRetries = DEFAULT_MAX_RETRIES;
+    this.rateLimitRetryDelay = 2000; // 2 seconds for rate limit retries
   }
 
   // Get cached result if available and not expired
@@ -51,32 +52,56 @@ class EthosApiClient {
     this.lastRequestTime = Date.now();
   }
 
-  // Make request to Ethos API
-  async makeRequest(url, options = {}) {
+  // Make request to Ethos API with rate limit handling
+  async makeRequest(url, options = {}, retryCount = 0) {
     await this.throttleRequest();
 
-    const response = await fetch(url, {
-      headers: {
-        'X-Ethos-Client': 'ethos-app-dev',
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      ...options,
-    });
-
-    if (!response.ok) {
-      const responseBody = await response.text();
-      console.error('Ethos API Request Failed:', {
-        url,
-        options,
-        status: response.status,
-        statusText: response.statusText,
-        responseBody
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'X-Ethos-Client': 'ethos-app-dev',
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        ...options,
       });
-      throw new Error(`Ethos API error: ${response.status} ${response.statusText}`);
-    }
 
-    return response.json();
+      // Handle rate limiting (429) with exponential backoff
+      if (response.status === 429) {
+        if (retryCount < this.maxRetries) {
+          const delay = this.rateLimitRetryDelay * Math.pow(2, retryCount);
+          console.warn(`[Ethos API] Rate limited, retrying in ${delay}ms (attempt ${retryCount + 1}/${this.maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return this.makeRequest(url, options, retryCount + 1);
+        } else {
+          console.error('[Ethos API] Rate limit exceeded, max retries reached');
+          throw new Error('Rate limit exceeded. Please try again later.');
+        }
+      }
+
+      if (!response.ok) {
+        const responseBody = await response.text();
+        console.error('Ethos API Request Failed:', {
+          url,
+          options,
+          status: response.status,
+          statusText: response.statusText,
+          responseBody
+        });
+        throw new Error(`Ethos API error: ${response.status} ${response.statusText}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      // Handle network errors with retry
+      if (retryCount < this.maxRetries && (error.name === 'TypeError' || error.message.includes('fetch'))) {
+        const delay = 1000 * Math.pow(2, retryCount);
+        console.warn(`[Ethos API] Network error, retrying in ${delay}ms (attempt ${retryCount + 1}/${this.maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return this.makeRequest(url, options, retryCount + 1);
+      }
+      throw error;
+    }
   }
 
   // V2 API: Search users by query string (most comprehensive)

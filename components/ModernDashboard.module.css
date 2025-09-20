@@ -36,7 +36,9 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   flex: 1;
+  text-align: center;
 }
 
 .avatar {
@@ -88,7 +90,37 @@
   font-size: 1.5rem;
   font-weight: 600;
   color: #e6e6e6;
-  text-align: left;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.socialLinks {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.socialLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #21262d;
+  border: 1px solid #30363d;
+  color: #ffffff;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.socialLink:hover {
+  background: #30363d;
+  color: #e6e6e6;
+  border-color: #58a6ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* Grid Container */
@@ -198,21 +230,16 @@
   font-weight: 700;
 }
 
-/* Score Graph Placeholder */
-.graphPlaceholder {
-  height: 120px;
-  background: #21262d;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px dashed #30363d;
-}
-
-.comingSoon {
-  color: #8b949e;
-  font-style: italic;
-  font-size: 0.9rem;
+/* Score Graph */
+.scoreGraph {
+  background: rgba(13, 17, 23, 0.8);
+  border: 1px solid rgba(48, 54, 61, 0.5);
+  border-radius: 12px;
+  padding: 0;
+  height: 100%;
+  min-height: 200px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 /* Activities Full Width */

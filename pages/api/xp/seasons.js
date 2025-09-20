@@ -45,10 +45,11 @@ export default function handler(req, res) {
     // Group by season
     const seasonsByNumber = {};
     seasons.forEach(season => {
-      if (!seasonsByNumber[season.season]) {
-        seasonsByNumber[season.season] = [];
+      const seasonNum = season.season_id || season.season;
+      if (!seasonsByNumber[seasonNum]) {
+        seasonsByNumber[seasonNum] = [];
       }
-      seasonsByNumber[season.season].push(season);
+      seasonsByNumber[seasonNum].push(season);
     });
 
     // Find current season (most recent one with data)
@@ -59,7 +60,7 @@ export default function handler(req, res) {
       const currentSeasonWeeks = seasonsByNumber[currentSeason];
       
       // Find current week (most recent week in current season)
-      if (currentSeasonWeeks.length > 0) {
+      if (currentSeasonWeeks && currentSeasonWeeks.length > 0) {
         const latestWeek = currentSeasonWeeks.reduce((latest, week) => 
           week.week > latest.week ? week : latest
         );

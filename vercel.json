@@ -1,0 +1,13 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/update-data",
+      "schedule": "0 */3 * * *"
+    }
+  ],
+  "functions": {
+    "pages/api/cron/update-data.js": {
+      "maxDuration": 300
+    }
+  }
+}

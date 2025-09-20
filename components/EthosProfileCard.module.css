@@ -124,7 +124,8 @@
   background: none;
   border-radius: 10px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   padding: 8px 16px;
   box-sizing: border-box;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
@@ -132,6 +133,35 @@
   height: 72px;
   margin-top: 0;
   min-width: 0;
+}
+
+.socialLinks {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.socialLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #21262d;
+  border: 1px solid #30363d;
+  color: #ffffff;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.socialLink:hover {
+  background: #30363d;
+  color: #e6e6e6;
+  border-color: #58a6ff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 .profileCardName {
   margin: 0;

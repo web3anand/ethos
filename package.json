@@ -8,7 +8,10 @@
     "build": "next build",
     "start": "next start",
     "sync:status": "node scripts/check-sync-status.js",
-    "force-refresh": "node scripts/force-refresh-sync.js"
+    "force-refresh": "node scripts/force-refresh-sync.js",
+    "auto-update": "node scripts/auto-updater.js",
+    "auto-update:start": "node scripts/auto-updater.js &",
+    "auto-update:stop": "pkill -f auto-updater.js"
   },
   "dependencies": {
     "axios": "^1.5.0",

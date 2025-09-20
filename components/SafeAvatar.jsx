@@ -41,7 +41,9 @@ const SafeAvatar = ({
           width: size,
           height: size,
           borderRadius: '50%',
-          objectFit: 'cover'
+          objectFit: 'cover',
+          border: '2px solid rgba(99, 102, 241, 0.2)',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
         }}
       />
     );
@@ -62,7 +64,9 @@ const SafeAvatar = ({
             borderRadius: '50%',
             objectFit: 'cover',
             opacity: loading ? 0.7 : 1,
-            transition: 'opacity 0.2s ease-in-out'
+            transition: 'opacity 0.2s ease-in-out',
+            border: '2px solid rgba(99, 102, 241, 0.2)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
           }}
         />
       )}
@@ -75,7 +79,9 @@ const SafeAvatar = ({
             width: size,
             height: size,
             borderRadius: '50%',
-            objectFit: 'cover'
+            objectFit: 'cover',
+            border: '2px solid rgba(99, 102, 241, 0.2)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
           }}
         />
       )}
