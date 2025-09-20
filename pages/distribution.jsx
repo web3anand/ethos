@@ -83,8 +83,8 @@ export default function Distribution() {
       // Regular weekly data fetching for all seasons/weeks
       const params = new URLSearchParams({
         offset: '0',
-        limit: '25', // Start with smaller limit for faster initial load
-        clearCache: 'true', // Force cache clear
+        limit: search ? '50' : '25', // Smaller limit for search, even smaller for initial load
+        // clearCache: 'true', // Only clear cache when needed
         _t: Date.now(), // Cache busting timestamp
         _r: Math.random() // Additional random cache busting
       });
@@ -194,7 +194,7 @@ export default function Distribution() {
     try {
       console.log('[Distribution] 📊 Fetching weekly distribution analysis...');
       
-      const response = await fetch(`/api/csv-weekly-xp?offset=0&limit=100000&clearCache=true&_t=${Date.now()}&_r=${Math.random()}`); // Get all weekly data
+      const response = await fetch(`/api/csv-weekly-xp?offset=0&limit=100000&_t=${Date.now()}&_r=${Math.random()}`); // Get all weekly data
       const data = await response.json();
       
       if (data && data.profiles) {

@@ -12,8 +12,14 @@ let csvCache = {
   processedData: new Map() // Cache processed weekly data by season/week
 };
 
-// Parse a single CSV line with proper quote handling
+// Fast CSV line parser - optimized for performance
 function parseCSVLine(line) {
+  // Use simple split for most cases (much faster)
+  if (!line.includes('"')) {
+    return line.split(',').map(field => field.trim());
+  }
+  
+  // Only use complex parsing when quotes are present
   const result = [];
   let current = '';
   let inQuotes = false;
@@ -23,34 +29,15 @@ function parseCSVLine(line) {
     const char = line[i];
     
     if (char === '"') {
-      if (inQuotes) {
-        // Check if this is an escaped quote (double quote)
-        if (line[i + 1] === '"') {
-          current += '"';
-          i += 2;
-        } else {
-          // End of quoted field - but only if we're at a field boundary
-          // Look ahead to see if the next non-whitespace char is a comma or end of line
-          let j = i + 1;
-          while (j < line.length && line[j] === ' ') j++;
-          
-          if (j >= line.length || line[j] === ',') {
-            // This is truly the end of the quoted field
-            inQuotes = false;
-            i++;
-          } else {
-            // This is a quote inside the quoted field, keep it
-            current += char;
-            i++;
-          }
-        }
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i += 2;
       } else {
-        // Start of quoted field
-        inQuotes = true;
+        inQuotes = !inQuotes;
         i++;
       }
     } else if (char === ',' && !inQuotes) {
-      result.push(current);
+      result.push(current.trim());
       current = '';
       i++;
     } else {
@@ -59,7 +46,7 @@ function parseCSVLine(line) {
     }
   }
   
-  result.push(current);
+  result.push(current.trim());
   return result;
 }
 
