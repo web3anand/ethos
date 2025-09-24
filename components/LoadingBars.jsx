@@ -12,38 +12,41 @@ const LoadingBars = ({ size = 'medium', className = '', color = 'blue' }) => {
     }
   };
 
-  const getColorClasses = () => {
+  const getColorStyle = () => {
     switch (color) {
       case 'blue':
-        return 'bg-blue-500';
+        return { backgroundColor: 'var(--accent-primary)' };
       case 'white':
-        return 'bg-white';
+        return { backgroundColor: 'var(--text-primary)' };
       case 'gray':
-        return 'bg-gray-400';
+        return { backgroundColor: 'var(--text-muted)' };
       default:
-        return 'bg-blue-500';
+        return { backgroundColor: 'var(--accent-primary)' };
     }
   };
 
   return (
     <div className={`flex items-center justify-center space-x-1 ${className}`}>
       <div 
-        className={`${getSizeClasses()} ${getColorClasses()} rounded-sm`}
+        className={`${getSizeClasses()} rounded-sm`}
         style={{
+          ...getColorStyle(),
           animation: 'loadingBar 0.6s ease-in-out infinite',
           animationDelay: '0ms'
         }}
       ></div>
       <div 
-        className={`${getSizeClasses()} ${getColorClasses()} rounded-sm`}
+        className={`${getSizeClasses()} rounded-sm`}
         style={{
+          ...getColorStyle(),
           animation: 'loadingBar 0.6s ease-in-out infinite',
           animationDelay: '0.2s'
         }}
       ></div>
       <div 
-        className={`${getSizeClasses()} ${getColorClasses()} rounded-sm`}
+        className={`${getSizeClasses()} rounded-sm`}
         style={{
+          ...getColorStyle(),
           animation: 'loadingBar 0.6s ease-in-out infinite',
           animationDelay: '0.4s'
         }}

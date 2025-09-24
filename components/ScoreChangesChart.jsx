@@ -134,7 +134,7 @@ const ScoreChangesChart = ({ profileId, username, currentScore }) => {
                 className={`${styles.bar} ${isLatest ? styles.latest : ''}`}
                 style={{
                   height: `${Math.max(height, 2)}%`,
-                  '--bar-color': isLatest ? '#3b82f6' : '#1e40af'
+                  '--bar-color': isLatest ? 'var(--accent-primary)' : 'var(--accent-secondary)'
                 }}
                 title={`Week ${data.week}: ${data.score} points`}
               />

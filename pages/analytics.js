@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import LockedPage from '../components/LockedPage';
 
 export default function Analytics() {
@@ -15,6 +16,7 @@ export default function Analytics() {
       
       <Navbar />
       <LockedPage pageName="Analytics" />
+      <Footer />
     </>
   );
 }

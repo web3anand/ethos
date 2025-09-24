@@ -1,0 +1,286 @@
+/* SearchBar Component Styles with Theme Variables */
+
+.searchContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 32rem; /* max-w-lg */
+  gap: 0.5rem;
+  position: relative;
+  padding: 0 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .searchContainer {
+    padding: 0;
+  }
+}
+
+.searchInputContainer {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.inputWrapper {
+  position: relative;
+  flex-grow: 1;
+  width: 100%;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 1rem 3rem 1rem 1rem;
+  background: var(--bg-glass);
+  backdrop-filter: var(--backdrop-blur);
+  border: 1px solid var(--border-secondary);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s ease;
+  color: var(--text-primary);
+  font-size: 1rem;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1), var(--shadow-lg);
+}
+
+.searchInput::placeholder {
+  color: var(--text-muted);
+}
+
+.clearButton {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clearButton:hover {
+  color: var(--text-primary);
+}
+
+.searchButton {
+  padding: 1rem 1.5rem;
+  background: var(--accent-primary);
+  color: var(--text-primary);
+  border: none;
+  border-radius: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-lg);
+}
+
+.searchButton:hover:not(:disabled) {
+  background: var(--accent-secondary);
+  box-shadow: var(--shadow-xl);
+}
+
+.searchButton:disabled {
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.searchButtonContent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.suggestionsContainer {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: var(--bg-glass-hover);
+  backdrop-filter: var(--backdrop-blur);
+  border: 1px solid var(--border-secondary);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  margin-top: 0.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.suggestionsContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.suggestionsContent {
+  padding: 0.5rem;
+}
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.loadingText {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-left: 0.75rem;
+}
+
+.suggestionItem {
+  padding: 0.5rem;
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+.suggestionContent {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  cursor: pointer;
+  border-radius: 0.75rem;
+  transition: all 0.15s ease;
+}
+
+.suggestionContent:hover {
+  background: var(--bg-tertiary);
+  transform: scale(1.01);
+}
+
+.suggestionContent.selected {
+  background: var(--accent-primary);
+  background: rgba(88, 166, 255, 0.4);
+  box-shadow: var(--shadow-sm);
+  transform: scale(1.02);
+}
+
+.avatarContainer {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-primary);
+}
+
+.avatarFallback {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  font-weight: bold;
+  font-size: 1.125rem;
+  border: 2px solid var(--border-primary);
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.userNameContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.userName {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.verifiedIcon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--accent-primary);
+  flex-shrink: 0;
+}
+
+.username {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.statsContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.scoreBadge {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--accent-success);
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.followersContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.followersIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.noResultsContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.noResultsText {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

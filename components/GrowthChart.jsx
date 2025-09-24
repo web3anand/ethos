@@ -50,7 +50,7 @@ const GrowthChart = ({ userkey }) => {
         alignItems: 'center', 
         justifyContent: 'center' 
       }}>
-        <div style={{ color: '#ef4444' }}>{error}</div>
+        <div style={{ color: 'var(--accent-error)' }}>{error}</div>
       </div>
     );
   }
@@ -80,7 +80,7 @@ const GrowthChart = ({ userkey }) => {
       }}>
         <h3 style={{ 
           margin: 0, 
-          color: '#e6e6e6', 
+          color: 'var(--text-primary)', 
           fontSize: '1.25rem', 
           fontWeight: '600' 
         }}>
@@ -90,13 +90,13 @@ const GrowthChart = ({ userkey }) => {
           display: 'flex', 
           gap: '1rem', 
           fontSize: '0.875rem',
-          color: '#8b949e'
+          color: 'var(--text-muted)'
         }}>
           <span>1M</span>
           <span>3M</span>
           <span>6M</span>
           <span>YTD</span>
-          <span style={{ color: '#3b82f6', fontWeight: '600' }}>1Y</span>
+          <span style={{ color: 'var(--accent-primary)', fontWeight: '600' }}>1Y</span>
           <span>ALL</span>
         </div>
       </div>
@@ -119,7 +119,7 @@ const GrowthChart = ({ userkey }) => {
               style={{
                 height: `${height}%`,
                 width: '100%',
-                background: 'linear-gradient(180deg, #3b82f6 0%, #1e40af 100%)',
+                background: 'linear-gradient(180deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
                 borderRadius: '2px 2px 0 0',
                 minHeight: '4px',
                 transition: 'all 0.3s ease'
@@ -135,7 +135,7 @@ const GrowthChart = ({ userkey }) => {
         justifyContent: 'space-between',
         marginTop: '0.5rem',
         fontSize: '0.75rem',
-        color: '#6b7280'
+        color: 'var(--text-muted)'
       }}>
         <span>Jan 23</span>
         <span>Feb 23</span>

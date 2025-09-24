@@ -115,7 +115,7 @@ const DetailedStats = ({ stats }) => {
     return (
       <span 
         onClick={handleCopyAddress}
-        style={{ cursor: 'pointer', color: '#4F9CF9' }}
+        style={{ cursor: 'pointer', color: 'var(--accent-primary)' }}
         title={copied ? 'Copied!' : 'Click to copy full address'}
       >
         {copied ? 'Copied!' : `${address.slice(0, 6)}...${address.slice(-4)}`}

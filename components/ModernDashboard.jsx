@@ -5,19 +5,20 @@ import UserActivities from './UserActivities';
 import SimpleXpStats from './SimpleXpStats';
 import ScoreChangesChart from './ScoreChangesChart';
 import { getUserByProfileId } from '../utils/ethosApiClient';
+import { checkAllWalletsForValidatorNft } from '../utils/comprehensiveValidatorNftChecker';
 
 // Score levels for mapping score to name and color
 const scoreLevels = [
-  { min: 0, max: 799, name: 'Untrusted', color: '#e74c3c' },
-  { min: 800, max: 1199, name: 'Questionable', color: '#e1b000' },
-  { min: 1200, max: 1399, name: 'Neutral', color: '#e2e2e2', text: '#222' },
-  { min: 1400, max: 1599, name: 'Known', color: '#8cb6e6' },
-  { min: 1600, max: 1799, name: 'Established', color: '#5fa8d3' },
-  { min: 1800, max: 1999, name: 'Reputable', color: '#3b82f6' },
-  { min: 2000, max: 2199, name: 'Exemplary', color: '#34d399' },
-  { min: 2200, max: 2399, name: 'Distinguished', color: '#22c55e' },
-  { min: 2400, max: 2599, name: 'Revered', color: '#a78bfa' },
-  { min: 2600, max: 2800, name: 'Renowned', color: '#a855f7' },
+  { min: 0, max: 799, name: 'Untrusted', color: 'var(--accent-error)' },
+  { min: 800, max: 1199, name: 'Questionable', color: 'var(--accent-warning)' },
+  { min: 1200, max: 1399, name: 'Neutral', color: 'var(--text-muted)', text: 'var(--text-inverse)' },
+  { min: 1400, max: 1599, name: 'Known', color: 'var(--accent-primary)' },
+  { min: 1600, max: 1799, name: 'Established', color: 'var(--accent-primary)' },
+  { min: 1800, max: 1999, name: 'Reputable', color: 'var(--accent-primary)' },
+  { min: 2000, max: 2199, name: 'Exemplary', color: 'var(--accent-success)' },
+  { min: 2200, max: 2399, name: 'Distinguished', color: 'var(--accent-success)' },
+  { min: 2400, max: 2599, name: 'Revered', color: 'var(--accent-primary)' },
+  { min: 2600, max: 2800, name: 'Renowned', color: 'var(--accent-primary)' },
 ];
 
 function getScoreLevel(score) {
@@ -27,6 +28,8 @@ function getScoreLevel(score) {
 const ModernDashboard = ({ profile }) => {
   const [completeProfile, setCompleteProfile] = useState(profile);
   const [loading, setLoading] = useState(false);
+  const [validatorNft, setValidatorNft] = useState(null);
+  const [validatorNftLoading, setValidatorNftLoading] = useState(false);
 
   useEffect(() => {
     if (profile && profile.profileId && (!profile.userkeys || profile.userkeys.length === 0)) {
@@ -46,6 +49,24 @@ const ModernDashboard = ({ profile }) => {
       setCompleteProfile(profile);
     }
   }, [profile]);
+
+  // Check for validator NFTs across all wallets
+  useEffect(() => {
+    if (completeProfile && completeProfile.profileId) {
+      setValidatorNftLoading(true);
+      checkAllWalletsForValidatorNft(completeProfile.profileId)
+        .then(nftData => {
+          console.log('[ModernDashboard] Validator NFT check result:', nftData);
+          setValidatorNft(nftData);
+          setValidatorNftLoading(false);
+        })
+        .catch(error => {
+          console.error('[ModernDashboard] Error checking validator NFT:', error);
+          setValidatorNft(null);
+          setValidatorNftLoading(false);
+        });
+    }
+  }, [completeProfile]);
 
   if (!completeProfile) return null;
 
@@ -130,7 +151,7 @@ const ModernDashboard = ({ profile }) => {
                 className={styles.scorePill}
                 style={{ 
                   background: scoreLevel.color,
-                  color: scoreLevel.color === '#e2e2e2' ? '#222' : '#fff'
+                  color: scoreLevel.text || 'var(--text-inverse)'
                 }}
               >
                 <Image
@@ -221,7 +242,7 @@ const ModernDashboard = ({ profile }) => {
             <div className={styles.statItem}>
               <span className={styles.statLabel}>Validator NFT</span>
               <span className={styles.statValue}>
-                {completeProfile.validatorNft ? '✅ Yes' : '❌ No'}
+                {validatorNftLoading ? '⏳ Checking...' : (validatorNft ? '✅ Yes' : '❌ No')}
               </span>
             </div>
             <div className={styles.statItem}>

@@ -418,7 +418,7 @@ const XpDistributionDashboard = ({ userkey }) => {
                     className={styles.bar}
                     style={{ 
                       height: `${height}%`,
-                      background: week.seasonId === 0 ? '#6366f1' : '#8b5cf6'
+                      background: week.seasonId === 0 ? 'var(--accent-primary)' : 'var(--accent-secondary)'
                     }}
                     title={`Week ${week.week} (${week.seasonName}): ${formatXp(week.weeklyXp)} XP`}
                   />

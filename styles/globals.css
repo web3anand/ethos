@@ -4,6 +4,83 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme Variables */
+:root {
+  /* Dark theme (default) */
+  --bg-primary: #0D1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-glass: rgba(22, 27, 34, 0.7);
+  --bg-glass-hover: rgba(22, 27, 34, 0.8);
+  
+  --text-primary: #E6E6E6;
+  --text-secondary: #c9d1d9;
+  --text-muted: #8b949e;
+  --text-inverse: #0D1117;
+  
+  --border-primary: #30363d;
+  --border-secondary: rgba(255, 255, 255, 0.1);
+  --border-muted: rgba(255, 255, 255, 0.05);
+  
+  --accent-primary: #58a6ff;
+  --accent-secondary: #1d9bf0;
+  --accent-success: #22c55e;
+  --accent-warning: #e1b000;
+  --accent-error: #e74c3c;
+  
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+  
+  --backdrop-blur: blur(10px);
+  
+  /* Theme toggle variables */
+  --theme-toggle-hover-bg: rgba(255, 255, 255, 0.1);
+  --theme-toggle-track-bg: #30363d;
+  --theme-toggle-track-border: rgba(255, 255, 255, 0.1);
+  --theme-toggle-thumb-bg: #ffffff;
+  --theme-toggle-thumb-light-bg: #fbbf24;
+  --theme-toggle-thumb-dark-bg: #ffffff;
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --bg-primary: #fefcf7; /* Cream base */
+  --bg-secondary: #f7f3ed; /* Light cream */
+  --bg-tertiary: #f0ebe3; /* Medium cream */
+  --bg-glass: rgba(247, 243, 237, 0.8);
+  --bg-glass-hover: rgba(247, 243, 237, 0.9);
+  
+  --text-primary: #2d3748; /* Dark gray */
+  --text-secondary: #4a5568; /* Medium gray */
+  --text-muted: #718096; /* Light gray */
+  --text-inverse: #fefcf7;
+  
+  --border-primary: #e2e8f0; /* Light border */
+  --border-secondary: rgba(0, 0, 0, 0.1);
+  --border-muted: rgba(0, 0, 0, 0.05);
+  
+  --accent-primary: #3182ce; /* Blue */
+  --accent-secondary: #2b6cb0; /* Darker blue */
+  --accent-success: #38a169; /* Green */
+  --accent-warning: #d69e2e; /* Amber */
+  --accent-error: #e53e3e; /* Red */
+  
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
+  
+  --backdrop-blur: blur(10px);
+  
+  /* Theme toggle variables */
+  --theme-toggle-hover-bg: rgba(0, 0, 0, 0.05);
+  --theme-toggle-track-bg: #e5e7eb;
+  --theme-toggle-track-border: rgba(0, 0, 0, 0.1);
+  --theme-toggle-thumb-bg: #ffffff;
+  --theme-toggle-thumb-light-bg: #fbbf24;
+  --theme-toggle-thumb-dark-bg: #374151;
+}
+
 /* Avatar image error handling */
 img[data-avatar="true"]:not([src]),
 img[data-avatar="true"][src=""],
@@ -28,17 +105,18 @@ html {
 }
 
 body {
-  background-color: #0D1117;
-  color: #E6E6E6;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
-  padding: 0;
+  padding: 0 0 60px 0; /* Add bottom padding for footer */
   min-height: 100vh;
   width: 100vw;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #__next {
@@ -50,6 +128,7 @@ body {
 @media (max-width: 768px) {
   body {
     background-attachment: scroll; /* Better performance on mobile */
+    padding-bottom: 80px; /* More padding on mobile for footer */
   }
   
   /* Mobile navbar adjustments */
@@ -86,12 +165,13 @@ body {
 }
 
 .glass-container {
-  background: rgba(22, 27, 34, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: var(--bg-glass);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
   border-radius: 24px; /* Increased border-radius for a more curved look */
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-secondary);
   padding: 1.5rem;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 @media (min-width: 769px) {

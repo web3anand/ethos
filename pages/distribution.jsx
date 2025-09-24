@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { ethosDistributionApi } from '../utils/ethosDistributionApi';
 import FastDistributionApi from '../utils/fastDistributionApi';
 import { checkValidatorNftsForProfiles, addValidatorSymbolToUsername, hasValidatorNft } from '../utils/validatorNftApi';
 import { checkValidatorNftsWithCache, isKnownValidatorNftHolder } from '../utils/validatorNftCache';
 import { ArrowUp, ArrowDown, ArrowUpDown, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import classicStyles from '../styles/Distribution.classic.module.css';
+import styles from '../styles/Distribution.module.css';
 import CustomDropdown from '../components/CustomDropdown';
 import LoadingBars from '../components/LoadingBars';
 import SafeAvatar from '../components/SafeAvatar';
@@ -900,8 +902,8 @@ useEffect(() => {
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: #1a1a1a;
-      border: 2px solid #333;
+      background: var(--bg-primary);
+      border: 2px solid var(--border-primary);
       border-radius: 12px;
       padding: 24px;
       z-index: 10000;
@@ -915,18 +917,18 @@ useEffect(() => {
         <img 
           src="${user.avatarUrl || '/ethos.png'}" 
           alt="${user.displayName || 'User'}"
-          style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #444; margin-right: 16px;"
+          style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border-secondary); margin-right: 16px;"
           onerror="this.src='/ethos.png'"
         />
-        <div style="color: white; font-size: 18px; font-weight: 600;">
-          ${user.displayName || user.username || 'Unknown User'} <span style="color: #888; font-size: 14px; font-weight: 400;">(${score})</span>
+        <div style="color: var(--text-primary); font-size: 18px; font-weight: 600;">
+          ${user.displayName || user.username || 'Unknown User'} <span style="color: var(--text-muted); font-size: 14px; font-weight: 400;">(${score})</span>
         </div>
       </div>
       <button 
         onclick="this.parentElement.remove()" 
         style="
-          background: #007acc; 
-          color: white; 
+          background: var(--accent-primary); 
+          color: var(--text-inverse); 
           border: none; 
           padding: 10px 20px; 
           border-radius: 6px; 
@@ -988,8 +990,8 @@ useEffect(() => {
     
     dialog.innerHTML = `
       <div style="
-        background: #1a1a1a;
-        border: 1px solid #333;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-primary);
         border-radius: 12px;
         padding: 24px;
         max-width: 500px;
@@ -998,27 +1000,27 @@ useEffect(() => {
         color: white;
       ">
         <div style="margin-bottom: 20px;">
-          <h3 style="margin: 0 0 12px 0; color: #fff; font-size: 20px; font-weight: 600;">
+          <h3 style="margin: 0 0 12px 0; color: var(--text-primary); font-size: 20px; font-weight: 600;">
             🔄 Smart Database Update
           </h3>
-          <p style="margin: 0 0 16px 0; color: #ccc; line-height: 1.5;">
+          <p style="margin: 0 0 16px 0; color: var(--text-secondary); line-height: 1.5;">
             This will perform an incremental update that:
           </p>
-          <ul style="margin: 0 0 20px 0; padding-left: 20px; color: #ccc;">
+          <ul style="margin: 0 0 20px 0; padding-left: 20px; color: var(--text-secondary);">
             <li>Only fetches new profiles since last update</li>
             <li>Updates existing profiles with latest data</li>
             <li>Refreshes scores, streaks, and XP information</li>
             <li>Preserves all existing data</li>
           </ul>
-          <p style="margin: 0; color: #00cc66; font-size: 14px;">
+          <p style="margin: 0; color: var(--accent-success); font-size: 14px;">
             ✅ This is a safe, incremental update
           </p>
         </div>
         <div style="display: flex; gap: 12px; justify-content: flex-end;">
           <button id="cancelBtn" style="
-            background: #333;
-            color: white;
-            border: 1px solid #555;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-primary);
             border-radius: 6px;
             padding: 10px 20px;
             cursor: pointer;
@@ -1026,9 +1028,9 @@ useEffect(() => {
             font-weight: 500;
           ">Cancel</button>
           <button id="confirmBtn" style="
-            background: #00cc66;
-            color: white;
-            border: 1px solid #00cc66;
+            background: var(--accent-success);
+            color: var(--text-inverse);
+            border: 1px solid var(--accent-success);
             border-radius: 6px;
             padding: 10px 20px;
             cursor: pointer;
@@ -1070,30 +1072,30 @@ useEffect(() => {
       
       processingDialog.innerHTML = `
         <div style="
-          background: #1a1a1a;
-          border: 1px solid #333;
+          background: var(--bg-primary);
+          border: 1px solid var(--border-primary);
           border-radius: 12px;
           padding: 24px;
           max-width: 500px;
           width: 90%;
           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-          color: white;
+          color: var(--text-primary);
           text-align: center;
         ">
           <div style="margin-bottom: 20px;">
             <div style="
               width: 50px;
               height: 50px;
-              border: 3px solid #333;
-              border-top: 3px solid #00cc66;
+              border: 3px solid var(--border-primary);
+              border-top: 3px solid var(--accent-success);
               border-radius: 50%;
               animation: spin 1s linear infinite;
               margin: 0 auto 20px;
             "></div>
-            <h3 style="margin: 0 0 12px 0; color: #fff; font-size: 20px; font-weight: 600;">
+            <h3 style="margin: 0 0 12px 0; color: var(--text-primary); font-size: 20px; font-weight: 600;">
               Updating Database...
             </h3>
-            <p id="syncStatus" style="margin: 0 0 20px 0; color: #ccc; font-size: 14px;">
+            <p id="syncStatus" style="margin: 0 0 20px 0; color: var(--text-secondary); font-size: 14px;">
               Starting incremental update...
             </p>
             
@@ -1102,14 +1104,14 @@ useEffect(() => {
               <div style="
                 width: 100%;
                 height: 8px;
-                background: #333;
+                background: var(--bg-tertiary);
                 border-radius: 4px;
                 overflow: hidden;
               ">
                 <div id="progressBar" style="
                   width: 0%;
                   height: 100%;
-                  background: linear-gradient(90deg, #00cc66, #00ff88);
+                  background: linear-gradient(90deg, var(--accent-success), var(--accent-primary));
                   border-radius: 4px;
                   transition: width 0.3s ease;
                 "></div>
@@ -1121,7 +1123,7 @@ useEffect(() => {
               justify-content: space-between;
               align-items: center;
               font-size: 12px;
-              color: #888;
+              color: var(--text-muted);
             ">
               <span id="processedCount">Checking for updates...</span>
               <span id="estimatedTime">Estimating time...</span>
@@ -1216,21 +1218,21 @@ useEffect(() => {
           
           successDialog.innerHTML = `
             <div style="
-              background: #1a1a1a;
-              border: 1px solid #333;
+              background: var(--bg-primary);
+              border: 1px solid var(--border-primary);
               border-radius: 12px;
               padding: 24px;
               max-width: 400px;
               width: 90%;
               box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-              color: white;
+              color: var(--text-primary);
               text-align: center;
             ">
               <div style="margin-bottom: 16px;">
                 <div style="
                   width: 60px;
                   height: 60px;
-                  background: #00cc66;
+                  background: var(--accent-success);
                   border-radius: 50%;
                   display: flex;
                   align-items: center;
@@ -1238,19 +1240,19 @@ useEffect(() => {
                   margin: 0 auto 16px;
                   font-size: 24px;
                 ">✓</div>
-                <h3 style="margin: 0 0 8px 0; color: #fff; font-size: 18px;">
+                <h3 style="margin: 0 0 8px 0; color: var(--text-primary); font-size: 18px;">
                   Update Started!
                 </h3>
-                <p style="margin: 0 0 16px 0; color: #ccc; font-size: 14px;">
+                <p style="margin: 0 0 16px 0; color: var(--text-secondary); font-size: 14px;">
                   Incremental update is running in the background
                 </p>
-                <p style="margin: 0 0 16px 0; color: #888; font-size: 12px;">
+                <p style="margin: 0 0 16px 0; color: var(--text-muted); font-size: 12px;">
                   New profiles and updates will be processed automatically
                 </p>
                 <button id="closeBtn" style="
-                  background: #00cc66;
-                  color: white;
-                  border: 1px solid #00cc66;
+                  background: var(--accent-success);
+                  color: var(--text-inverse);
+                  border: 1px solid var(--accent-success);
                   border-radius: 6px;
                   padding: 10px 24px;
                   cursor: pointer;
@@ -1294,21 +1296,21 @@ useEffect(() => {
           
           concurrentDialog.innerHTML = `
             <div style="
-              background: #1a1a1a;
-              border: 1px solid #ffa500;
+              background: var(--bg-primary);
+              border: 1px solid var(--accent-warning);
               border-radius: 12px;
               padding: 24px;
               max-width: 450px;
               width: 90%;
               box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-              color: white;
+              color: var(--text-primary);
               text-align: center;
             ">
               <div style="margin-bottom: 16px;">
                 <div style="
                   width: 60px;
                   height: 60px;
-                  background: #ffa500;
+                  background: var(--accent-warning);
                   border-radius: 50%;
                   display: flex;
                   align-items: center;
@@ -1316,23 +1318,23 @@ useEffect(() => {
                   margin: 0 auto 16px;
                   font-size: 24px;
                 ">⏳</div>
-                <h3 style="margin: 0 0 8px 0; color: #fff; font-size: 18px;">
+                <h3 style="margin: 0 0 8px 0; color: var(--text-primary); font-size: 18px;">
                   Update Already Running
                 </h3>
-                <p style="margin: 0 0 16px 0; color: #ccc; font-size: 14px;">
+                <p style="margin: 0 0 16px 0; color: var(--text-secondary); font-size: 14px;">
                   ${result.message || 'Another user is currently updating the database.'}
                 </p>
-                <p style="margin: 0 0 16px 0; color: #888; font-size: 12px;">
+                <p style="margin: 0 0 16px 0; color: var(--text-muted); font-size: 12px;">
                   Please wait for the current update to complete before starting a new one.
                 </p>
-                <div style="margin: 16px 0; padding: 12px; background: #2a2a2a; border-radius: 6px; font-size: 12px; color: #ccc;">
+                <div style="margin: 16px 0; padding: 12px; background: var(--bg-tertiary); border-radius: 6px; font-size: 12px; color: var(--text-secondary);">
                   <div>Process ID: ${result.details?.lockData?.pid || 'Unknown'}</div>
                   <div>Started: ${result.details?.updateStartTime ? new Date(result.details.updateStartTime).toLocaleString() : 'Unknown'}</div>
                 </div>
                 <button id="closeBtn" style="
-                  background: #ffa500;
-                  color: white;
-                  border: 1px solid #ffa500;
+                  background: var(--accent-warning);
+                  color: var(--text-inverse);
+                  border: 1px solid var(--accent-warning);
                   border-radius: 6px;
                   padding: 10px 24px;
                   cursor: pointer;
@@ -1401,38 +1403,38 @@ useEffect(() => {
     
     dialog.innerHTML = `
       <div style="
-        background: #1a1a1a;
-        border: 1px solid #dc2626;
+        background: var(--bg-primary);
+        border: 1px solid var(--accent-error);
         border-radius: 12px;
         padding: 24px;
         max-width: 600px;
         width: 90%;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-        color: white;
+        color: var(--text-primary);
       ">
         <div style="margin-bottom: 20px;">
-          <h3 style="margin: 0 0 12px 0; color: #ef4444; font-size: 20px; font-weight: 600;">
+          <h3 style="margin: 0 0 12px 0; color: var(--accent-error); font-size: 20px; font-weight: 600;">
             🚨 FULL DATABASE REFRESH
           </h3>
-          <p style="margin: 0 0 16px 0; color: #ccc; line-height: 1.5;">
-            <strong style="color: #ef4444;">WARNING:</strong> This will perform a COMPLETE refresh that:
+          <p style="margin: 0 0 16px 0; color: var(--text-secondary); line-height: 1.5;">
+            <strong style="color: var(--accent-error);">WARNING:</strong> This will perform a COMPLETE refresh that:
           </p>
-          <ul style="margin: 0 0 20px 0; padding-left: 20px; color: #ccc;">
+          <ul style="margin: 0 0 20px 0; padding-left: 20px; color: var(--text-secondary);">
             <li><strong>Updates ALL existing profiles</strong> from ID 1 to the highest ID</li>
             <li><strong>Discovers new profiles</strong> beyond the current highest ID</li>
             <li><strong>Takes 30+ minutes</strong> to complete</li>
             <li><strong>Uses significant API resources</strong></li>
           </ul>
-          <div style="background: #dc2626; border-radius: 6px; padding: 12px; margin-bottom: 16px;">
-            <p style="margin: 0; color: white; font-size: 14px; font-weight: 600;">
+          <div style="background: var(--accent-error); border-radius: 6px; padding: 12px; margin-bottom: 16px;">
+            <p style="margin: 0; color: var(--text-inverse); font-size: 14px; font-weight: 600;">
               ⏰ 12-HOUR COOLDOWN: Once started, this cannot be run again for 12 hours!
             </p>
           </div>
-          <p style="margin: 0; color: #fbbf24; font-size: 14px;">
+          <p style="margin: 0; color: var(--accent-warning); font-size: 14px;">
             ⚠️ Use only when you need to ensure ALL profiles have the latest data
           </p>
           <div style="margin: 20px 0;">
-            <label style="display: block; margin-bottom: 8px; color: #ccc; font-size: 14px;">
+            <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 14px;">
               Password Required:
             </label>
             <input 
@@ -1442,10 +1444,10 @@ useEffect(() => {
               style="
                 width: 100%;
                 padding: 10px;
-                background: #0d1117;
-                border: 1px solid #30363d;
+                background: var(--bg-primary);
+                border: 1px solid var(--border-primary);
                 border-radius: 6px;
-                color: white;
+                color: var(--text-primary);
                 font-size: 14px;
                 outline: none;
               "
@@ -1454,9 +1456,9 @@ useEffect(() => {
         </div>
         <div style="display: flex; gap: 12px; justify-content: flex-end;">
           <button id="cancelFullBtn" style="
-            background: #333;
-            color: white;
-            border: 1px solid #555;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-primary);
             border-radius: 6px;
             padding: 10px 20px;
             cursor: pointer;
@@ -1464,9 +1466,9 @@ useEffect(() => {
             font-weight: 500;
           ">Cancel</button>
           <button id="confirmFullBtn" style="
-            background: #dc2626;
-            color: white;
-            border: 1px solid #dc2626;
+            background: var(--accent-error);
+            color: var(--text-inverse);
+            border: 1px solid var(--accent-error);
             border-radius: 6px;
             padding: 10px 20px;
             cursor: pointer;
@@ -1537,14 +1539,22 @@ useEffect(() => {
       {/* Small Loading Overlay */}
       {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-6 max-w-md mx-4 shadow-2xl">
+          <div style={{ 
+            background: 'var(--bg-primary)', 
+            border: '1px solid var(--border-primary)', 
+            borderRadius: '0.5rem', 
+            padding: '1.5rem', 
+            maxWidth: '28rem', 
+            margin: '0 1rem', 
+            boxShadow: 'var(--shadow-lg)' 
+          }}>
             <div className="text-center">
               {/* Animated Logo/Icon */}
               <div className="mb-4">
                 <div className="relative">
                   <div className="w-16 h-16 mx-auto bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center animate-pulse">
                     <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                      <span className="text-xl font-bold text-gray-800">E</span>
+                      <span className="text-xl font-bold" style={{ color: 'var(--text-inverse)' }}>E</span>
                     </div>
                   </div>
                   {/* Rotating ring */}
@@ -1552,22 +1562,40 @@ useEffect(() => {
                 </div>
               </div>
 
-              <h2 className="text-xl font-bold text-white mb-3">
+              <h2 style={{ 
+                fontSize: '1.25rem', 
+                fontWeight: 'bold', 
+                color: 'var(--text-primary)', 
+                marginBottom: '0.75rem' 
+              }}>
                 Loading XP Distribution Data...
               </h2>
 
               {loadingProgress && (
                 <div className="mt-4">
-                  <p className="text-gray-300 text-sm mb-2">
+                  <p style={{ 
+                    color: 'var(--text-secondary)', 
+                    fontSize: '0.875rem', 
+                    marginBottom: '0.5rem' 
+                  }}>
                     {loadingProgress.stage || 'Processing data'}
                   </p>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
+                  <div style={{ 
+                    width: '100%', 
+                    backgroundColor: 'var(--bg-tertiary)', 
+                    borderRadius: '9999px', 
+                    height: '0.5rem' 
+                  }}>
                     <div
                       className="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full transition-all duration-500 ease-out"
                       style={{ width: `${loadingProgress.percentage || 0}%` }}
                     ></div>
                   </div>
-                  <p className="text-gray-400 text-xs mt-1">
+                  <p style={{ 
+                    color: 'var(--text-muted)', 
+                    fontSize: '0.75rem', 
+                    marginTop: '0.25rem' 
+                  }}>
                     {loadingProgress.percentage !== undefined ? `${loadingProgress.percentage.toFixed(1)}% Complete` : ''}
                   </p>
                 </div>
@@ -1575,9 +1603,9 @@ useEffect(() => {
 
               {/* Bouncing dots animation */}
               <div className="flex justify-center items-center mt-4 space-x-1">
-                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
-                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: 'var(--accent-primary)', animationDelay: '0s' }}></div>
+                <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: 'var(--accent-secondary)', animationDelay: '0.2s' }}></div>
+                <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: 'var(--accent-success)', animationDelay: '0.4s' }}></div>
               </div>
             </div>
           </div>
@@ -1585,7 +1613,7 @@ useEffect(() => {
       )}
 
       <div className={loading ? 'opacity-50 pointer-events-none' : ''}>
-        <div className={classicStyles.container}>
+        <div className={styles.container}>
           <Head>
             <title>Ethos XP Distribution | Leaderboard & Analytics</title>
             <meta name="description" content="Comprehensive XP distribution analysis with user rankings, statistics, and search functionality" />
@@ -1596,54 +1624,54 @@ useEffect(() => {
 
           <main>
         {/* Header */}
-        <header className={classicStyles.header}>
-          <h1 className={classicStyles.title}>XP Distribution Center</h1>
-          <p className={classicStyles.subtitle}>
+        <header className={styles.header}>
+          <h1 className={styles.title}>XP Distribution Center</h1>
+          <p className={styles.subtitle}>
             Comprehensive analysis of Ethos XP distribution across all users and seasons.
           </p>
         </header>
 
         {/* Statistics Overview */}
-        <section className={classicStyles.statsGrid}>
-          <div className={classicStyles.statCard}>
-            <p className={classicStyles.statLabel}>Total XP Distributed</p>
-            <p className={classicStyles.statValue}>{ethosDistributionApi.formatXpToMillions(totalXp)}</p>
-            <p className={classicStyles.statSubValue}>{totalXp.toLocaleString()} XP</p>
+        <section className={styles.statsGrid}>
+          <div className={styles.statCard}>
+            <p className={styles.statLabel}>Total XP Distributed</p>
+            <p className={styles.statValue}>{ethosDistributionApi.formatXpToMillions(totalXp)}</p>
+            <p className={styles.statSubValue}>{totalXp.toLocaleString()} XP</p>
           </div>
-          <div className={classicStyles.statCard}>
-            <p className={classicStyles.statLabel}>Active Users</p>
-            <p className={classicStyles.statValue}>{distributionStats?.totalUsers?.toLocaleString() || leaderboardData.length.toLocaleString()}</p>
-            <p className={classicStyles.statSubValue}>Users with XP: {xpUserCounts.allSeasons.usersWithXp.toLocaleString()}</p>
+          <div className={styles.statCard}>
+            <p className={styles.statLabel}>Active Users</p>
+            <p className={styles.statValue}>{distributionStats?.totalUsers?.toLocaleString() || leaderboardData.length.toLocaleString()}</p>
+            <p className={styles.statSubValue}>Users with XP: {xpUserCounts.allSeasons.usersWithXp.toLocaleString()}</p>
           </div>
-          <div className={classicStyles.statCard}>
-            <p className={classicStyles.statLabel}>Total Seasons</p>
-            <p className={classicStyles.statValue}>{distributionStats?.totalSeasons || '...'}</p>
-            <p className={classicStyles.statSubValue}>Current: {distributionStats?.currentSeason?.name || '...'}</p>
+          <div className={styles.statCard}>
+            <p className={styles.statLabel}>Total Seasons</p>
+            <p className={styles.statValue}>{distributionStats?.totalSeasons || '...'}</p>
+            <p className={styles.statSubValue}>Current: {distributionStats?.currentSeason?.name || '...'}</p>
           </div>
-          <div className={classicStyles.statCard}>
-            <p className={classicStyles.statLabel}>Current Week</p>
-            <p className={classicStyles.statValue}>Week {distributionStats?.currentWeek?.week ?? '...'}</p>
-            <p className={classicStyles.statSubValue}>Season {distributionStats?.currentSeason?.id ?? '...'}</p>
+          <div className={styles.statCard}>
+            <p className={styles.statLabel}>Current Week</p>
+            <p className={styles.statValue}>Week {distributionStats?.currentWeek?.week ?? '...'}</p>
+            <p className={styles.statSubValue}>Season {distributionStats?.currentSeason?.id ?? '...'}</p>
           </div>
         </section>
 
         {/* Navigation Tabs */}
-        <nav className={classicStyles.tabs}>
+        <nav className={styles.tabs}>
           <button
             onClick={() => setSelectedView('leaderboard')}
-            className={selectedView === 'leaderboard' ? classicStyles.tabButtonActive : classicStyles.tabButton}
+            className={selectedView === 'leaderboard' ? styles.tabButtonActive : styles.tabButton}
           >
             Leaderboard
           </button>
           <button
             onClick={() => setSelectedView('weekly')}
-            className={selectedView === 'weekly' ? classicStyles.tabButtonActive : classicStyles.tabButton}
+            className={selectedView === 'weekly' ? styles.tabButtonActive : styles.tabButton}
           >
             Weekly Leaderboard
           </button>
           <button
             onClick={() => setSelectedView('distribution')}
-            className={selectedView === 'distribution' ? classicStyles.tabButtonActive : classicStyles.tabButton}
+            className={selectedView === 'distribution' ? styles.tabButtonActive : styles.tabButton}
           >
             Analysis
           </button>
@@ -1653,28 +1681,28 @@ useEffect(() => {
         {selectedView === 'leaderboard' && (
           <section>
             {currentData.length === 0 ? (
-              <div className={classicStyles.container}>
-                <p style={{ textAlign: 'center', color: '#8b949e', margin: '2rem 0' }}>
+              <div className={styles.noDataContainer}>
+                <p className={styles.noDataText}>
                   {loading ? 'Loading leaderboard data...' : 'No data available. Please try refreshing.'}
                 </p>
               </div>
             ) : (
               <>
-                <div className={classicStyles.controlsContainer}>
-                  <div className={classicStyles.searchBox}>
+                <div className={styles.controlsContainer}>
+                  <div className={styles.searchBox}>
                     <input
                       type="text"
                       placeholder="Search by name, username, or ID..."
                       value={searchTerm}
                       onChange={handleSearch}
-                      className={classicStyles.searchInput}
+                      className={styles.searchInput}
                     />
                   </div>
                 </div>
 
-                <div className={classicStyles.tableContainer}>
-              <div className={classicStyles.tableWrapper}>
-                <table className={classicStyles.table}>
+                <div className={styles.tableContainer}>
+              <div className={styles.tableWrapper}>
+                <table className={styles.table}>
                   <thead>
                     <tr>
                       <th onClick={() => handleSort('rank')}>Rank {getSortIcon('rank')}</th>
@@ -1689,22 +1717,22 @@ useEffect(() => {
                     {currentData.map((user) => (
                       <tr key={user.profileId} onClick={() => handleUserClick(user)}>
                         <td>
-                          <span className={classicStyles.rank}>#{user.rank}</span>
+                          <span className={styles.rank}>#{user.rank}</span>
                         </td>
                         <td>
-                          <div className={classicStyles.userCell}>
+                          <div className={styles.userCell}>
                             <SafeAvatar
                               src={user.avatarUrl}
                               username={user.displayName || user.username}
-                              className={classicStyles.avatar}
+                              className={styles.avatar}
                               size={40}
                               alt={user.displayName || 'User avatar'}
                             />
                             <div>
-                              <div className={classicStyles.userName}>
+                              <div className={styles.userName}>
                                 {user.displayName || user.username || 'Unknown'}
                                 {hasValidatorNft(user.profileId, validatorNfts) && (
-                                  <span className={classicStyles.validatorSymbol}>𝑽</span>
+                                  <span className={styles.validatorSymbol}>𝑽</span>
                                 )}
                               </div>
                             </div>
@@ -1720,11 +1748,11 @@ useEffect(() => {
                 </table>
               </div>
               {totalPages > 1 && (
-                <div className={classicStyles.pagination}>
-                  <div className={classicStyles.paginationInfo}>
+                <div className={styles.pagination}>
+                  <div className={styles.paginationInfo}>
                     Page {currentPage} of {totalPages} ({filteredData.length} results)
                   </div>
-                  <div className={classicStyles.paginationControls}>
+                  <div className={styles.paginationControls}>
                     <button onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1}>
                       Prev
                     </button>
@@ -1744,15 +1772,15 @@ useEffect(() => {
         {/* Weekly Leaderboard View */}
         {selectedView === 'weekly' && (
           <section>
-            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6 mb-6">
-              <h2 className="text-2xl font-bold text-white mb-6">Weekly XP Leaderboard</h2>
+            <div className={styles.weeklyContainer}>
+              <h2 className={styles.weeklyTitle}>Weekly XP Leaderboard</h2>
               
               
               {/* Controls */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className={styles.weeklyControls}>
                 {/* Season Selection */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">
+                  <label className={styles.weeklyLabel}>
                     Season
                   </label>
                   <CustomDropdown
@@ -1769,7 +1797,7 @@ useEffect(() => {
                 
                 {/* Week Selection */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">
+                  <label className={styles.weeklyLabel}>
                     Week
                   </label>
                   <CustomDropdown
@@ -1789,7 +1817,7 @@ useEffect(() => {
                 
                 {/* Search */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-400 mb-2">
+                  <label className={styles.weeklyLabel}>
                     Search Users
                   </label>
                   <div className="flex gap-2">
@@ -1804,7 +1832,7 @@ useEffect(() => {
                             triggerWeeklySearch();
                           }
                         }}
-                        className="w-full px-3 py-2 pr-10 bg-[#0d1117] border border-[#30363d] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={styles.weeklyInput}
                         disabled={weeklySearchLoading}
                       />
                       {weeklySearchTerm && !weeklySearchLoading && (
@@ -1828,7 +1856,7 @@ useEffect(() => {
                     <button
                       onClick={triggerWeeklySearch}
                       disabled={!weeklySearchTerm.trim() || weeklySearchLoading}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all duration-200"
+                      className={styles.weeklyButton}
                     >
                       {weeklySearchLoading ? (
                         <div className="flex items-center gap-2">
@@ -1844,20 +1872,20 @@ useEffect(() => {
               </div>
               
               {/* Summary Info */}
-              <div className="flex flex-wrap gap-4 mb-6 text-sm">
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-400">Showing:</span>
-                  <span className="text-white font-medium">
+              <div className={styles.weeklySummary}>
+                <div className={styles.weeklySummaryItem}>
+                  <span className={styles.weeklySummaryLabel}>Showing:</span>
+                  <span className={styles.weeklySummaryValue}>
                     {(selectedWeek !== undefined && selectedWeek !== null && selectedWeek !== '') ? `Week ${selectedWeek} of ${availableSeasons.find(s => s.season_id.toString() === selectedSeason)?.season_name}` : `${availableSeasons.find(s => s.season_id.toString() === selectedSeason)?.season_name} Total`}
                   </span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-400">Total Results:</span>
-                  <span className="text-blue-400 font-medium">{weeklyPagination.total.toLocaleString()}</span>
+                <div className={styles.weeklySummaryItem}>
+                  <span className={styles.weeklySummaryLabel}>Total Results:</span>
+                  <span className={`${styles.weeklySummaryValue} blue`}>{weeklyPagination.total.toLocaleString()}</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-400">Metric:</span>
-                  <span className="text-green-400 font-medium">
+                <div className={styles.weeklySummaryItem}>
+                  <span className={styles.weeklySummaryLabel}>Metric:</span>
+                  <span className={`${styles.weeklySummaryValue} green`}>
                     {(selectedWeek !== undefined && selectedWeek !== null && selectedWeek !== '') ? 'Weekly XP' : 'Cumulative XP'}
                   </span>
                 </div>
@@ -1865,14 +1893,14 @@ useEffect(() => {
             </div>
 
             {/* Weekly Leaderboard Table */}
-            <div className={classicStyles.tableContainer}>
+            <div className={styles.tableContainer}>
               {weeklyLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <LoadingSpinner size="lg" color="blue" text="Loading weekly data..." />
                 </div>
               ) : (
-                <div className={classicStyles.tableWrapper}>
-                  <table className={classicStyles.table}>
+                <div className={styles.tableWrapper}>
+                  <table className={styles.table}>
                     <thead>
                       <tr>
                         <th>Rank</th>
@@ -1888,47 +1916,59 @@ useEffect(() => {
                       {weeklyData.map((user) => (
                         <tr key={`${user.profile_id}-${user.season_id}-${user.week}`}>
                           <td>
-                            <span className={classicStyles.rank}>#{user.rank}</span>
+                            <span className={styles.rank}>#{user.rank}</span>
                           </td>
                           <td>
-                            <div className={classicStyles.userCell}>
+                            <div className={styles.userCell}>
                               <SafeAvatar
                                 src={user.avatar_url}
                                 username={user.display_name || user.username}
-                                className={classicStyles.avatar}
+                                className={styles.avatar}
                                 size={40}
                                 alt={user.display_name || 'User avatar'}
                               />
                               <div>
-                                <div className={classicStyles.userName}>
+                                <div className={styles.userName}>
                                   {user.display_name || user.username || 'Unknown'}
                                   {hasValidatorNft(user.profile_id, validatorNfts) && (
-                                    <span className={classicStyles.validatorSymbol}>𝑽</span>
+                                    <span className={styles.validatorSymbol}>𝑽</span>
                                   )}
                                 </div>
                               </div>
                             </div>
                           </td>
-                          <td className="font-bold text-blue-400">
+                          <td style={{ fontWeight: 'bold', color: 'var(--accent-primary)' }}>
                             {(selectedWeek !== undefined && selectedWeek !== null && selectedWeek !== '') ? 
                               (user.weekly_xp || 0).toLocaleString() : 
                               (user.cumulative_xp || 0).toLocaleString()
                             }
                           </td>
                           {!(selectedWeek !== undefined && selectedWeek !== null && selectedWeek !== '') && (
-                            <td className="text-green-400">
+                            <td style={{ color: 'var(--accent-success)' }}>
                               {(user.cumulative_xp || 0).toLocaleString()}
                             </td>
                           )}
                           <td>{(user.total_xp || 0).toLocaleString()}</td>
                           <td>
-                            <span className="px-2 py-1 bg-gray-700 text-gray-300 text-xs rounded">
+                            <span style={{ 
+                              padding: '0.25rem 0.5rem', 
+                              backgroundColor: 'var(--bg-tertiary)', 
+                              color: 'var(--text-secondary)', 
+                              fontSize: '0.75rem', 
+                              borderRadius: '0.25rem' 
+                            }}>
                               Season {user.season_id}
                             </span>
                           </td>
                           {(selectedWeek !== undefined && selectedWeek !== null && selectedWeek !== '') && (
                             <td>
-                              <span className="px-2 py-1 bg-blue-700 text-blue-300 text-xs rounded">
+                              <span style={{ 
+                                padding: '0.25rem 0.5rem', 
+                                backgroundColor: 'var(--accent-primary)', 
+                                color: 'var(--text-primary)', 
+                                fontSize: '0.75rem', 
+                                borderRadius: '0.25rem' 
+                              }}>
                                 Week {selectedWeek}
                               </span>
                             </td>
@@ -1939,9 +1979,9 @@ useEffect(() => {
                   </table>
                   
                   {weeklyData.length === 0 && !weeklyLoading && (
-                    <div className="text-center py-12">
-                      <p className="text-gray-400 text-lg">No data found for the selected criteria</p>
-                      <p className="text-gray-500 text-sm mt-2">
+                    <div className={styles.noDataContainer}>
+                      <p className={styles.noDataText}>No data found for the selected criteria</p>
+                      <p className={styles.noDataSubtext}>
                         Try selecting a different season or week, or check your search term
                       </p>
                     </div>
@@ -1955,19 +1995,19 @@ useEffect(() => {
         {/* Other Views (Distribution/Seasons) would go here, simplified for now */}
          {selectedView === 'distribution' && (
           <div className="space-y-6">
-            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
-              <h2 className="text-2xl font-bold text-white mb-6">XP Distribution Analysis</h2>
+            <div className={styles.analysisContainer}>
+              <h2 className={styles.analysisTitle}>XP Distribution Analysis</h2>
               
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+              <div className={styles.analysisGrid}>
                 {/* Left Column - XP Ranges and Score Tiers */}
                 <div className="space-y-6">
                   {/* XP Ranges */}
-                  <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4">
-                    <h3 className="text-lg font-semibold text-white mb-4">Users by XP Range</h3>
+                  <div className={styles.analysisCard}>
+                    <h3 className={styles.analysisCardTitle}>Users by XP Range</h3>
                     <div className="space-y-3">
                       {Object.entries(xpRanges).map(([range, count]) => (
-                        <div key={range} className="flex items-center justify-between">
-                          <span className="text-gray-300 text-sm">{range} XP:</span>
+                        <div key={range} className={styles.analysisItem}>
+                          <span className={styles.analysisItemLabel}>{range} XP:</span>
                           <div className="flex items-center">
                             <div className="w-20 bg-gray-700 rounded-full h-2 mr-3">
                               <div
@@ -1975,7 +2015,7 @@ useEffect(() => {
                                 style={{ width: `${(count / (distributionStats?.totalUsers || leaderboardData.length)) * 100}%` }}
                               ></div>
                             </div>
-                            <span className="text-white font-medium w-12 text-right text-sm">{count.toLocaleString()}</span>
+                            <span className={styles.analysisItemValue}>{count.toLocaleString()}</span>
                           </div>
                         </div>
                       ))}
@@ -1983,8 +2023,8 @@ useEffect(() => {
                   </div>
 
                   {/* Score Tiers */}
-                  <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-6">
-                    <h3 className="text-xl font-bold text-white mb-6 flex items-center">
+                  <div className={styles.analysisCard}>
+                    <h3 className={styles.analysisCardTitle} style={{ display: 'flex', alignItems: 'center' }}>
                       <div className="w-1 h-6 bg-gradient-to-b from-red-500 to-amber-500 rounded-full mr-3"></div>
                       Users by Score Tier
                     </h3>
@@ -1999,16 +2039,16 @@ useEffect(() => {
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center">
                                 <div className={`w-3 h-3 rounded-full mr-3 ${tier.bgColor} shadow-lg ring-2 ring-${tier.color}-300 ring-opacity-50`}></div>
-                                <span className="text-white font-semibold text-sm">{tierName}</span>
-                                <span className="text-gray-400 text-xs ml-2">({tier.min}-{tier.max})</span>
+                                <span className={styles.analysisItemValue}>{tierName}</span>
+                                <span className={styles.analysisItemLabel} style={{ marginLeft: '0.5rem' }}>({tier.min}-{tier.max})</span>
                               </div>
                               <div className="text-right">
-                                <div className="text-white font-bold text-sm">{tier.count.toLocaleString()}</div>
-                                <div className="text-gray-400 text-xs">{percentage.toFixed(1)}%</div>
+                                <div className={styles.analysisItemValue}>{tier.count.toLocaleString()}</div>
+                                <div className={styles.analysisItemLabel}>{percentage.toFixed(1)}%</div>
                               </div>
                             </div>
                             <div className="relative">
-                              <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden shadow-inner">
+                              <div className={styles.analysisProgressBar}>
                                 <div
                                   className={`h-full ${tier.bgColor} rounded-full transition-all duration-700 ease-out relative overflow-hidden`}
                                   style={{ width: `${barWidth}%` }}
@@ -2024,29 +2064,29 @@ useEffect(() => {
                       })}
                     </div>
                     <div className="mt-6 pt-4 border-t border-gray-700">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-400 text-sm font-medium">Total Users:</span>
-                        <span className="text-white font-bold text-lg">{leaderboardData.length.toLocaleString()}</span>
+                      <div className={styles.analysisItem}>
+                        <span className={styles.analysisItemLabel}>Total Users:</span>
+                        <span className={styles.analysisItemValue} style={{ fontSize: '1.125rem', fontWeight: 'bold' }}>{leaderboardData.length.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Right Column - Top Contributors */}
-                <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4">
-                  <h3 className="text-lg font-semibold text-white mb-4">Top XP Contributors</h3>
+                <div className={styles.analysisCard}>
+                  <h3 className={styles.analysisCardTitle}>Top XP Contributors</h3>
                   <div className="space-y-3">
                     {leaderboardData.slice(0, 10).map((user, index) => (
                       <div key={user.profileId} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-800 transition-colors">
                         <div className="flex items-center flex-1">
-                          <span className="text-gray-400 w-6 text-sm">#{index + 1}</span>
-                          <span className="text-white ml-2 text-sm truncate">{user.displayName}</span>
+                          <span className={styles.analysisItemLabel} style={{ width: '1.5rem', fontSize: '0.875rem' }}>#{index + 1}</span>
+                          <span className={styles.analysisItemValue} style={{ marginLeft: '0.5rem', fontSize: '0.875rem' }}>{user.displayName}</span>
                         </div>
                         <div className="text-right">
-                          <div className="text-blue-400 font-semibold text-sm">
+                          <div className={styles.analysisItemValue} style={{ color: 'var(--accent-primary)', fontSize: '0.875rem', fontWeight: '600' }}>
                             {ethosDistributionApi.formatXpToMillions(user.xpTotal || user.xp || 0)}
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div className={styles.analysisItemLabel} style={{ fontSize: '0.75rem' }}>
                             {(user.xpPercentage || 0).toFixed(2)}%
                           </div>
                         </div>
@@ -2058,32 +2098,32 @@ useEffect(() => {
             </div>
 
             {/* User Statistics Overview */}
-            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
-              <h2 className="text-2xl font-bold text-white mb-6">User Statistics Overview</h2>
+            <div className={styles.analysisContainer}>
+              <h2 className={styles.analysisTitle}>User Statistics Overview</h2>
               
               {/* Key Metrics */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4">
-                  <p className="text-gray-400 text-sm">Total Ethos Profiles</p>
-                  <p className="text-3xl font-bold text-white">
+                <div className={styles.analysisCard}>
+                  <p className={styles.analysisItemLabel}>Total Ethos Profiles</p>
+                  <p className={styles.analysisItemValue} style={{ fontSize: '1.875rem', fontWeight: 'bold' }}>
                     {totalProfilesCount > 0 ? totalProfilesCount.toLocaleString() : leaderboardData.length.toLocaleString()}
                   </p>
                 </div>
-                <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4">
-                  <p className="text-gray-400 text-sm">Total XP Distributed</p>
-                  <p className="text-3xl font-bold text-blue-400">
+                <div className={styles.analysisCard}>
+                  <p className={styles.analysisItemLabel}>Total XP Distributed</p>
+                  <p className={styles.analysisItemValue} style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--accent-primary)' }}>
                     {ethosDistributionApi.formatXpToMillions(totalXp)}
                   </p>
                 </div>
-                <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4">
-                  <p className="text-gray-400 text-sm">Average XP per User</p>
-                  <p className="text-3xl font-bold text-green-400">
+                <div className={styles.analysisCard}>
+                  <p className={styles.analysisItemLabel}>Average XP per User</p>
+                  <p className={styles.analysisItemValue} style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--accent-success)' }}>
                     {ethosDistributionApi.formatXpToMillions(totalXp / leaderboardData.length)}
                   </p>
                 </div>
-                <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4">
-                  <p className="text-gray-400 text-sm">Top Score</p>
-                  <p className="text-3xl font-bold text-purple-400">
+                <div className={styles.analysisCard}>
+                  <p className={styles.analysisItemLabel}>Top Score</p>
+                  <p className={styles.analysisItemValue} style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--accent-primary)' }}>
                     {Math.max(...leaderboardData.map(user => user.score || 0)).toLocaleString()}
                   </p>
                 </div>
@@ -2091,87 +2131,108 @@ useEffect(() => {
 
               {/* Season Breakdown and Users with XP */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-6">
+                <div className={styles.analysisCard}>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-white">Season 0</h3>
-                    <span className="px-3 py-1 bg-blue-900 text-blue-300 text-sm font-medium rounded">
+                    <h3 className={styles.analysisCardTitle}>Season 0</h3>
+                    <span style={{ 
+                      padding: '0.25rem 0.75rem', 
+                      backgroundColor: 'var(--accent-primary)', 
+                      color: 'var(--text-primary)', 
+                      fontSize: '0.875rem', 
+                      fontWeight: '500', 
+                      borderRadius: '0.25rem' 
+                    }}>
                       S0
                     </span>
                   </div>
                   <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Total XP:</span>
-                      <span className="text-blue-400 font-semibold">
+                    <div className={styles.analysisItem}>
+                      <span className={styles.analysisItemLabel}>Total XP:</span>
+                      <span className={styles.analysisItemValue} style={{ color: 'var(--accent-primary)', fontWeight: '600' }}>
                         {ethosDistributionApi.formatXpToMillions(xpUserCounts.season0.totalXp)}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Users with XP:</span>
-                      <span className="text-blue-300">
+                    <div className={styles.analysisItem}>
+                      <span className={styles.analysisItemLabel}>Users with XP:</span>
+                      <span className={styles.analysisItemValue} style={{ color: 'var(--accent-primary)' }}>
                         {xpUserCounts.season0.usersWithXp.toLocaleString()}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Avg XP/User:</span>
-                      <span className="text-gray-300">
+                    <div className={styles.analysisItem}>
+                      <span className={styles.analysisItemLabel}>Avg XP/User:</span>
+                      <span className={styles.analysisItemValue}>
                         {ethosDistributionApi.formatXpToMillions(xpUserCounts.season0.avgXpPerUser)}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-6">
+                <div className={styles.analysisCard}>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-white">Season 1</h3>
-                    <span className="px-3 py-1 bg-green-900 text-green-300 text-sm font-medium rounded">
+                    <h3 className={styles.analysisCardTitle}>Season 1</h3>
+                    <span style={{ 
+                      padding: '0.25rem 0.75rem', 
+                      backgroundColor: 'var(--accent-success)', 
+                      color: 'var(--text-primary)', 
+                      fontSize: '0.875rem', 
+                      fontWeight: '500', 
+                      borderRadius: '0.25rem' 
+                    }}>
                       S1
                     </span>
                   </div>
                   <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Total XP:</span>
-                      <span className="text-green-400 font-semibold">
+                    <div className={styles.analysisItem}>
+                      <span className={styles.analysisItemLabel}>Total XP:</span>
+                      <span className={styles.analysisItemValue} style={{ color: 'var(--accent-success)', fontWeight: '600' }}>
                         {ethosDistributionApi.formatXpToMillions(xpUserCounts.season1.totalXp)}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Users with XP:</span>
-                      <span className="text-green-300">
+                    <div className={styles.analysisItem}>
+                      <span className={styles.analysisItemLabel}>Users with XP:</span>
+                      <span className={styles.analysisItemValue} style={{ color: 'var(--accent-success)' }}>
                         {xpUserCounts.season1.usersWithXp.toLocaleString()}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Avg XP/User:</span>
-                      <span className="text-gray-300">
+                    <div className={styles.analysisItem}>
+                      <span className={styles.analysisItemLabel}>Avg XP/User:</span>
+                      <span className={styles.analysisItemValue}>
                         {ethosDistributionApi.formatXpToMillions(xpUserCounts.season1.avgXpPerUser)}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-6">
+                <div className={styles.analysisCard}>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-white">Users with XP</h3>
-                    <span className="px-3 py-1 bg-orange-900 text-orange-300 text-sm font-medium rounded">
+                    <h3 className={styles.analysisCardTitle}>Users with XP</h3>
+                    <span style={{ 
+                      padding: '0.25rem 0.75rem', 
+                      backgroundColor: 'var(--accent-warning)', 
+                      color: 'var(--text-primary)', 
+                      fontSize: '0.875rem', 
+                      fontWeight: '500', 
+                      borderRadius: '0.25rem' 
+                    }}>
                       XP Users
                     </span>
                   </div>
                   <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Season 0:</span>
-                      <span className="text-blue-300">
+                    <div className={styles.analysisItem}>
+                      <span className={styles.analysisItemLabel}>Season 0:</span>
+                      <span className={styles.analysisItemValue} style={{ color: 'var(--accent-primary)' }}>
                         {xpUserCounts.season0.usersWithXp.toLocaleString()}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Season 1:</span>
-                      <span className="text-green-300">
+                    <div className={styles.analysisItem}>
+                      <span className={styles.analysisItemLabel}>Season 1:</span>
+                      <span className={styles.analysisItemValue} style={{ color: 'var(--accent-success)' }}>
                         {xpUserCounts.season1.usersWithXp.toLocaleString()}
                       </span>
                     </div>
-                    <div className="flex justify-between border-t border-gray-700 pt-3">
-                      <span className="text-gray-400 font-semibold">Total Unique:</span>
-                      <span className="text-orange-400 font-semibold">
+                    <div className={styles.analysisItem} style={{ borderTop: '1px solid var(--border-primary)', paddingTop: '0.75rem' }}>
+                      <span className={styles.analysisItemLabel} style={{ fontWeight: '600' }}>Total Unique:</span>
+                      <span className={styles.analysisItemValue} style={{ color: 'var(--accent-warning)', fontWeight: '600' }}>
                         {xpUserCounts.allSeasons.usersWithXp.toLocaleString()}
                       </span>
                     </div>
@@ -2185,6 +2246,7 @@ useEffect(() => {
           </main>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

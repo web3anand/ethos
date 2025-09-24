@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import SearchBar from '../components/SearchBar';
 import fetchUserSuggestions from '../utils/fetchUserSuggestions';
 import {
@@ -102,7 +103,7 @@ export default function DistributionConsolidated() {
       </Head>
       
       <Navbar />
-      <div style={{ backgroundColor: '#0d1117', minHeight: '100vh' }}>
+      <div style={{ minHeight: '100vh' }}>
         {!userData && (
           <div className={styles.container}>
             <h1 className={styles.title}>Distribution Dashboard</h1>
@@ -120,6 +121,7 @@ export default function DistributionConsolidated() {
         )}
         {userData && <DesktopDashboard profile={userData} />}
       </div>
+      <Footer />
     </>
   );
 }

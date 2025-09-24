@@ -12,13 +12,13 @@
   justify-content: space-between;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: #0D1117;
+  background: var(--bg-primary);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   font-family: 'Sora', sans-serif;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #c9d1d9;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 130px; /* Provide enough width */
@@ -26,7 +26,7 @@
 }
 
 .dropdownTrigger:hover {
-  background: #161b22;
+  background: var(--bg-secondary);
   border-color: rgba(255, 255, 255, 0.15);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
@@ -34,7 +34,7 @@
 .dropdownTrigger:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background: #0d1117;
+  background: var(--bg-primary);
 }
 
 .dropdownArrow {
@@ -52,7 +52,7 @@
   left: 0;
   right: 0;
   margin-top: 0.5rem;
-  background: #161b22;
+  background: var(--bg-secondary);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -73,7 +73,7 @@
   text-align: left;
   background: none;
   border: none;
-  color: #c9d1d9;
+  color: var(--text-secondary);
   font-family: 'Sora', sans-serif;
   font-size: 0.9rem;
   font-weight: 500;
@@ -82,17 +82,17 @@
 }
 
 .dropdownItem:hover {
-  background: #21262d;
-  color: #e6e6e6;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .dropdownItemSelected {
-  background: #3b82f6;
-  color: white;
+  background: var(--accent-primary);
+  color: var(--text-inverse);
   font-weight: 600;
 }
 
 .dropdownItemSelected:hover {
-  background: #3b82f6;
-  color: white;
+  background: var(--accent-primary);
+  color: var(--text-inverse);
 }

@@ -30,10 +30,10 @@
   }
   
   .positive {
-    color: #4caf50;
+    color: var(--accent-success);
   }
   
   .negative {
-    color: #f44336;
+    color: var(--accent-error);
   }
   

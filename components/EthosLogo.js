@@ -10,10 +10,10 @@ export default function EthosLogo({ style, className }) {
       style={style}
       className={className}
     >
-      <rect x="360" y="88" width="210" height="52" fill="none" stroke="#c9d1d9" strokeWidth="12" />
-      <rect x="360" y="186" width="210" height="52" fill="none" stroke="#c9d1d9" strokeWidth="12" />
-      <rect x="360" y="284" width="210" height="52" fill="none" stroke="#c9d1d9" strokeWidth="12" />
-      <path d="M360 88 Q216 244.5 360 401" stroke="#c9d1d9" strokeWidth="12" fill="none" />
+      <rect x="360" y="88" width="210" height="52" fill="none" stroke="var(--text-secondary)" strokeWidth="12" />
+      <rect x="360" y="186" width="210" height="52" fill="none" stroke="var(--text-secondary)" strokeWidth="12" />
+      <rect x="360" y="284" width="210" height="52" fill="none" stroke="var(--text-secondary)" strokeWidth="12" />
+      <path d="M360 88 Q216 244.5 360 401" stroke="var(--text-secondary)" strokeWidth="12" fill="none" />
     </svg>
   );
 }

@@ -3,7 +3,8 @@
   margin: 0 auto;
   padding: 3rem 2rem; /* Adjusted padding */
   text-align: center;
-  color: #c9d1d9; /* Softer text color from our palette */
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 
 /* Mobile optimizations */
@@ -23,7 +24,7 @@
 .title {
   font-size: 2.75rem; /* Slightly smaller for a more refined look */
   font-weight: 600; /* Adjusted font-weight */
-  color: #e6e6e6; /* Brighter title color */
+  color: var(--text-primary);
   margin-bottom: 2rem; /* Increased margin */
   position: relative;
   z-index: 2;
@@ -31,6 +32,7 @@
   letter-spacing: -0.02em;
   line-height: 1.2;
   text-shadow: 0 1px 10px rgba(230, 230, 230, 0.1);
+  transition: color 0.3s ease;
 }
 
 /* Mobile title sizing */
@@ -59,13 +61,14 @@
 }
 
 .error {
-  color: #f87171; /* Softer red for errors */
-  background-color: rgba(248, 113, 113, 0.1);
-  border: 1px solid rgba(248, 113, 113, 0.2);
+  color: var(--accent-error);
+  background-color: rgba(229, 62, 62, 0.1);
+  border: 1px solid rgba(229, 62, 62, 0.2);
   padding: 0.75rem 1rem;
   border-radius: 8px;
   margin: 1.5rem auto 0;
   max-width: 800px; /* Match search container width */
   text-align: center;
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
 

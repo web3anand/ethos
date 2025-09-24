@@ -25,7 +25,7 @@
 .title {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #e6e6e6;
+  color: var(--text-primary);
   margin: 0;
   flex-shrink: 0; /* Prevent title from shrinking */
 }
@@ -36,7 +36,7 @@
   justify-content: center;
   gap: 0.75rem;
   padding: 1rem;
-  color: #666;
+  color: var(--text-muted);
   font-size: 0.9rem;
   flex: 1;
 }
@@ -44,8 +44,8 @@
 .loadingSpinner {
   width: 20px;
   height: 20px;
-  border: 2px solid #e5e5e5;
-  border-top: 2px solid #3b82f6;
+  border: 2px solid var(--border-primary);
+  border-top: 2px solid var(--accent-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -65,7 +65,7 @@
 }
 
 .statCard {
-  background: #21262d;
+  background: var(--bg-secondary);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 0.6rem;
@@ -79,7 +79,7 @@
 .statValue {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #e6e6e6;
+  color: var(--text-primary);
   margin-bottom: 0.2rem;
   font-family: 'Sora', sans-serif;
   line-height: 1.2;
@@ -87,7 +87,7 @@
 
 .statLabel {
   font-size: 0.7rem;
-  color: #8b949e;
+  color: var(--text-muted);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -96,7 +96,7 @@
 
 .statNote {
   font-size: 0.75rem;
-  color: #8b949e;
+  color: var(--text-muted);
   margin-top: 0.25rem;
   font-style: italic;
 }

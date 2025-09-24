@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import fetchUserSuggestions from '../utils/fetchUserSuggestions';
 import LoadingBars from './LoadingBars';
+import styles from './SearchBar.module.css';
 
 // Helper function to format numbers (e.g., 1000000 -> 1M)
 const formatNumber = (num) => {
@@ -135,9 +136,9 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
   };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-lg gap-2 relative px-2 sm:px-0">
-      <div className="flex items-center w-full gap-2">
-        <div className="relative flex-grow w-full">
+    <div className={styles.searchContainer}>
+      <div className={styles.searchInputContainer}>
+        <div className={styles.inputWrapper}>
           <input
             ref={inputRef}
             type="text"
@@ -161,7 +162,7 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
             onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
             onKeyDown={handleKeyDown}
             placeholder="Search by Twitter Username or Name"
-            className="w-full p-4 pr-12 bg-gray-900/70 backdrop-blur-lg border border-gray-700/50 rounded-2xl shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500/60 focus:border-blue-500/60 transition-all duration-300 placeholder-gray-400 text-white text-base"
+            className={styles.searchInput}
             autoComplete="off"
             style={{
               textShadow: '0 1px 2px rgba(0,0,0,0.2)',
@@ -182,7 +183,7 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
                 setIsSearching(false);
                 inputRef.current?.focus();
               }}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors duration-200"
+              className={styles.clearButton}
               type="button"
               aria-label="Clear search"
             >
@@ -197,10 +198,10 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
         <button
           onClick={() => triggerSearch(username.trim())}
           disabled={!username.trim() || isSearching || loading}
-          className="px-6 py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:shadow-none"
+          className={styles.searchButton}
         >
           {isSearching || loading ? (
-            <div className="flex items-center gap-2">
+            <div className={styles.searchButtonContent}>
               <LoadingBars size="small" color="white" />
               <span>Searching...</span>
             </div>
@@ -211,7 +212,7 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
       </div>
       
       {showSuggestions && (suggestions.length > 0 || isLoading) && (
-        <div className="absolute top-full left-0 w-full bg-gray-900/70 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl z-50 mt-2 max-h-[400px] overflow-y-auto animate-in fade-in-0 slide-in-from-top-2 duration-200" style={{
+        <div className={styles.suggestionsContainer} style={{
           scrollbarWidth: 'none', /* Firefox */
           msOverflowStyle: 'none', /* IE and Edge */
           boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
@@ -219,66 +220,64 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
           <style jsx>{`
             div::-webkit-scrollbar { display: none; }
           `}</style>
-          <div className="p-2">
+          <div className={styles.suggestionsContent}>
             {isLoading ? (
-              <div className="flex items-center justify-center py-4 animate-in fade-in-0 duration-200">
+              <div className={styles.loadingContainer}>
                 <LoadingBars size="small" color="blue" className="mr-3" />
-                <span className="text-gray-300 text-sm font-medium">Searching...</span>
+                <span className={styles.loadingText}>Searching...</span>
               </div>
             ) : suggestions.length > 0 ? (
               suggestions.map((suggestion, index) => (
-                <div key={suggestion.username + index} className="px-2 py-1 animate-in fade-in-0 slide-in-from-left-1 duration-150" style={{ animationDelay: `${index * 50}ms` }}>
+                <div key={suggestion.username + index} className={styles.suggestionItem} style={{ animationDelay: `${index * 50}ms` }}>
                   <div
-                    className={`flex items-center gap-3 p-3 cursor-pointer rounded-xl transition-all duration-150 ${
-                      selectedIndex === index 
-                        ? 'bg-blue-600/40 shadow-lg scale-[1.02]' 
-                        : 'hover:bg-gray-700/50 hover:scale-[1.01]'
+                    className={`${styles.suggestionContent} ${
+                      selectedIndex === index ? styles.selected : ''
                     }`}
                     onMouseDown={() => selectSuggestion(suggestion)}
                     onMouseEnter={() => setSelectedIndex(index)}
                   >
                     {/* Avatar */}
-                    <div className="relative flex-shrink-0">
+                    <div className={styles.avatarContainer}>
                       {suggestion.avatarUrl ? (
                         <img 
                           src={suggestion.avatarUrl} 
                           alt={suggestion.displayName || suggestion.username} 
-                          className="w-10 h-10 rounded-full object-cover border-2 border-gray-600/80" 
+                          className={styles.avatar}
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-white font-bold text-lg border-2 border-gray-600/80">
+                        <div className={styles.avatarFallback}>
                           {(suggestion.displayName || suggestion.username)[0].toUpperCase()}
                         </div>
                       )}
                     </div>
 
                     {/* User Info */}
-                    <div className="flex-1 min-w-0 overflow-hidden">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-white text-base leading-tight truncate">
+                    <div className={styles.userInfo}>
+                      <div className={styles.userNameContainer}>
+                        <span className={styles.userName}>
                           {suggestion.displayName || suggestion.username}
                         </span>
                         {suggestion.verified && (
-                          <svg className="w-4 h-4 text-blue-400 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                          <svg className={styles.verifiedIcon} viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z"/>
                           </svg>
                         )}
                       </div>
-                      <div className="text-gray-400 text-sm truncate">
+                      <div className={styles.username}>
                         @{suggestion.username}
                       </div>
                     </div>
 
                     {/* Stats */}
-                    <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className={styles.statsContainer}>
                       {suggestion.score && (
-                        <div className="bg-green-500/20 text-green-300 text-xs font-bold px-2 py-1 rounded-md border border-green-500/30">
+                        <div className={styles.scoreBadge}>
                           {suggestion.score}
                         </div>
                       )}
                       {suggestion.followers && (
-                        <div className="flex items-center gap-1 text-gray-400 text-xs">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className={styles.followersContainer}>
+                          <svg className={styles.followersIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                           </svg>
                           <span>{formatNumber(suggestion.followers)}</span>
@@ -289,8 +288,8 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
                 </div>
               ))
             ) : (
-              <div className="flex items-center justify-center py-4">
-                <span className="text-gray-400 text-sm font-medium">No users found</span>
+              <div className={styles.noResultsContainer}>
+                <span className={styles.noResultsText}>No users found</span>
               </div>
             )}
           </div>

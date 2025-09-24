@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
 import SearchBar from '../components/SearchBar';
+import Footer from '../components/Footer';
 import fetchUserSuggestions from '../utils/fetchUserSuggestions';
 import {
   fetchUserByTwitter,
@@ -98,7 +99,7 @@ export default function Home() {
         <meta name="description" content="Check your social reputation score and credibility with Ethos" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
         <meta name="format-detection" content="telephone=no" />
-        <meta name="theme-color" content="#0d1117" />
+        <meta name="theme-color" content="var(--bg-primary)" />
         
         {/* iOS specific meta tags */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -107,7 +108,7 @@ export default function Home() {
       </Head>
       
       <Navbar />
-      <div style={{ backgroundColor: '#0d1117', minHeight: '100vh' }}>
+      <div style={{ minHeight: '100vh' }}>
         {!userData && (
           <div className={styles.container}>
             <h1 className={styles.title}>Social Reputation Protocol</h1>
@@ -125,6 +126,7 @@ export default function Home() {
         )}
         {userData && <ModernDashboard profile={userData} />}
       </div>
+      <Footer />
     </>
   );
 }

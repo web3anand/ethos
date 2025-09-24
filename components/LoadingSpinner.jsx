@@ -14,22 +14,26 @@ const LoadingSpinner = ({
     xl: 'w-12 h-12'
   };
 
-  const colorClasses = {
-    blue: 'border-blue-500',
-    green: 'border-green-500',
-    red: 'border-red-500',
-    yellow: 'border-yellow-500',
-    purple: 'border-purple-500',
-    gray: 'border-gray-500'
+  const getColorStyle = (color) => {
+    const colorMap = {
+      blue: 'var(--accent-primary)',
+      green: 'var(--accent-success)',
+      red: 'var(--accent-error)',
+      yellow: 'var(--accent-warning)',
+      purple: 'var(--accent-primary)',
+      gray: 'var(--text-muted)'
+    };
+    return { borderTopColor: colorMap[color] || colorMap.blue };
   };
 
   return (
     <div className={`flex items-center ${className}`}>
       <div 
-        className={`${sizeClasses[size]} border-2 border-transparent ${colorClasses[color]} border-t-current rounded-full animate-spin`}
+        className={`${sizeClasses[size]} border-2 border-transparent rounded-full animate-spin`}
+        style={getColorStyle(color)}
       ></div>
       {text && (
-        <span className="ml-2 text-sm text-gray-400">{text}</span>
+        <span className="ml-2 text-sm" style={{ color: 'var(--text-muted)' }}>{text}</span>
       )}
     </div>
   );

@@ -85,16 +85,16 @@ async function fetchValidatorNftData(profileId) {
 
 // Score levels for mapping score to name and color
 const scoreLevels = [
-  { min: 0, max: 799, name: 'Untrusted', color: '#e74c3c' },
-  { min: 800, max: 1199, name: 'Questionable', color: '#e1b000' },
-  { min: 1200, max: 1399, name: 'Neutral', color: '#e2e2e2', text: '#222' },
-  { min: 1400, max: 1599, name: 'Known', color: '#8cb6e6' },
-  { min: 1600, max: 1799, name: 'Established', color: '#5fa8d3' },
-  { min: 1800, max: 1999, name: 'Reputable', color: '#3b82f6' },
-  { min: 2000, max: 2199, name: 'Exemplary', color: '#34d399' },
-  { min: 2200, max: 2399, name: 'Distinguished', color: '#22c55e' },
-  { min: 2400, max: 2599, name: 'Revered', color: '#a78bfa' },
-  { min: 2600, max: 2800, name: 'Renowned', color: '#a855f7' },
+  { min: 0, max: 799, name: 'Untrusted', color: 'var(--accent-error)' },
+  { min: 800, max: 1199, name: 'Questionable', color: 'var(--accent-warning)' },
+  { min: 1200, max: 1399, name: 'Neutral', color: 'var(--text-muted)', text: 'var(--text-inverse)' },
+  { min: 1400, max: 1599, name: 'Known', color: 'var(--accent-primary)' },
+  { min: 1600, max: 1799, name: 'Established', color: 'var(--accent-primary)' },
+  { min: 1800, max: 1999, name: 'Reputable', color: 'var(--accent-primary)' },
+  { min: 2000, max: 2199, name: 'Exemplary', color: 'var(--accent-success)' },
+  { min: 2200, max: 2399, name: 'Distinguished', color: 'var(--accent-success)' },
+  { min: 2400, max: 2599, name: 'Revered', color: 'var(--accent-primary)' },
+  { min: 2600, max: 2800, name: 'Renowned', color: 'var(--accent-primary)' },
 ];
 
 // Score name and color mapping
@@ -351,7 +351,7 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
                 <span 
                   style={{
                     fontWeight: 600,
-                    color: scoreLevel.color === '#e2e2e2' ? '#222' : '#fff',
+                    color: scoreLevel.text || 'var(--text-inverse)',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -410,20 +410,20 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
           ? (
               <CopyAddress address={primaryAddress} />
             )
-          : <span style={{color: '#aaa'}}>Not available</span>,
+          : <span style={{color: 'var(--text-muted)'}}>Not available</span>,
 'Validator NFT': validatorNft === null
-          ? <span style={{color:'#aaa'}}>Checking...</span>
+          ? <span style={{color:'var(--text-muted)'}}>Checking...</span>
           : validatorNft
             ? (
                 <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                  <span style={{color:'#22c55e', fontWeight:600}}>Yes</span>
+                  <span style={{color:'var(--accent-success)', fontWeight:600}}>Yes</span>
                   {validatorNft.imageUrl && (
                     <div style={{
                       width: '32px',
                       height: '32px',
                       borderRadius: '4px',
                       overflow: 'hidden',
-                      border: '1px solid #ddd'
+                      border: '1px solid var(--border-primary)'
                     }}>
                       <img
                         src={validatorNft.imageUrl}
@@ -438,13 +438,13 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
                     </div>
                   )}
                   {validatorNft.name && (
-                    <span style={{color: '#666', fontSize: '0.9em'}}>
+                    <span style={{color: 'var(--text-muted)', fontSize: '0.9em'}}>
                       {validatorNft.name}
                     </span>
                   )}
                 </div>
               )
-            : <span style={{color:'#e74c3c', fontWeight:600}}>No</span>,
+            : <span style={{color:'var(--accent-error)', fontWeight:600}}>No</span>,
         'ETH Price (USD)': ethPrice ? `$${ethPrice.toLocaleString(undefined, {maximumFractionDigits:2})}` : 'Loading...',
       },
     ],
@@ -517,7 +517,7 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
               <span 
                 style={{
                   fontWeight: 600,
-                  color: scoreLevel.color === '#e2e2e2' ? '#222' : '#fff',
+                  color: scoreLevel.text || 'var(--text-inverse)',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis'
@@ -556,8 +556,8 @@ export default function EthosProfileCard({ profile, isDesktop = false }) {
                               >
                                 <span style={{display:'inline-flex',alignItems:'center'}}>
                                   <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight:2}}>
-                                    <rect x="5" y="5" width="10" height="12" rx="2" fill="#fff" stroke="#ff3c00" strokeWidth="1.2"/>
-                                    <rect x="3" y="3" width="10" height="12" rx="2" fill="#ffede6" stroke="#ff3c00" strokeWidth="1.2"/>
+                                    <rect x="5" y="5" width="10" height="12" rx="2" fill="var(--text-inverse)" stroke="var(--accent-error)" strokeWidth="1.2"/>
+                                    <rect x="3" y="3" width="10" height="12" rx="2" fill="var(--bg-tertiary)" stroke="var(--accent-error)" strokeWidth="1.2"/>
                                   </svg>
                                 </span>
                               </button>

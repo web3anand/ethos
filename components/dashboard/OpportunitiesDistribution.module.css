@@ -1,14 +1,14 @@
 .card {
-  background-color: #1f2937;
+  background-color: var(--bg-secondary);
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid #374151;
+  border: 1px solid var(--border-primary);
 }
 
 .title {
   font-size: 1rem;
   font-weight: 500;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin-bottom: 1.5rem;
 }
 
@@ -29,7 +29,7 @@
   align-items: center;
   gap: 0.5rem;
   font-weight: 500;
-  color: #d1d5db;
+  color: var(--text-secondary);
 }
 
 .dot {
@@ -39,14 +39,14 @@
 }
 
 .miEth {
-  background-color: #22c55e;
+  background-color: var(--accent-success);
 }
 
 .miUsdc {
-  background-color: #f59e0b;
+  background-color: var(--accent-warning);
 }
 
 .amount {
   font-weight: 500;
-  color: #d1d5db;
+  color: var(--text-secondary);
 }
