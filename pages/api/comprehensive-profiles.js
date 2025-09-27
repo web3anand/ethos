@@ -184,7 +184,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { search, limit = 5000, offset = 0 } = req.query;
+    const { search, limit = 5000, offset = 0, clearCache } = req.query;
+    
+    // Clear cache if requested
+    if (clearCache === 'true') {
+      csvCache.profiles = null;
+      csvCache.sortedProfiles = null;
+      csvCache.profileLookup = null;
+      csvCache.lastLoaded = null;
+      console.log('🔄 Comprehensive profiles cache cleared');
+    }
     
     // Load CSV data
     const data = loadCsvData();

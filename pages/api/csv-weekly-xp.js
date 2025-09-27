@@ -365,7 +365,8 @@ export default async function handler(req, res) {
       { season_id: 1, week: 3 }, { season_id: 1, week: 4 }, { season_id: 1, week: 5 },
       { season_id: 1, week: 6 }, { season_id: 1, week: 7 }, { season_id: 1, week: 8 },
       { season_id: 1, week: 9 }, { season_id: 1, week: 10 }, { season_id: 1, week: 11 },
-      { season_id: 1, week: 12 }, { season_id: 1, week: 13 }, { season_id: 1, week: 14 }
+      { season_id: 1, week: 12 }, { season_id: 1, week: 13 }, { season_id: 1, week: 14 },
+      { season_id: 1, week: 15 }
     ].filter(w => season === undefined || w.season_id === parseInt(season));
     
     res.status(200).json({

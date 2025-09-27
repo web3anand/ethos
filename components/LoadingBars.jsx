@@ -31,7 +31,7 @@ const LoadingBars = ({ size = 'medium', className = '', color = 'blue' }) => {
         className={`${getSizeClasses()} rounded-sm`}
         style={{
           ...getColorStyle(),
-          animation: 'loadingBar 0.6s ease-in-out infinite',
+          animation: 'smoothBar 1.2s ease-in-out infinite',
           animationDelay: '0ms'
         }}
       ></div>
@@ -39,7 +39,7 @@ const LoadingBars = ({ size = 'medium', className = '', color = 'blue' }) => {
         className={`${getSizeClasses()} rounded-sm`}
         style={{
           ...getColorStyle(),
-          animation: 'loadingBar 0.6s ease-in-out infinite',
+          animation: 'smoothBar 1.2s ease-in-out infinite',
           animationDelay: '0.2s'
         }}
       ></div>
@@ -47,7 +47,7 @@ const LoadingBars = ({ size = 'medium', className = '', color = 'blue' }) => {
         className={`${getSizeClasses()} rounded-sm`}
         style={{
           ...getColorStyle(),
-          animation: 'loadingBar 0.6s ease-in-out infinite',
+          animation: 'smoothBar 1.2s ease-in-out infinite',
           animationDelay: '0.4s'
         }}
       ></div>
@@ -61,6 +61,29 @@ const LoadingBars = ({ size = 'medium', className = '', color = 'blue' }) => {
           20% {
             transform: scaleY(1);
             opacity: 1;
+          }
+        }
+        
+        @keyframes smoothBar {
+          0% { 
+            transform: scaleY(0.6);
+            opacity: 0.7;
+          }
+          25% {
+            transform: scaleY(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scaleY(0.8);
+            opacity: 0.9;
+          }
+          75% {
+            transform: scaleY(1.1);
+            opacity: 1;
+          }
+          100% {
+            transform: scaleY(0.6);
+            opacity: 0.7;
           }
         }
       `}</style>

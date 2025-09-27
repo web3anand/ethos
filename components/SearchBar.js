@@ -224,7 +224,7 @@ export default function SearchBar({ username, setUsername, onSearch, loading, on
             {isLoading ? (
               <div className={styles.loadingContainer}>
                 <LoadingBars size="small" color="blue" className="mr-3" />
-                <span className={styles.loadingText}>Searching...</span>
+                <span className={styles.loadingText} data-text="Searching...">Searching...</span>
               </div>
             ) : suggestions.length > 0 ? (
               suggestions.map((suggestion, index) => (

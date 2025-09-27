@@ -112,7 +112,7 @@ async function processProfile(profile) {
     // Fetch season XP data
     const seasonData = await fetchSeasonXpData(profileId);
     
-    // Store profile data
+    // Store profile data with enhanced field handling
     const profileData = {
       profile_id: profileId,
       username: profile.username || null,
@@ -125,6 +125,13 @@ async function processProfile(profile) {
       status: profile.status || 'UNKNOWN',
       userkeys_count: profile.userkeys ? profile.userkeys.length : 0,
       eth_addresses: profile.userkeys ? profile.userkeys.filter(k => k.startsWith('address:0x')).length : 0,
+      // New fields that might be added in the future
+      is_validator: profile.isValidator || false,
+      last_active: profile.lastActive || null,
+      join_date: profile.joinDate || null,
+      social_links: profile.socialLinks ? JSON.stringify(profile.socialLinks) : null,
+      badges: profile.badges ? JSON.stringify(profile.badges) : null,
+      achievements: profile.achievements ? JSON.stringify(profile.achievements) : null,
       created_at: new Date().toISOString(),
       last_updated: new Date().toISOString()
     };
@@ -210,7 +217,9 @@ function saveDataToCSV() {
   const profileHeaders = [
     'profile_id', 'username', 'display_name', 'avatar_url', 'description',
     'score', 'streak_days', 'total_xp', 'status', 'userkeys_count',
-    'eth_addresses', 'season_1_xp', 'season_1_weeks', 'created_at', 'last_updated'
+    'eth_addresses', 'season_1_xp', 'season_1_weeks', 'is_validator',
+    'last_active', 'join_date', 'social_links', 'badges', 'achievements',
+    'created_at', 'last_updated'
   ];
   
   const profilesCSV = [profileHeaders.join(',')];

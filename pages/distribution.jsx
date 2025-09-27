@@ -12,7 +12,9 @@ import styles from '../styles/Distribution.module.css';
 import CustomDropdown from '../components/CustomDropdown';
 import LoadingBars from '../components/LoadingBars';
 import SafeAvatar from '../components/SafeAvatar';
-import SmartLoading from '../components/SmartLoading';
+import LoadingSpinner from '../components/LoadingSpinner';
+import IntegratedLoading from '../components/IntegratedLoading';
+import DataUpdateButton from '../components/DataUpdateButton';
 
 export default function Distribution() {
   const [leaderboardData, setLeaderboardData] = useState([]);
@@ -1536,15 +1538,29 @@ useEffect(() => {
 
   return (
     <div className="relative">
-      {/* Smart Loading Animation */}
-      <SmartLoading 
-        isVisible={loading}
-        progress={loadingProgress}
-        stage={loadingProgress?.stage}
-      />
+      {/* Integrated Loading */}
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div style={{ 
+            background: 'var(--bg-primary)', 
+            border: '1px solid var(--border-primary)', 
+            borderRadius: '1rem', 
+            padding: '2rem', 
+            maxWidth: '32rem', 
+            margin: '0 1rem', 
+            boxShadow: 'var(--shadow-lg)' 
+          }}>
+            <IntegratedLoading 
+              message="Loading XP Distribution Data..."
+              showProgress={true}
+              progress={loadingProgress}
+              size="large"
+            />
+          </div>
+        </div>
+      )}
 
-      {/* Main Content */}
-      {!loading && (
+      <div className={loading ? 'opacity-50 pointer-events-none' : ''}>
         <div className={styles.container}>
           <Head>
             <title>Ethos XP Distribution | Leaderboard & Analytics</title>
@@ -1564,7 +1580,9 @@ useEffect(() => {
         </header>
 
         {/* Statistics Overview */}
-        <section className={styles.statsGrid}>
+        <section className={styles.statsSection}>
+          <h2 className={styles.statsTitle}>Overview</h2>
+          <div className={styles.statsGrid}>
           <div className={styles.statCard}>
             <p className={styles.statLabel}>Total XP Distributed</p>
             <p className={styles.statValue}>{ethosDistributionApi.formatXpToMillions(totalXp)}</p>
@@ -1584,6 +1602,7 @@ useEffect(() => {
             <p className={styles.statLabel}>Current Week</p>
             <p className={styles.statValue}>Week {distributionStats?.currentWeek?.week ?? '...'}</p>
             <p className={styles.statSubValue}>Season {distributionStats?.currentSeason?.id ?? '...'}</p>
+          </div>
           </div>
         </section>
 
@@ -1630,6 +1649,10 @@ useEffect(() => {
                       className={styles.searchInput}
                     />
                   </div>
+                  <DataUpdateButton onUpdateComplete={() => {
+                    // Refresh the page data when update completes
+                    window.location.reload();
+                  }} />
                 </div>
 
                 <div className={styles.tableContainer}>
@@ -2177,8 +2200,7 @@ useEffect(() => {
 
           </main>
         </div>
-      )}
-      
+      </div>
       <Footer />
     </div>
   );
