@@ -12,7 +12,7 @@ import styles from '../styles/Distribution.module.css';
 import CustomDropdown from '../components/CustomDropdown';
 import LoadingBars from '../components/LoadingBars';
 import SafeAvatar from '../components/SafeAvatar';
-import LoadingSpinner from '../components/LoadingSpinner';
+import SmartLoading from '../components/SmartLoading';
 
 export default function Distribution() {
   const [leaderboardData, setLeaderboardData] = useState([]);
@@ -1536,83 +1536,15 @@ useEffect(() => {
 
   return (
     <div className="relative">
-      {/* Small Loading Overlay */}
-      {loading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div style={{ 
-            background: 'var(--bg-primary)', 
-            border: '1px solid var(--border-primary)', 
-            borderRadius: '0.5rem', 
-            padding: '1.5rem', 
-            maxWidth: '28rem', 
-            margin: '0 1rem', 
-            boxShadow: 'var(--shadow-lg)' 
-          }}>
-            <div className="text-center">
-              {/* Animated Logo/Icon */}
-              <div className="mb-4">
-                <div className="relative">
-                  <div className="w-16 h-16 mx-auto bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center animate-pulse">
-                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                      <span className="text-xl font-bold" style={{ color: 'var(--text-inverse)' }}>E</span>
-                    </div>
-                  </div>
-                  {/* Rotating ring */}
-                  <div className="absolute inset-0 w-16 h-16 mx-auto border-2 border-transparent border-t-blue-400 border-r-purple-400 rounded-full animate-spin"></div>
-                </div>
-              </div>
+      {/* Smart Loading Animation */}
+      <SmartLoading 
+        isVisible={loading}
+        progress={loadingProgress}
+        stage={loadingProgress?.stage}
+      />
 
-              <h2 style={{ 
-                fontSize: '1.25rem', 
-                fontWeight: 'bold', 
-                color: 'var(--text-primary)', 
-                marginBottom: '0.75rem' 
-              }}>
-                Loading XP Distribution Data...
-              </h2>
-
-              {loadingProgress && (
-                <div className="mt-4">
-                  <p style={{ 
-                    color: 'var(--text-secondary)', 
-                    fontSize: '0.875rem', 
-                    marginBottom: '0.5rem' 
-                  }}>
-                    {loadingProgress.stage || 'Processing data'}
-                  </p>
-                  <div style={{ 
-                    width: '100%', 
-                    backgroundColor: 'var(--bg-tertiary)', 
-                    borderRadius: '9999px', 
-                    height: '0.5rem' 
-                  }}>
-                    <div
-                      className="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full transition-all duration-500 ease-out"
-                      style={{ width: `${loadingProgress.percentage || 0}%` }}
-                    ></div>
-                  </div>
-                  <p style={{ 
-                    color: 'var(--text-muted)', 
-                    fontSize: '0.75rem', 
-                    marginTop: '0.25rem' 
-                  }}>
-                    {loadingProgress.percentage !== undefined ? `${loadingProgress.percentage.toFixed(1)}% Complete` : ''}
-                  </p>
-                </div>
-              )}
-
-              {/* Bouncing dots animation */}
-              <div className="flex justify-center items-center mt-4 space-x-1">
-                <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: 'var(--accent-primary)', animationDelay: '0s' }}></div>
-                <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: 'var(--accent-secondary)', animationDelay: '0.2s' }}></div>
-                <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: 'var(--accent-success)', animationDelay: '0.4s' }}></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className={loading ? 'opacity-50 pointer-events-none' : ''}>
+      {/* Main Content */}
+      {!loading && (
         <div className={styles.container}>
           <Head>
             <title>Ethos XP Distribution | Leaderboard & Analytics</title>
@@ -2245,7 +2177,8 @@ useEffect(() => {
 
           </main>
         </div>
-      </div>
+      )}
+      
       <Footer />
     </div>
   );
