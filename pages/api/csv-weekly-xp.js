@@ -353,21 +353,36 @@ export default async function handler(req, res) {
       hasMore = false;
     }
     
-    // Get available seasons and weeks (lightweight)
+    // Get available seasons and weeks (automatically detected from data)
     const seasons = [
       { season_id: 0, season_name: 'Season 0' },
       { season_id: 1, season_name: 'Season 1' }
     ];
     
-    const weeks = [
-      { season_id: 0, week: 0 },
-      { season_id: 1, week: 0 }, { season_id: 1, week: 1 }, { season_id: 1, week: 2 },
-      { season_id: 1, week: 3 }, { season_id: 1, week: 4 }, { season_id: 1, week: 5 },
-      { season_id: 1, week: 6 }, { season_id: 1, week: 7 }, { season_id: 1, week: 8 },
-      { season_id: 1, week: 9 }, { season_id: 1, week: 10 }, { season_id: 1, week: 11 },
-      { season_id: 1, week: 12 }, { season_id: 1, week: 13 }, { season_id: 1, week: 14 },
-      { season_id: 1, week: 15 }
-    ].filter(w => season === undefined || w.season_id === parseInt(season));
+    // Automatically detect available weeks from the data
+    const availableWeeks = new Set();
+    data.weeklyXp.forEach(record => {
+      const seasonId = record.season_id !== undefined ? record.season_id : record.season;
+      const week = record.week;
+      if (seasonId !== undefined && week !== undefined) {
+        availableWeeks.add(`${seasonId}-${week}`);
+      }
+    });
+    
+    // Convert to array format and sort
+    const weeks = Array.from(availableWeeks)
+      .map(weekKey => {
+        const [seasonId, week] = weekKey.split('-').map(Number);
+        return { season_id: seasonId, week: week };
+      })
+      .sort((a, b) => {
+        // Sort by season first, then by week
+        if (a.season_id !== b.season_id) {
+          return a.season_id - b.season_id;
+        }
+        return a.week - b.week;
+      })
+      .filter(w => season === undefined || w.season_id === parseInt(season));
     
     res.status(200).json({
       profiles: paginatedData,
