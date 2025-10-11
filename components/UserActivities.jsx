@@ -5,16 +5,16 @@ import styles from './UserActivities.module.css';
 
 // Score levels for mapping score to name and color (same as EthosProfileCard)
 const scoreLevels = [
-  { min: 0, max: 799, name: 'Untrusted', color: '#e74c3c' },
-  { min: 800, max: 1199, name: 'Questionable', color: '#e1b000' },
-  { min: 1200, max: 1399, name: 'Neutral', color: '#e2e2e2', text: '#222' },
-  { min: 1400, max: 1599, name: 'Known', color: '#8cb6e6' },
-  { min: 1600, max: 1799, name: 'Established', color: '#5fa8d3' },
-  { min: 1800, max: 1999, name: 'Reputable', color: '#3b82f6' },
-  { min: 2000, max: 2199, name: 'Exemplary', color: '#34d399' },
-  { min: 2200, max: 2399, name: 'Distinguished', color: '#22c55e' },
-  { min: 2400, max: 2599, name: 'Revered', color: '#a78bfa' },
-  { min: 2600, max: 2800, name: 'Renowned', color: '#a855f7' },
+  { min: 0, max: 799, name: 'Untrusted', color: 'var(--accent-error)' },
+  { min: 800, max: 1199, name: 'Questionable', color: 'var(--accent-warning)' },
+  { min: 1200, max: 1399, name: 'Neutral', color: 'var(--text-muted)', text: 'var(--text-inverse)' },
+  { min: 1400, max: 1599, name: 'Known', color: 'var(--accent-primary)' },
+  { min: 1600, max: 1799, name: 'Established', color: 'var(--accent-primary)' },
+  { min: 1800, max: 1999, name: 'Reputable', color: 'var(--accent-primary)' },
+  { min: 2000, max: 2199, name: 'Exemplary', color: 'var(--accent-success)' },
+  { min: 2200, max: 2399, name: 'Distinguished', color: 'var(--accent-success)' },
+  { min: 2400, max: 2599, name: 'Revered', color: 'var(--accent-primary)' },
+  { min: 2600, max: 2800, name: 'Renowned', color: 'var(--accent-primary)' },
 ];
 
 // Score name and color mapping
@@ -348,6 +348,27 @@ export default function UserActivities({ profile, activities: initialActivities 
     const amount = activityData.amount || activityData.ethAmount;
     const score = activityData.score || activityData.rating;
     const description = activityData.description || activityData.comment || activityData.content;
+    
+    // For reviews, extract title and full content
+    // Based on the Ethos API structure: comment is the title, metadata.description is the content
+    let reviewTitle = null;
+    let reviewContent = null;
+    
+    if (activity.type === 'review') {
+      // Parse metadata if it's a JSON string
+      let parsedMetadata = {};
+      try {
+        parsedMetadata = typeof activityData.metadata === 'string' 
+          ? JSON.parse(activityData.metadata) 
+          : activityData.metadata || {};
+      } catch (error) {
+        parsedMetadata = { description: activityData.metadata || '' };
+      }
+      
+      // Use comment as title, metadata.description as content
+      reviewTitle = activityData.comment || 'Review';
+      reviewContent = parsedMetadata.description || activityData.text || activityData.body || activityData.content || description;
+    }
 
     // Get profile picture URLs
     const authorAvatar = author?.avatar || author?.avatarUrl || author?.profilePicture;
@@ -426,10 +447,10 @@ export default function UserActivities({ profile, activities: initialActivities 
         </div>
         
         <div className={styles.activityContent}>
-          {/* Show who made the activity with profile pictures */}
-          <div className={styles.activityParticipants}>
+          {/* Show who made the activity with profile pictures - side by side */}
+          <div className={styles.activityParticipants} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             {author && (
-              <div className={styles.activityAuthor}>
+              <div className={styles.activityAuthor} style={{ flex: '1', minWidth: '200px' }}>
                 <div className={styles.participantInfo}>
                   <div 
                     className={styles.participantAvatar}
@@ -467,7 +488,7 @@ export default function UserActivities({ profile, activities: initialActivities 
             )}
             
             {target && (
-              <div className={styles.activityTarget}>
+              <div className={styles.activityTarget} style={{ flex: '1', minWidth: '200px' }}>
                 <div className={styles.participantInfo}>
                   <div 
                     className={styles.participantAvatar}
@@ -504,7 +525,29 @@ export default function UserActivities({ profile, activities: initialActivities 
             )}
           </div>
 
-          {description && (
+          {/* Show review title and content for reviews */}
+          {activity.type === 'review' && (reviewTitle || reviewContent) && (
+            <div className={styles.reviewDetails}>
+              {reviewTitle && (
+                <div className={styles.reviewTitle}>
+                  <span className={styles.reviewTitleLabel}>Review Title:</span>
+                  <h4 className={styles.reviewTitleText}>{reviewTitle}</h4>
+                </div>
+              )}
+              {reviewContent && (
+                <div className={styles.reviewContent}>
+                  <span className={styles.reviewContentLabel}>Review:</span>
+                  <p className={styles.reviewContentText}>
+                    {typeof reviewContent === 'string' ? reviewContent : JSON.stringify(reviewContent)}
+                  </p>
+                </div>
+              )}
+              
+            </div>
+          )}
+
+          {/* Show description for non-review activities */}
+          {activity.type !== 'review' && description && (
             <div className={styles.activityDescription}>
               <span className={styles.descriptionLabel}>Description:</span>
               <p className={styles.descriptionText}>
@@ -529,12 +572,23 @@ export default function UserActivities({ profile, activities: initialActivities 
             </div>
           )}
 
-          {/* Show timestamp for debugging */}
-          <div className={styles.activityDebug}>
-            <small style={{ color: '#888', fontSize: '0.75rem' }}>
-              Type: {activity.type} | ID: {activity.id || 'N/A'} | Author: {isUserAuthor ? 'User' : 'Other'}
-            </small>
-          </div>
+          {/* Show transaction hash for reviews */}
+          {activity.type === 'review' && activity.events?.[0]?.txHash && (
+            <div className={styles.activityDebug}>
+              <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                Transaction: <a 
+                  href={`https://basescan.org/tx/${activity.events[0].txHash}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--accent-primary)', textDecoration: 'none' }}
+                  onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
+                  onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
+                >
+                  {activity.events[0].txHash.slice(0, 10)}...{activity.events[0].txHash.slice(-8)}
+                </a>
+              </small>
+            </div>
+          )}
         </div>
       </div>
     );

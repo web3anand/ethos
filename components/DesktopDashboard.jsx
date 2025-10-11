@@ -1,7 +1,6 @@
 import EthosProfileCard from './EthosProfileCard';
 import DetailedStats from './DetailedStats';
 import UserActivities from './UserActivities';
-import XpDistribution from './XpDistribution';
 import styles from './DesktopDashboard.module.css';
 
 const DesktopDashboard = ({ profile }) => {
@@ -16,9 +15,6 @@ const DesktopDashboard = ({ profile }) => {
       </div>
       <div className="stats-container-wide glass-container">
         <DetailedStats stats={profile} />
-      </div>
-      <div className="xp-distribution-container-wide glass-container">
-        <XpDistribution profile={profile} />
       </div>
       <div className="activities-container-wide glass-container">
         <UserActivities profile={profile} />

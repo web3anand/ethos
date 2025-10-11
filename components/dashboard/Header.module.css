@@ -3,7 +3,7 @@
   justify-content: space-between;
   align-items: center;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid #374151;
+  border-bottom: 1px solid var(--border-primary);
 }
 
 .walletInfo {
@@ -15,20 +15,20 @@
 .walletIcon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   border-radius: 50%;
 }
 
 .walletInfo h1 {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-inverse);
 }
 
 .copyButton {
   background: none;
   border: none;
-  color: #9ca3af;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 6px;
@@ -36,6 +36,6 @@
 }
 
 .copyButton:hover {
-  color: #ffffff;
-  background-color: #374151;
+  color: var(--text-inverse);
+  background-color: var(--bg-tertiary);
 }

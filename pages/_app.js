@@ -1,5 +1,6 @@
 import '../styles/globals.css';
 import dynamic from 'next/dynamic';
+import { ThemeProvider } from '../contexts/ThemeContext';
 
 // Dynamically import EthosConnectProvider to avoid SSR issues
 const EthosConnectProvider = dynamic(
@@ -9,9 +10,11 @@ const EthosConnectProvider = dynamic(
 
 export default function App({ Component, pageProps }) {
   return (
-    <EthosConnectProvider>
-      <div className="glass-bg" />
-      <Component {...pageProps} />
-    </EthosConnectProvider>
+    <ThemeProvider>
+      <EthosConnectProvider>
+        <div className="glass-bg" />
+        <Component {...pageProps} />
+      </EthosConnectProvider>
+    </ThemeProvider>
   );
 }

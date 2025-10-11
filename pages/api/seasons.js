@@ -1,401 +1,148 @@
 import fs from 'fs';
 import path from 'path';
 
-// Cache configuration
-const CACHE_FILE = path.join(process.cwd(), 'data', 'seasons-cache.json');
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+// Cache for season data
+let seasonCache = {
+  data: null,
+  lastLoaded: null,
+  cacheTimeoutMs: 30 * 60 * 1000, // 30 minutes
+};
 
-// Check if cache is valid
-function isCacheValid(cacheData) {
-  if (!cacheData || !cacheData.timestamp) return false;
-  const now = Date.now();
-  const cacheAge = now - cacheData.timestamp;
-  return cacheAge < CACHE_DURATION;
-}
-
-// Load cache from file
-function loadCache() {
-  try {
-    if (fs.existsSync(CACHE_FILE)) {
-      const cacheContent = fs.readFileSync(CACHE_FILE, 'utf8');
-      const cacheData = JSON.parse(cacheContent);
-      console.log(`[Seasons API] 📁 Found cache file, age: ${Math.round((Date.now() - cacheData.timestamp) / (60 * 1000))} minutes`);
-      return cacheData;
-    }
-  } catch (error) {
-    console.log(`[Seasons API] ⚠️ Error loading cache:`, error.message);
-  }
-  return null;
-}
-
-// Save cache to file
-function saveCache(data) {
-  try {
-    // Ensure data directory exists
-    const dataDir = path.dirname(CACHE_FILE);
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true });
-    }
-
-    const cacheData = {
-      timestamp: Date.now(),
-      data: data
-    };
-
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(cacheData, null, 2), 'utf8');
-    console.log(`[Seasons API] 💾 Saved fresh data to cache file`);
-    return true;
-  } catch (error) {
-    console.log(`[Seasons API] ⚠️ Error saving cache:`, error.message);
-    return false;
-  }
-}
-
-// Function to calculate week start date based on season start and week number
-function calculateWeekStartDate(seasonStartDate, weekNumber) {
-  const startDate = new Date(seasonStartDate);
-  // Add 7 days * week number to get the start of that week
-        const weekStart = new Date(startDate.getTime() + (weekNumber * 7 * 24 * 60 * 60 * 1000));
-        return weekStart.toISOString();
+// Parse CSV content to array of objects
+function parseCsv(csvContent) {
+  const lines = csvContent.trim().split('\n');
+  if (lines.length === 0) return [];
+  
+  const headers = lines[0].split(',');
+  const data = [];
+  
+  for (let i = 1; i < lines.length; i++) {
+    const values = lines[i].split(',');
+    const row = {};
+    
+    for (let j = 0; j < headers.length; j++) {
+      const header = headers[j];
+      let value = values[j] || '';
+      
+      // Convert numeric fields
+      if (['season_id', 'week'].includes(header)) {
+        value = value === '' ? 0 : parseInt(value);
       }
       
-      // Function to calculate weekly XP data from actual user profiles
-      async function calculateWeeklyXpFromUsers(seasonId, userProfiles) {
-        try {
-          console.log(`[Seasons API] 🔍 Processing ALL ${userProfiles.length} users for season ${seasonId} weekly XP patterns...`);
-          
-          const weeklyDataMap = new Map(); // week -> {totalXp, activeUsers, userXpList}
-          let processedUsers = 0;
-          let successfulFetches = 0;
-          
-          // Process users concurrently with high parallelism for speed
-          const concurrencyLimit = 500; // Process up to 500 profiles concurrently
-          const totalBatches = Math.ceil(userProfiles.length / concurrencyLimit);
-          
-          console.log(`[Seasons API] ⚡ Using HIGH-SPEED concurrent processing: ${concurrencyLimit} users per batch, ${totalBatches} total batches`);
-          
-          for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
-            const startIndex = batchIndex * concurrencyLimit;
-            const endIndex = Math.min(startIndex + concurrencyLimit, userProfiles.length);
-            const batch = userProfiles.slice(startIndex, endIndex);
-            
-            console.log(`[Seasons API] 🚀 Processing CONCURRENT batch ${batchIndex + 1}/${totalBatches} (${batch.length} users: ${startIndex}-${endIndex-1})...`);
-            
-            // Process entire batch concurrently (no sequential processing)
-            const batchPromises = batch.map(async (profile) => {
-              if (!profile.profileId) return null;
-              
-              try {
-                const apiUrl = `https://api.ethos.network/api/v2/xp/user/profileId%3A${profile.profileId}/season/${seasonId}/weekly`;
-                
-                const response = await fetch(apiUrl, {
-                  headers: {
-                    'Accept': 'application/json',
-                    'X-Ethos-Client': 'ethos-distribution-analyzer'
-                  }
-                });
-                
-                if (response.ok) {
-                  const weeklyXpData = await response.json();
-                  successfulFetches++;
-                  
-                  // Process weekly data - count only users who actually earned XP
-                  if (weeklyXpData && Array.isArray(weeklyXpData)) {
-                    return {
-                      profileId: profile.profileId,
-                      weeklyData: weeklyXpData.filter(weekData => weekData.weeklyXp > 0) // Only weeks with XP > 0
-                    };
-                  }
-                } else if (response.status !== 404) {
-                  console.log(`[Seasons API] API error for profile ${profile.profileId}:`, response.status);
-                }
-                
-                return null;
-              } catch (error) {
-                console.log(`[Seasons API] Error fetching weekly XP for profile ${profile.profileId}:`, error.message);
-                return null;
-              }
-            });
-            
-            // Wait for batch to complete
-            const batchResults = await Promise.all(batchPromises);
-            
-            // Process results and update weekly data map
-            batchResults.forEach(result => {
-              if (result && result.weeklyData) {
-                result.weeklyData.forEach(weekData => {
-                  const week = weekData.week;
-                  const weeklyXp = weekData.weeklyXp || 0;
-                  
-                  if (weeklyXp > 0) { // Only count weeks where user actually earned XP
-                    if (!weeklyDataMap.has(week)) {
-                      weeklyDataMap.set(week, { 
-                        totalXp: 0, 
-                        activeUsers: 0, 
-                        userXpList: [],
-                        weekData: weekData 
-                      });
-                    }
-                    const current = weeklyDataMap.get(week);
-                    current.totalXp += weeklyXp;
-                    current.activeUsers += 1;
-                    current.userXpList.push({ profileId: result.profileId, xp: weeklyXp });
-                  }
-                });
-              }
-            });
-            
-            processedUsers += batch.length;
-            
-            // Log progress every 10 batches or at completion for faster processing
-            if (batchIndex % 10 === 0 || batchIndex === totalBatches - 1) {
-              console.log(`[Seasons API] ⚡ FAST Progress: ${processedUsers}/${userProfiles.length} users processed, ${successfulFetches} successful fetches`);
-              
-              // Log current weekly stats (top 3 weeks only for speed)
-              if (weeklyDataMap.size > 0) {
-                const weekStats = Array.from(weeklyDataMap.entries())
-                  .map(([week, data]) => `Week ${week}: ${data.activeUsers} users, ${data.totalXp.toLocaleString()} XP`)
-                  .slice(0, 3);
-                console.log(`[Seasons API] Current stats sample: ${weekStats.join(', ')}`);
-              }
-            }
-            
-            // Minimal delay for high throughput (100ms between 500-user batches)
-            if (batchIndex < totalBatches - 1) {
-              await new Promise(resolve => setTimeout(resolve, 100));
-            }
-          }
-          
-          console.log(`[Seasons API] ✅ Completed processing: ${processedUsers} users, ${successfulFetches} successful API calls`);
-          
-          if (weeklyDataMap.size === 0) {
-            console.log(`[Seasons API] ⚠️ No weekly XP data found for season ${seasonId}`);
-            return null;
-          }
-          
-          // Convert map to array with real data (no extrapolation needed)
-          const weeklyResults = Array.from(weeklyDataMap.entries())
-            .map(([week, data]) => ({
-              week: week,
-              startDate: calculateWeekStartDate(
-                seasonId === 1 
-                  ? "2025-05-14T00:00:00.000Z"  // Season 1 start date (updated to 2025)
-                  : "2025-02-01T00:00:00.000Z", // Season 0 start date (updated to 2025)
-                week - 1
-              ),
-              xpDistributed: data.totalXp, // Real total XP from all active users
-              participants: data.activeUsers // Real count of users who earned XP
-            }))
-            .sort((a, b) => a.week - b.week);    // Log final results
-    console.log(`[Seasons API] 📊 REAL weekly data for season ${seasonId}:`);
-    weeklyResults.forEach(week => {
-      console.log(`  Week ${week.week}: ${week.participants} active users earned ${week.xpDistributed.toLocaleString()} XP total`);
+      // Handle dates
+      if (['start_date', 'end_date', 'created_at'].includes(header)) {
+        value = value === '' ? null : new Date(value);
+      }
+      
+      row[header] = value;
+    }
+    
+    data.push(row);
+  }
+  
+  return data;
+}
+
+// Load season data with caching
+function loadSeasonData() {
+  const now = Date.now();
+  
+  // Check if cache is still valid
+  if (seasonCache.lastLoaded && (now - seasonCache.lastLoaded) < seasonCache.cacheTimeoutMs) {
+    return seasonCache.data;
+  }
+  
+  console.log('📅 Loading season data from CSV...');
+  const dataDir = path.join(process.cwd(), 'data', 'csv');
+  
+  try {
+    // Load season weeks data
+    const seasonFile = path.join(dataDir, 'season_weeks.csv');
+    const seasonContent = fs.readFileSync(seasonFile, 'utf8');
+    const seasonWeeks = parseCsv(seasonContent);
+    
+    // Group weeks by season
+    const seasonMap = new Map();
+    
+    seasonWeeks.forEach(week => {
+      const seasonId = week.season_id;
+      if (!seasonMap.has(seasonId)) {
+        seasonMap.set(seasonId, {
+          id: seasonId,
+          name: `Season ${seasonId}`,
+          weeks: []
+        });
+      }
+      seasonMap.get(seasonId).weeks.push(week);
     });
     
-    const totalXp = weeklyResults.reduce((sum, w) => sum + w.xpDistributed, 0);
-    const totalActiveUsers = weeklyResults.reduce((sum, w) => sum + w.participants, 0);
-    console.log(`[Seasons API] Season ${seasonId} REAL totals: ${totalXp.toLocaleString()} XP distributed to ${totalActiveUsers} total participations`);
+    // Convert to array and sort by season ID
+    const seasons = Array.from(seasonMap.values()).sort((a, b) => a.id - b.id);
     
-    return weeklyResults;
+    // Determine current season and week
+    const now = new Date();
+    let currentSeason = null;
+    let currentWeek = null;
+    
+    for (const season of seasons) {
+      for (const week of season.weeks) {
+        if (week.start_date <= now && week.end_date >= now) {
+          currentSeason = season;
+          currentWeek = week;
+          break;
+        }
+      }
+      if (currentSeason) break;
+    }
+    
+    // If no current week, find the latest week
+    if (!currentSeason && seasons.length > 0) {
+      const latestSeason = seasons[seasons.length - 1];
+      if (latestSeason.weeks.length > 0) {
+        currentSeason = latestSeason;
+        currentWeek = latestSeason.weeks[latestSeason.weeks.length - 1];
+      }
+    }
+    
+    const data = {
+      seasons,
+      totalSeasons: seasons.length,
+      currentSeason,
+      currentWeek,
+      lastUpdated: now
+    };
+    
+    seasonCache.data = data;
+    seasonCache.lastLoaded = now;
+    
+    console.log(`✅ Loaded ${seasons.length} seasons with current season: ${currentSeason?.name || 'none'}, current week: ${currentWeek?.week || 'none'}`);
+    
+    return data;
     
   } catch (error) {
-    console.log(`[Seasons API] Error calculating weekly XP from users:`, error.message);
-    return null;
+    console.error('❌ Error loading season data:', error);
+    throw error;
   }
 }
 
 export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   try {
-    console.log('[Seasons API] 🔄 Fetching season data with smart caching...');
-
-    // Check for force refresh parameter
-    const forceRefresh = req.query.refresh === 'true';
+    const seasonData = loadSeasonData();
     
-    // Check cache first (unless force refresh is requested)
-    if (!forceRefresh) {
-      const cachedData = loadCache();
-      if (cachedData && isCacheValid(cachedData)) {
-        console.log('[Seasons API] ⚡ Using cached data (fresh within 24 hours)');
-        return res.status(200).json(cachedData.data);
+    res.status(200).json({
+      ...seasonData,
+      cache_info: {
+        last_loaded: new Date(seasonCache.lastLoaded).toISOString(),
+        cache_timeout_ms: seasonCache.cacheTimeoutMs
       }
-    } else {
-      console.log('[Seasons API] 🔄 Force refresh requested, bypassing cache...');
-    }
-
-    console.log('[Seasons API] 🔄 Cache miss or expired, fetching fresh data from Ethos API v2...');
+    });
     
-    // Load user profiles to calculate realistic XP distribution
-    let userProfiles = [];
-    try {
-      const dataPath = path.join(process.cwd(), 'data', 'user-profiles.json');
-      if (fs.existsSync(dataPath)) {
-        const profileData = fs.readFileSync(dataPath, 'utf8');
-        userProfiles = JSON.parse(profileData);
-        console.log(`[Seasons API] 📊 Loaded ${userProfiles.length} user profiles for XP calculation`);
-      }
-    } catch (fileError) {
-      console.log('[Seasons API] Could not load user profiles:', fileError.message);
-    }
-    
-    // Calculate total XP from user profiles
-    const totalUserXp = userProfiles.reduce((sum, user) => sum + (user.xpTotal || 0), 0);
-    console.log(`[Seasons API] 📊 Total user XP: ${totalUserXp.toLocaleString()}`);
-    
-    // Fetch real season data from Ethos API v2
-    const ethosApiUrl = 'https://api.ethos.network/api/v2/xp/seasons';
-    
-    try {
-      const response = await fetch(ethosApiUrl);
-      
-      if (response.ok) {
-        const apiData = await response.json();
-        console.log('[Seasons API] ✅ Successfully fetched from Ethos API:', JSON.stringify(apiData, null, 2));
-        
-        // Transform the API data to our expected format
-        const seasons = apiData.seasons || apiData.data || [];
-        const currentSeason = apiData.currentSeason || null;
-        
-        console.log(`[Seasons API] Found ${seasons.length} seasons:`, seasons);
-        
-        // For each season, we might need to fetch weekly data separately
-        const seasonStats = [];
-        
-        for (const season of seasons) {
-          console.log(`[Seasons API] Processing season: ${season.id} - ${season.name}`);
-          
-          // Try to get weekly data for this season
-          let weeklyData = [];
-          try {
-            const weeklyUrl = `https://api.ethos.network/api/v2/xp/seasons/${season.id}/weeks`;
-            console.log(`[Seasons API] Fetching weekly data from: ${weeklyUrl}`);
-            const weeklyResponse = await fetch(weeklyUrl);
-            if (weeklyResponse.ok) {
-              const weeklyApiData = await weeklyResponse.json();
-              weeklyData = weeklyApiData.weeks || weeklyApiData.data || [];
-              console.log(`[Seasons API] Fetched ${weeklyData.length} weeks for season ${season.id}:`, weeklyData);
-            } else {
-              console.log(`[Seasons API] Weekly API response not OK for season ${season.id}:`, weeklyResponse.status);
-            }
-          } catch (weekError) {
-            console.log(`[Seasons API] Could not fetch weekly data for season ${season.id}:`, weekError.message);
-          }
-          
-          // If no weekly data from API, calculate REAL data by checking ALL users
-          if (weeklyData.length === 0) {
-            console.log(`[Seasons API] 📊 Processing ALL ${userProfiles.length} users for REAL weekly XP data for season ${season.id}...`);
-            
-            // Get REAL weekly data by checking ALL users (no sampling, no estimation)
-            const weeklyXpData = await calculateWeeklyXpFromUsers(season.id, userProfiles);
-            
-            if (weeklyXpData && weeklyXpData.length > 0) {
-              weeklyData = weeklyXpData;
-              console.log(`[Seasons API] ✅ Got REAL weekly XP data for season ${season.id}: ${weeklyData.length} weeks with actual user participation`);
-            } else {
-              console.log(`[Seasons API] ⚠️ No real weekly data found for season ${season.id}, using empty data`);
-              weeklyData = [];
-            }
-            
-            if (weeklyData.length > 0) {
-              const totalXp = weeklyData.reduce((sum, w) => sum + w.xpDistributed, 0);
-              const totalParticipants = weeklyData.reduce((sum, w) => sum + w.participants, 0);
-              console.log(`[Seasons API] Season ${season.id} REAL summary: ${weeklyData.length} weeks, ${totalXp.toLocaleString()} total XP, ${totalParticipants} total participations`);
-            }
-          }
-          
-          seasonStats.push({
-            seasonId: season.id,
-            seasonName: season.name || `Season ${season.id}`,
-            totalWeeks: weeklyData.length,
-            startDate: season.startDate,
-            endDate: season.endDate,
-            weeks: weeklyData.map(week => ({
-              week: week.week || week.weekNumber,
-              startDate: week.startDate,
-              endDate: week.endDate,
-              xpDistributed: week.totalXpDistributed || week.xpDistributed || 0,
-              participants: week.participantCount || week.participants || 0
-            }))
-          });
-        }
-        
-        const seasonsData = {
-          totalSeasons: seasons.length,
-          currentSeason: currentSeason || {
-            id: seasons.length > 0 ? seasons[seasons.length - 1].id : 1,
-            name: seasons.length > 0 ? seasons[seasons.length - 1].name : 'Current Season',
-            week: seasonStats.length > 0 ? seasonStats[seasonStats.length - 1].totalWeeks : 0
-          },
-          seasonStats: seasonStats
-        };
-        
-        console.log('[Seasons API] 📊 Processed real season data:', {
-          totalSeasons: seasonsData.totalSeasons,
-          currentSeason: seasonsData.currentSeason,
-          seasonsCount: seasonsData.seasonStats.length
-        });
-        
-        // Save fresh data to cache before responding
-        saveCache(seasonsData);
-        
-        res.status(200).json(seasonsData);
-        return;
-      } else {
-        console.log('[Seasons API] ⚠️ Ethos API response not OK:', response.status, response.statusText);
-      }
-    } catch (apiError) {
-      console.log('[Seasons API] ⚠️ Could not fetch from Ethos API:', apiError.message);
-    }
-    
-    // Fallback data if API fails (keeping your correct S0/S1 structure)
-    console.log('[Seasons API] 📊 Using fallback data with correct S0/S1 structure');
-    
-    const fallbackData = {
-      totalSeasons: 2,
-      currentSeason: { 
-        id: 1, 
-        name: 'Season 1', 
-        week: 11 
-      },
-      seasonStats: [
-        {
-          seasonId: 0,
-          seasonName: 'Season 0',
-          totalWeeks: 1,
-          startDate: '2025-02-01T00:00:00Z',
-          weeks: [
-            { week: 0, startDate: '2025-02-01T00:00:00Z', xpDistributed: 2500000, participants: 8500 }
-          ]
-        },
-        {
-          seasonId: 1,
-          seasonName: 'Season 1',
-          totalWeeks: 13,
-          startDate: '2025-05-14T00:00:00Z',
-          weeks: [
-            { week: 1, startDate: '2025-05-14T00:00:00Z', xpDistributed: 64199239, participants: 5425 },
-            { week: 2, startDate: '2025-05-21T00:00:00Z', xpDistributed: 14402827, participants: 4565 },
-            { week: 3, startDate: '2025-05-28T00:00:00Z', xpDistributed: 19189872, participants: 6093 },
-            { week: 4, startDate: '2025-06-04T00:00:00Z', xpDistributed: 17663896, participants: 6990 },
-            { week: 5, startDate: '2025-06-11T00:00:00Z', xpDistributed: 16590928, participants: 6511 },
-            { week: 6, startDate: '2025-06-18T00:00:00Z', xpDistributed: 16699783, participants: 8255 },
-            { week: 7, startDate: '2025-06-25T00:00:00Z', xpDistributed: 16285924, participants: 7943 },
-            { week: 8, startDate: '2025-07-02T00:00:00Z', xpDistributed: 15754650, participants: 7472 },
-            { week: 9, startDate: '2025-07-09T00:00:00Z', xpDistributed: 14868568, participants: 6975 },
-            { week: 10, startDate: '2025-07-16T00:00:00Z', xpDistributed: 19712612, participants: 5358 },
-            { week: 11, startDate: '2025-07-23T00:00:00Z', xpDistributed: 16729772, participants: 3996 },
-            { week: 12, startDate: '2025-07-30T00:00:00Z', xpDistributed: 13703003, participants: 2498 },
-            { week: 13, startDate: '2025-08-06T00:00:00Z', xpDistributed: 27593910, participants: 1991 }
-          ]
-        }
-      ]
-    };
-    
-    // Save fallback data to cache too (but with shorter duration)
-    saveCache(fallbackData);
-    
-    res.status(200).json(fallbackData);
   } catch (error) {
-    console.error('[Seasons API] ❌ Error:', error);
-    res.status(500).json({ error: 'Failed to fetch season data' });
+    console.error('Error fetching season data:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 }

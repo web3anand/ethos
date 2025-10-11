@@ -34,7 +34,7 @@ export async function checkValidatorNft(profileId) {
 }
 
 // Check validator NFTs for multiple profiles concurrently (in batches)
-export async function checkValidatorNftsForProfiles(profiles, batchSize = 50) {
+export async function checkValidatorNftsForProfiles(profiles, batchSize = 20) {
   console.log(`[ValidatorNft] 🔍 Checking validator NFTs for ${profiles.length} profiles...`);
   
   const results = new Map(); // profileId -> boolean
@@ -46,8 +46,10 @@ export async function checkValidatorNftsForProfiles(profiles, batchSize = 50) {
     
     console.log(`[ValidatorNft] Processing batch ${batchIndex}/${totalBatches} (${batch.length} profiles)`);
     
-    // Process batch concurrently
-    const batchPromises = batch.map(async (profile) => {
+    // Process batch with limited concurrency to avoid rate limits
+    const batchPromises = batch.map(async (profile, index) => {
+      // Add delay between requests in the same batch
+      await new Promise(resolve => setTimeout(resolve, index * 100));
       const hasNft = await checkValidatorNft(profile.profileId);
       results.set(profile.profileId, hasNft);
       return { profileId: profile.profileId, hasValidatorNft: hasNft };
@@ -59,9 +61,9 @@ export async function checkValidatorNftsForProfiles(profiles, batchSize = 50) {
       console.error(`[ValidatorNft] Error in batch ${batchIndex}:`, error);
     }
     
-    // Reduced delay between batches for faster response (was 200ms)
+    // Longer delay between batches to respect rate limits
     if (i + batchSize < profiles.length) {
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
     }
   }
   

@@ -1,0 +1,308 @@
+/* Glitch Loading Animation Styles */
+
+.loadingOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary), var(--bg-tertiary));
+  transition: all 0.3s ease;
+}
+
+.blurBackground {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.loadingContainer {
+  text-align: center;
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 2rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.loadingContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+  animation: glitchScan 2s linear infinite;
+}
+
+/* Glitch Logo */
+.logoContainer {
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.glitchLogo {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.logoText {
+  font-size: 4rem;
+  font-weight: 900;
+  color: var(--accent-primary);
+  text-transform: uppercase;
+  position: relative;
+  display: inline-block;
+  animation: glitchText 0.3s ease-in-out infinite alternate;
+}
+
+.logoText::before,
+.logoText::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.logoText::before {
+  animation: glitch1 0.5s ease-in-out infinite alternate;
+  color: var(--accent-error);
+  z-index: -1;
+}
+
+.logoText::after {
+  animation: glitch2 0.5s ease-in-out infinite alternate;
+  color: var(--accent-success);
+  z-index: -2;
+}
+
+.glitchDots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  animation: glitchDot 1s ease-in-out infinite;
+}
+
+.dot:nth-child(1) { animation-delay: 0s; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+.dot:nth-child(4) { animation-delay: 0.6s; }
+.dot:nth-child(5) { animation-delay: 0.8s; }
+
+/* Loading Message */
+.loadingMessage {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  animation: glitchText 0.3s ease-in-out infinite alternate;
+}
+
+/* Progress Bar */
+.progressContainer {
+  margin-bottom: 2rem;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.progressBar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 4px;
+  position: relative;
+  transition: width 0.5s ease-out;
+  overflow: hidden;
+}
+
+.progressGlitch {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: glitchProgress 0.1s linear infinite;
+}
+
+.progressGlitch:nth-child(2) {
+  animation-delay: 0.05s;
+  background: linear-gradient(90deg, transparent, rgba(88, 166, 255, 0.4), transparent);
+}
+
+.progressGlitch:nth-child(3) {
+  animation-delay: 0.1s;
+  background: linear-gradient(90deg, transparent, rgba(29, 155, 240, 0.3), transparent);
+}
+
+.progressDetails {
+  text-align: left;
+}
+
+.progressInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.progressStage {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.progressPercentage {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+.progressCount {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Glitch Animation Bars */
+.glitchAnimation {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 1rem;
+}
+
+.glitchBar {
+  width: 4px;
+  height: 20px;
+  background: var(--accent-primary);
+  animation: glitchBar 0.6s ease-in-out infinite;
+}
+
+.glitchBar:nth-child(1) { animation-delay: 0s; }
+.glitchBar:nth-child(2) { animation-delay: 0.1s; }
+.glitchBar:nth-child(3) { animation-delay: 0.2s; }
+.glitchBar:nth-child(4) { animation-delay: 0.3s; }
+.glitchBar:nth-child(5) { animation-delay: 0.4s; }
+
+/* Keyframe Animations */
+@keyframes glitchText {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes glitch1 {
+  0% { transform: translate(0); }
+  20% { transform: translate(2px, -2px); }
+  40% { transform: translate(-2px, 2px); }
+  60% { transform: translate(-2px, -2px); }
+  80% { transform: translate(2px, 2px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes glitch2 {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(-2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes glitchDot {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+}
+
+@keyframes glitchProgress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes glitchBar {
+  0%, 100% { 
+    transform: scaleY(0.4);
+    opacity: 0.5;
+  }
+  50% { 
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes glitchScan {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .loadingContainer {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .logoText {
+    font-size: 3rem;
+  }
+  
+  .loadingMessage {
+    font-size: 1.25rem;
+  }
+  
+  .progressTrack {
+    height: 6px;
+  }
+  
+  .glitchBar {
+    width: 3px;
+    height: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .loadingContainer {
+    margin: 0.75rem;
+    padding: 1.25rem;
+  }
+  
+  .logoText {
+    font-size: 2.5rem;
+  }
+  
+  .loadingMessage {
+    font-size: 1.1rem;
+  }
+}

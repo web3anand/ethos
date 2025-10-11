@@ -1,0 +1,151 @@
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-glass-hover);
+  backdrop-filter: var(--backdrop-blur);
+  border-top: 1px solid var(--border-secondary);
+  z-index: 1000;
+  padding: 12px 0;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.credit {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+}
+
+.madeBy {
+  font-weight: 400;
+}
+
+.daybotLink {
+  color: var(--accent-secondary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.daybotLink:hover {
+  color: var(--text-primary);
+  background: var(--accent-secondary);
+  background: rgba(29, 155, 240, 0.1);
+  transform: translateY(-1px);
+}
+
+.divider {
+  width: 1px;
+  height: 14px;
+  background: var(--border-secondary);
+  transition: background 0.3s ease;
+}
+
+.social {
+  display: flex;
+  align-items: center;
+}
+
+.xLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--border-muted);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid var(--border-secondary);
+}
+
+.xLink:hover {
+  color: var(--accent-secondary);
+  background: rgba(29, 155, 240, 0.1);
+  border-color: rgba(29, 155, 240, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .content {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    flex-wrap: wrap;
+  }
+  
+  .divider {
+    display: none;
+  }
+  
+  .credit {
+    font-size: 12px;
+    gap: 3px;
+  }
+  
+  .daybotLink {
+    padding: 1px 3px;
+  }
+  
+  .xLink {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .xLink svg {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .footer {
+    padding: 6px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 0 8px;
+    gap: 6px;
+    justify-content: center;
+  }
+  
+  .credit {
+    font-size: 11px;
+  }
+  
+  .xLink {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .xLink svg {
+    width: 10px;
+    height: 10px;
+  }
+  
+  .footer {
+    padding: 4px 0;
+  }
+}
+
+/* Footer styles only - body padding handled by individual pages */

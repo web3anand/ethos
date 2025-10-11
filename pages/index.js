@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
 import SearchBar from '../components/SearchBar';
+import Footer from '../components/Footer';
 import fetchUserSuggestions from '../utils/fetchUserSuggestions';
 import {
   fetchUserByTwitter,
@@ -9,19 +10,14 @@ import {
   fetchUserAddresses,
   fetchUserStats,
 } from '../lib/ethos';
-import EthosProfileCard from '../components/EthosProfileCard';
-import DesktopDashboard from '../components/DesktopDashboard';
-import { useViewport } from '../utils/useViewport';
+import ModernDashboard from '../components/ModernDashboard';
 import styles from '../styles/Home.module.css';
-
 
 export default function Home() {
   const [username, setUsername] = useState('');
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { width } = useViewport();
-  const isDesktop = width > 1024; // Breakpoint for desktop view
 
   const handleSearch = async (searchName) => {
     const searchValue = typeof searchName === 'string' ? searchName : username;
@@ -58,7 +54,7 @@ export default function Home() {
         avatarUrl: data.avatarUrl,
         status: data.status,
         score: data.score,
-        influenceScore: stats?.influenceFactor,
+        influenceScore: stats?.influenceFactor || stats?.influenceScore,
         xpTotal: data.xpTotal ?? data.xp?.total ?? 0,
         xpStreakDays: data.xpStreakDays ?? data.xp?.streakDays ?? 0,
         userkeys: data.userkeys || [`profileId:${data.profileId}`], // Add userkeys for API calls
@@ -80,6 +76,7 @@ export default function Home() {
           allAddresses: addresses.allAddresses,
         },
         ethPrice,
+        validatorNft: false, // This would need to be fetched separately
       };
       setUserData(profile);
     } catch (err) {
@@ -102,7 +99,7 @@ export default function Home() {
         <meta name="description" content="Check your social reputation score and credibility with Ethos" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
         <meta name="format-detection" content="telephone=no" />
-        <meta name="theme-color" content="#0D1117" />
+        <meta name="theme-color" content="var(--bg-primary)" />
         
         {/* iOS specific meta tags */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -111,9 +108,9 @@ export default function Home() {
       </Head>
       
       <Navbar />
-      <div className={styles.container}>
+      <div style={{ minHeight: '100vh' }}>
         {!userData && (
-          <>
+          <div className={styles.container}>
             <h1 className={styles.title}>Social Reputation Protocol</h1>
             <div className={styles.searchContainer}>
               <SearchBar
@@ -124,17 +121,12 @@ export default function Home() {
                 onSuggestionSelect={handleSuggestionSelect}
               />
             </div>
-          </>
+            {error && <div className={styles.error}>{error}</div>}
+          </div>
         )}
-        {error && <div className={styles.error}>{error}</div>}
-        {userData && (
-          isDesktop ? (
-            <DesktopDashboard profile={userData} />
-          ) : (
-            <EthosProfileCard profile={userData} />
-          )
-        )}
+        {userData && <ModernDashboard profile={userData} />}
       </div>
+      <Footer />
     </>
   );
 }

@@ -21,7 +21,7 @@
 
 .profileCardRow {
   display: grid;
-  grid-template-columns: 72px auto;
+  grid-template-columns: 72px 1fr;
   align-items: center;
   width: 100%;
   gap: 12px;
@@ -35,7 +35,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0D1117;
+  background: none;
   border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.2);
@@ -51,13 +51,13 @@
   inset: 0;
   border-radius: 14px;
   padding: 2px;
-  background: var(--pfp-ring, #bdbdbd) content-box;
+  background: var(--pfp-ring, var(--border-primary)) content-box;
   -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
-    linear-gradient(#fff 0 0);
+    linear-gradient(var(--text-inverse) 0 0) content-box, 
+    linear-gradient(var(--text-inverse) 0 0);
   mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
+    linear-gradient(var(--text-inverse) 0 0) content-box,
+    linear-gradient(var(--text-inverse) 0 0);
   -webkit-mask-composite: xor;
           mask-composite: exclude;
   z-index: 0;
@@ -69,7 +69,7 @@
   height: 100%;
   border-radius: 12px;
   object-fit: cover;
-  background: #21262d;
+  background: var(--bg-secondary);
   z-index: 1;
   position: relative;
 }
@@ -78,25 +78,26 @@
   align-items: center;
   justify-content: center;
   font: 700 1.5rem/1 'Sora', sans-serif;
-  color: #8b949e;
+  color: var(--text-muted);
 }
 
 .profileCardEthosPillWrap {
   display: flex;
   align-items: center;
   min-width: 0;
-  height: 72px;
+  width: 100%;
+  margin-top: 12px;
 }
 .profileCardEthosPill {
   width: fit-content;
   height: 72px;
-  background: var(--pfp-ring, #3b82f6);
+  background: var(--pfp-ring, var(--accent-primary));
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 12px 20px;
-  color: #ffffff;
+  color: var(--text-inverse);
   font-family: 'Sora', sans-serif;
   font-weight: 700;
   font-size: 1.25rem;
@@ -120,26 +121,59 @@
 .nameBar {
   width: 100%;
   max-width: 100%;
-  background: linear-gradient(to right, #1f2937, #111827);
+  background: none;
   border-radius: 10px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   padding: 8px 16px;
   box-sizing: border-box;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  height: 40px;
+  height: 72px;
+  margin-top: 0;
+  min-width: 0;
+}
+
+.socialLinks {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.socialLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  color: var(--text-inverse);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.socialLink:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--accent-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 .profileCardName {
   margin: 0;
-  color: #e6e6e6;
+  color: var(--pfp-ring, var(--border-primary));
   white-space: normal;
   word-break: break-all;
   font-family: 'Sora', sans-serif;
-  font-weight: 600;
-  font-size: 1rem;
-  line-height: 1.3;
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.2;
   min-width: 0;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 /* ========== Sections & Tables ========== */
@@ -149,7 +183,7 @@
 .sectionTitle {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #c9d1d9;
+  color: var(--text-secondary);
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -159,10 +193,9 @@
 .tableContainer, .mainStatsHighlight {
   width: 100%;
   border-radius: 16px;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
   padding: 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #0D1117;
+  background: none;
   transition: all 0.3s ease;
 }
 .tableContainer:hover, .mainStatsHighlight:hover {
@@ -179,7 +212,7 @@
   grid-template-columns: 1fr 1.2fr;
   align-items: center;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #21262d;
+  border-bottom: 1px solid var(--bg-secondary);
   gap: 1rem;
 }
 .tableRow:last-child {
@@ -187,13 +220,13 @@
 }
 
 .tableCellLabel {
-  color: #8b949e;
+  color: var(--text-muted);
   font-weight: 500;
   font-size: 0.9rem;
   text-align: left;
 }
 .tableCellValue {
-  color: #c9d1d9;
+  color: var(--text-secondary);
   font-weight: 500;
   font-size: 1rem;
   text-align: right;
@@ -203,7 +236,7 @@
 
 .numericValue {
   font-weight: 600;
-  color: #e6e6e6;
+  color: var(--text-primary);
 }
 
 .statusActive {
@@ -214,7 +247,7 @@
   border-radius: 999px;
   padding: 4px 12px;
   font-weight: 600;
-  color: #22c55e;
+  color: var(--accent-success);
   font-size: 0.9rem;
 }
 .statusActive::before {
@@ -222,9 +255,9 @@
   display: inline-block;
   width: 8px;
   height: 8px;
-  background: #22c55e;
+  background: var(--accent-success);
   border-radius: 50%;
-  box-shadow: 0 0 5px #22c55e;
+  box-shadow: 0 0 5px var(--accent-success);
 }
 
 /* ========== Copy Button ========== */
@@ -234,7 +267,7 @@
   border-radius: 8px;
   border: 1px solid transparent;
   background: rgba(255, 255, 255, 0.05);
-  color: #8b949e;
+  color: var(--text-muted);
   cursor: pointer;
   transition: all .2s;
   display: inline-flex;
@@ -243,23 +276,55 @@
 }
 .copyBtn:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: #c9d1d9;
+  color: var(--text-secondary);
 }
 .copyBtn svg rect {
-  stroke: #8b949e;
-  fill: #161b22;
+  stroke: var(--text-muted);
+  fill: var(--bg-primary);
   transition: all .2s;
 }
 .copyBtn:hover svg rect {
-  stroke: #c9d1d9;
-  fill: #21262d;
+  stroke: var(--text-secondary);
+  fill: var(--bg-secondary);
 }
 .copyBtn.copied {
   background: rgba(34, 197, 94, 0.1);
-  color: #22c55e;
+  color: var(--accent-success);
 }
 
-/* ========== Responsive Adjustments ========== */
+/* ========== DESKTOP STYLES (769px and above) ========== */
+@media (min-width: 769px) {
+  .card {
+    background: none;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+    margin: 0;
+  }
+  .mainStatsHighlight {
+    background: var(--bg-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    padding: 1.5rem;
+  }
+}
+
+/* ========== MOBILE STYLES (768px and below) ========== */
+@media (max-width: 768px) {
+  .profileCardAvatarWrap {
+    background: var(--bg-primary);
+  }
+  
+  .nameBar {
+    background: linear-gradient(to right, var(--bg-tertiary), var(--bg-secondary));
+  }
+  
+  .tableContainer, .mainStatsHighlight {
+    background: var(--bg-primary);
+  }
+}
+
+/* ========== MOBILE RESPONSIVE ADJUSTMENTS ========== */
 @media (max-width: 560px) {
   .card {
     padding: 1.5rem;
@@ -278,7 +343,7 @@
     border-radius: 12px;
   }
   .profileCardEthosPillWrap {
-    min-height: 80px;
+    margin-top: 12px;
   }
   .profileCardEthosPill {
     min-height: 72px;
@@ -297,7 +362,10 @@
   }
   .nameBar {
     padding: 10px 16px;
-    font-size: 1.1rem;
+    height: 80px;
+  }
+  .profileCardName {
+    font-size: 1.3rem;
   }
   .sectionTitle {
     font-size: 1.25rem;
@@ -331,7 +399,7 @@
     height: 70px;
   }
   .profileCardEthosPillWrap {
-    min-height: 70px;
+    margin-top: 10px;
   }
   .profileCardEthosPill {
     min-height: 62px;
@@ -345,5 +413,11 @@
   .profileCardEthosPill img {
     height: 20px;
     width: 20px;
+  }
+  .nameBar {
+    height: 70px;
+  }
+  .profileCardName {
+    font-size: 1.2rem;
   }
 }

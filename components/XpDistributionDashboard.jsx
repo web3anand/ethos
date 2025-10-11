@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './XpDistributionDashboard.module.css';
+import IntegratedLoading from './IntegratedLoading';
 import { 
   getUserTotalXp, 
   getUserSeasonXp, 
@@ -252,9 +253,12 @@ const XpDistributionDashboard = ({ userkey }) => {
   if (loading) {
     return (
       <div className={styles.container}>
-        <div className={styles.loadingState}>
-          <div className={styles.loadingSpinner}></div>
-          <span>Loading comprehensive XP analytics...</span>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
+          <IntegratedLoading 
+            message="Loading XP Distribution Data..."
+            showProgress={false}
+            size="large"
+          />
         </div>
       </div>
     );
@@ -418,7 +422,7 @@ const XpDistributionDashboard = ({ userkey }) => {
                     className={styles.bar}
                     style={{ 
                       height: `${height}%`,
-                      background: week.seasonId === 0 ? '#6366f1' : '#8b5cf6'
+                      background: week.seasonId === 0 ? 'var(--accent-primary)' : 'var(--accent-secondary)'
                     }}
                     title={`Week ${week.week} (${week.seasonName}): ${formatXp(week.weeklyXp)} XP`}
                   />
