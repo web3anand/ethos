@@ -2,12 +2,15 @@
   "crons": [
     {
       "path": "/api/cron/update-data",
-      "schedule": "0 2 * * *"
+      "schedule": "0 */6 * * *"
     }
   ],
   "functions": {
     "pages/api/cron/update-data.js": {
-      "maxDuration": 300
+      "maxDuration": 600
+    },
+    "pages/api/webhook/n8n-update.js": {
+      "maxDuration": 600
     }
   }
 }

@@ -41,8 +41,8 @@ export default function Distribution() {
   const [weeklyData, setWeeklyData] = useState([]);
   const [weeklyLoading, setWeeklyLoading] = useState(false);
   const [weeklySearchLoading, setWeeklySearchLoading] = useState(false);
-  const [selectedSeason, setSelectedSeason] = useState('1'); // Default to Season 1
-  const [selectedWeek, setSelectedWeek] = useState('13'); // Default to Week 13
+  const [selectedSeason, setSelectedSeason] = useState('1'); // Will be updated by auto-detection
+  const [selectedWeek, setSelectedWeek] = useState('18'); // Will be updated by auto-detection
   const [weeklySearchTerm, setWeeklySearchTerm] = useState('');
   const [searchTimeoutRef, setSearchTimeoutRef] = useState(null);
   const [availableSeasons, setAvailableSeasons] = useState([
@@ -65,8 +65,12 @@ export default function Distribution() {
     { season_id: 1, week: 11 },
     { season_id: 1, week: 12 },
     { season_id: 1, week: 13 },
-    { season_id: 1, week: 14 }
-  ]); // Initialize with default weeks
+    { season_id: 1, week: 14 },
+    { season_id: 1, week: 15 },
+    { season_id: 1, week: 16 },
+    { season_id: 1, week: 17 },
+    { season_id: 1, week: 18 }
+  ]); // Initialize with default weeks including current Week 18
 
   const [weeklyPagination, setWeeklyPagination] = useState({ total: 0, hasMore: false });
   const [weeklyDistributionAnalysis, setWeeklyDistributionAnalysis] = useState([]);
@@ -614,13 +618,45 @@ useEffect(() => {
     }
   }, [selectedView, selectedSeason, selectedWeek, weeklySearchTerm]);
 
-  // Initial load of weekly data on component mount
+  // Auto-detect current week on component mount
   useEffect(() => {
-    console.log(`[Distribution] 🔄 Initial weekly data load: season=${selectedSeason}, week=${selectedWeek}`);
-    // Force load with correct defaults and update state
-    setSelectedSeason('0');
-    setSelectedWeek('0');
-    fetchWeeklyData('0', '0', '');
+    async function detectCurrentWeek() {
+      try {
+        console.log('[Distribution] 🔍 Auto-detecting current week...');
+        const response = await fetch('/api/current-week?includeWeeks=true&includeSeasons=true');
+        const data = await response.json();
+        
+        if (data.current) {
+          console.log(`[Distribution] ✅ Auto-detected: Season ${data.current.season}, Week ${data.current.week}`);
+          setSelectedSeason(data.current.season.toString());
+          setSelectedWeek(data.current.week.toString());
+          
+          // Update available seasons and weeks
+          if (data.availableSeasons) {
+            setAvailableSeasons(data.availableSeasons);
+          }
+          if (data.availableWeeks) {
+            setAvailableWeeks(data.availableWeeks);
+          }
+          
+          // Load data for the detected week
+          fetchWeeklyData(data.current.season.toString(), data.current.week.toString(), '');
+        } else {
+          console.warn('[Distribution] ⚠️ Auto-detection failed, using fallback');
+          setSelectedSeason('1');
+          setSelectedWeek('18');
+          fetchWeeklyData('1', '18', '');
+        }
+      } catch (error) {
+        console.error('[Distribution] ❌ Auto-detection error:', error);
+        // Fallback to Week 18
+        setSelectedSeason('1');
+        setSelectedWeek('18');
+        fetchWeeklyData('1', '18', '');
+      }
+    }
+    
+    detectCurrentWeek();
   }, []); // Empty dependency array - run once on mount
 
   // Handle season change by triggering API call

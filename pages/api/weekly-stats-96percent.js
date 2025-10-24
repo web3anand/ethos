@@ -41,7 +41,7 @@ function getWeeklyStats() {
     
     // Initialize weekly stats
     const weeklyStats = {};
-    for (let week = 1; week <= 12; week++) {
+    for (let week = 1; week <= 18; week++) {
       weeklyStats[week] = {
         week: week,
         totalXP: 0,
@@ -65,7 +65,7 @@ function getWeeklyStats() {
               const weekNumber = parseInt(weekKey.replace('week_', ''));
               const weekXP = seasonData[weekKey] || 0;
               
-              if (weekXP > 0 && weekNumber >= 1 && weekNumber <= 12) {
+              if (weekXP > 0 && weekNumber >= 1 && weekNumber <= 18) {
                 weeklyStats[weekNumber].totalXP += weekXP;
                 weeklyStats[weekNumber].activeUsers++;
                 weeklyStats[weekNumber].userDetails.push({

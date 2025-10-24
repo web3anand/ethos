@@ -349,6 +349,35 @@ async function main() {
     // Count recipients
     const weekCounts = countWeeklyRecipients();
     
+    // Clear API cache after successful data fetch
+    console.log('\n🧹 Clearing API cache to ensure fresh data is served...');
+    try {
+      const { spawn } = await import('child_process');
+      const clearCacheProcess = spawn('node', ['scripts/clear-cache-and-refresh.js'], {
+        stdio: 'inherit',
+        cwd: path.join(__dirname, '..')
+      });
+      
+      await new Promise((resolve, reject) => {
+        clearCacheProcess.on('close', (code) => {
+          if (code === 0) {
+            console.log('✅ API cache cleared successfully');
+            resolve();
+          } else {
+            console.warn('⚠️ Cache clearing completed with warnings');
+            resolve(); // Don't fail the main process
+          }
+        });
+        
+        clearCacheProcess.on('error', (error) => {
+          console.warn('⚠️ Cache clearing failed:', error.message);
+          resolve(); // Don't fail the main process
+        });
+      });
+    } catch (error) {
+      console.warn('⚠️ Could not clear cache automatically:', error.message);
+    }
+
     // Final summary
     const elapsed = (Date.now() - startTime) / 1000;
     console.log('\n🎉 COMPREHENSIVE FETCH COMPLETED!');
@@ -360,13 +389,30 @@ async function main() {
     console.log(`📊 Rate: ${(processedCount / elapsed).toFixed(1)} profiles/sec`);
     console.log(`📊 Valid rate: ${(allProfiles.size / elapsed).toFixed(1)} valid profiles/sec`);
     
-    // Focus on Week 12 and 13
-    console.log('\n🎯 Week 12 and 13 Analysis:');
-    console.log('============================');
-    const week12Count = weekCounts['12'] ? weekCounts['12'].size : 0;
-    const week13Count = weekCounts['13'] ? weekCounts['13'].size : 0;
-    console.log(`Week 12: ${week12Count} users with XP > 0`);
-    console.log(`Week 13: ${week13Count} users with XP > 0`);
+    // Focus on current week analysis
+    console.log('\n🎯 Current Week Analysis:');
+    console.log('==========================');
+    
+    // Get current week from week detector
+    try {
+      const { default: weekDetector } = await import('../utils/weekDetector.js');
+      const currentWeek = weekDetector.getCurrentWeek();
+      const currentWeekCount = weekCounts[currentWeek.week.toString()] ? weekCounts[currentWeek.week.toString()].size : 0;
+      console.log(`Current Week ${currentWeek.week}: ${currentWeekCount} users with XP > 0`);
+      
+      // Show previous week for comparison
+      const previousWeek = weekDetector.getPreviousWeek();
+      if (previousWeek) {
+        const previousWeekCount = weekCounts[previousWeek.week.toString()] ? weekCounts[previousWeek.week.toString()].size : 0;
+        console.log(`Previous Week ${previousWeek.week}: ${previousWeekCount} users with XP > 0`);
+      }
+    } catch (error) {
+      console.warn('⚠️ Could not detect current week, showing Week 12 and 13 analysis');
+      const week12Count = weekCounts['12'] ? weekCounts['12'].size : 0;
+      const week13Count = weekCounts['13'] ? weekCounts['13'].size : 0;
+      console.log(`Week 12: ${week12Count} users with XP > 0`);
+      console.log(`Week 13: ${week13Count} users with XP > 0`);
+    }
     
   } catch (error) {
     console.error('❌ Fatal error:', error);
